@@ -41,14 +41,22 @@ function readColor(): [number, number, number] {
 }
 
 export function ContourField({ className = "" }: { className?: string }) {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const host = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
+    const parent = host.current;
+    if (!parent) return;
+    // A fresh canvas per mount: React Strict Mode (dev) mounts, unmounts and
+    // remounts effects, and a canvas whose context was released cannot get a
+    // new one — Chrome then paints it as an opaque white box over the hero.
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-hidden", "true");
+    canvas.className = "block h-full w-full transition-opacity duration-[1200ms]";
+    canvas.style.opacity = "0";
+    parent.appendChild(canvas);
     const gl = canvas.getContext("webgl2", { premultipliedAlpha: true, antialias: false, alpha: true, powerPreference: "low-power" });
     if (!gl) {
-      canvas.dataset.fallback = "true";
+      canvas.remove();
       return;
     }
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -64,8 +72,8 @@ export function ContourField({ className = "" }: { className?: string }) {
     gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
     gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
     gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-      canvas.dataset.fallback = "true";
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS) || gl.isContextLost()) {
+      canvas.remove();
       return;
     }
     gl.useProgram(prog);
@@ -155,6 +163,12 @@ export function ContourField({ className = "" }: { className?: string }) {
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
     if (!coarse) window.addEventListener("pointermove", onMove, { passive: true });
+    const onLost = (e: Event) => {
+      e.preventDefault();
+      pause();
+      canvas.style.opacity = "0";
+    };
+    canvas.addEventListener("webglcontextlost", onLost);
     resize();
     draw(performance.now());
     canvas.style.opacity = "1";
@@ -167,9 +181,10 @@ export function ContourField({ className = "" }: { className?: string }) {
       mo.disconnect();
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("pointermove", onMove);
+      canvas.remove();
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, []);
 
-  return <canvas ref={ref} aria-hidden="true" style={{ opacity: 0 }} className={`pointer-events-none transition-opacity duration-[1200ms] ${className}`} />;
+  return <div ref={host} aria-hidden="true" className={`pointer-events-none ${className}`} />;
 }

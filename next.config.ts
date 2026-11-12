@@ -14,7 +14,9 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  "upgrade-insecure-requests",
+  // No `upgrade-insecure-requests`: Safari applies it to http://localhost and
+  // rewrites every stylesheet/script to https, leaving the page unstyled.
+  // Production is HTTPS-only via Vercel redirects + HSTS below.
 ].join("; ");
 
 const securityHeaders = [
