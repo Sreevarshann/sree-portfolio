@@ -10,6 +10,7 @@ import { LabTeaser } from "@/components/lab/LabTeaser";
 import { projects } from "@/content/projects";
 import { achievements } from "@/content/credentials";
 import { profile } from "@/content/profile";
+import { getPortrait } from "@/lib/portrait";
 
 const featured = ["aegis-ai", "nexus-ai", "sourceatlas", "tunelab"]
   .map((s) => projects.find((p) => p.slug === s)!)
@@ -18,7 +19,7 @@ const featured = ["aegis-ai", "nexus-ai", "sourceatlas", "tunelab"]
 export default function Home() {
   return (
     <>
-      <Hero />
+      <Hero portrait={getPortrait()} />
 
       <section className="container-x section" aria-label="Approach">
         <p className="eyebrow mb-10" data-reveal>

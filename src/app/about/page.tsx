@@ -5,6 +5,8 @@ import { SectionHead } from "@/components/ui/SectionHead";
 import { SkillsMap } from "@/components/about/SkillsMap";
 import { profile } from "@/content/profile";
 import { education } from "@/content/credentials";
+import { Portrait } from "@/components/ui/Portrait";
+import { getPortrait } from "@/lib/portrait";
 
 export const metadata: Metadata = {
   title: "About",
@@ -19,6 +21,9 @@ export default function AboutPage() {
 
       <section className="container-x grid gap-12 pb-24 md:grid-cols-[1fr_1.4fr] md:gap-20">
         <aside className="md:sticky md:top-28 md:self-start" data-reveal>
+          <div className="mb-10 max-w-[300px]">
+            <Portrait asset={getPortrait()} />
+          </div>
           <dl className="space-y-6">
             <div>
               <dt className="eyebrow">Based in</dt>

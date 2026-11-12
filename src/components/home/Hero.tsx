@@ -8,6 +8,8 @@ import { KineticText } from "@/components/motion/KineticText";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { useAskSree } from "@/components/ask/AskSreeProvider";
 import { profile } from "@/content/profile";
+import { Portrait } from "@/components/ui/Portrait";
+import type { PortraitAsset } from "@/lib/portrait";
 
 const ContourField = dynamic(() => import("./ContourField").then((m) => m.ContourField), { ssr: false });
 
@@ -59,7 +61,7 @@ function RoleTicker() {
   );
 }
 
-export function Hero() {
+export function Hero({ portrait }: { portrait: PortraitAsset }) {
   const { openChat } = useAskSree();
   const [field, setField] = useState(false);
 
@@ -80,7 +82,7 @@ export function Hero() {
       </div>
 
       <div className="container-x flex flex-1 flex-col justify-center pb-10">
-        <div className="hero-fade flex flex-wrap items-center justify-between gap-3" style={{ ["--enter-delay" as string]: "0.05s" }}>
+        <div className="hero-fade flex items-end justify-between gap-3 lg:flex-wrap lg:items-center" style={{ ["--enter-delay" as string]: "0.05s" }}>
           <p className="eyebrow flex items-center gap-3">
             <span className="relative flex h-2 w-2" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-60" />
@@ -88,19 +90,30 @@ export function Hero() {
             </span>
             {profile.name} · Boston, MA
           </p>
-          <p className="eyebrow mono hidden sm:block" aria-label="Boston coordinates">
+          <p className="eyebrow mono hidden lg:block" aria-label="Boston coordinates">
             <Coordinates />
           </p>
+          {/* Phones and tablets: a small editorial tile in the name row. */}
+          <div className="lg:hidden">
+            <Portrait asset={portrait} size="sm" priority />
+          </div>
         </div>
         <div className="hero-line mt-5 h-px w-full bg-gradient-to-r from-accent via-line-strong to-transparent" aria-hidden="true" />
 
-        <KineticText
-          as="h1"
-          className="display mt-10 max-w-[13ch] text-[clamp(3.1rem,10.5vw,9.6rem)] md:mt-14"
-          delay={0.1}
-          trigger="css"
-          segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems — from data to interface."]}
-        />
+        <div className="mt-10 grid items-center gap-10 md:mt-14 lg:grid-cols-[minmax(0,1fr)_clamp(220px,22vw,330px)] lg:gap-14">
+          <div className="relative">
+            <KineticText
+              as="h1"
+              className="display hero-title relative z-[1] max-w-[13ch] text-[clamp(3.1rem,10.5vw,9.6rem)] lg:text-[clamp(4rem,7.4vw,8.6rem)]"
+              delay={0.1}
+              trigger="css"
+              segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems — from data to interface."]}
+            />
+          </div>
+          <div className="hidden lg:block" data-parallax="0.18">
+            <Portrait asset={portrait} priority />
+          </div>
+        </div>
 
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-[1.2fr_1fr] md:items-end">
           <div className="hero-fade max-w-xl" style={{ ["--enter-delay" as string]: "0.6s" }}>
