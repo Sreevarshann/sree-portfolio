@@ -17,6 +17,9 @@ describe("retrieval", () => {
     ["How can I contact Sree?", "contact"],
     ["How does the fraud detection pipeline handle duplicate events?", "proj-aegis-ai"],
     ["Explain LoRA fine-tuning results", "proj-tunelab"],
+    ["What has he built?", "proj-"],
+    ["What did he do at RightRev?", "exp-rightrev"],
+    ["Why work with Sree?", "profile"],
   ])("ranks the right chunk for %s", (q, prefix) => {
     const ids = retrieve(q, 6).map((c) => c.id);
     expect(ids.some((id) => id.startsWith(prefix))).toBe(true);

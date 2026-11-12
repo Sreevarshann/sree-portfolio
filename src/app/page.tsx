@@ -85,7 +85,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Ask Sree">
+      <section className="container-x section border-t border-line" aria-label="Sree AI">
         <AskSreePromo />
       </section>
 

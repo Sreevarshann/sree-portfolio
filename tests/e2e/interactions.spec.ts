@@ -30,11 +30,11 @@ test("mobile menu traps focus and closes with Escape", async ({ page, isMobile }
   await expect(btn).toBeFocused();
 });
 
-test("Ask Sree opens, answers with an honest fallback without a key, and closes with Escape", async ({ page }) => {
+test("Sree AI opens, answers with an honest fallback without a key, and closes with Escape", async ({ page }) => {
   await page.goto("/about");
-  const launcher = page.getByRole("button", { name: /^Ask Sree/ }).last();
+  const launcher = page.getByRole("button", { name: /^Ask My AI$/ });
   await launcher.click();
-  const panel = page.getByRole("dialog", { name: /Ask Sree/ });
+  const panel = page.getByRole("dialog", { name: /Sree AI assistant/ });
   await expect(panel).toBeVisible();
   const input = panel.getByLabel("Ask a question about Sree");
   await expect(input).toBeFocused();
@@ -52,7 +52,8 @@ test("suggested question runs from the full-page Ask view; clear resets", async 
   await page.getByRole("button", { name: "How can I contact Sree?" }).click();
   await expect(page.getByRole("link", { name: "sreevarshan.dev@gmail.com" }).first()).toBeVisible();
   await page.getByRole("button", { name: "Clear conversation" }).click();
-  await expect(page.getByRole("button", { name: "Who is Sree?" })).toBeVisible();
+  await expect(page.getByText(/Hey, I'm Sree's AI/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Who is Sree\?/ })).toBeVisible();
 });
 
 test("chat API validates input and labels fallback answers", async ({ request }) => {

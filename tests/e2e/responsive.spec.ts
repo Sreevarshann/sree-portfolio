@@ -24,7 +24,7 @@ test.describe("responsive layout", () => {
   test("landscape phone keeps the chat usable", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto("/about");
-    await page.getByRole("button", { name: /^Ask Sree/ }).last().click();
+    await page.getByRole("button", { name: /^Ask My AI$/ }).click();
     const input = page.getByLabel("Ask a question about Sree");
     await expect(input).toBeVisible();
     const box = await input.boundingBox();

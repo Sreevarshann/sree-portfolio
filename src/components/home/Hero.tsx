@@ -116,7 +116,7 @@ export function Hero() {
               View projects <span className="arrow" aria-hidden="true">→</span>
             </Link>
             <button type="button" onClick={() => openChat()} className="btn btn-ghost group">
-              <SreeMark size={22} /> Ask Sree
+              <SreeMark size={22} /> Ask My AI
             </button>
             <a href={profile.resumePath} target="_blank" rel="noopener" className="btn btn-ghost">
               Resume

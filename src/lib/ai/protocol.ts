@@ -8,16 +8,15 @@ export type StreamEvent =
   | { type: "error"; message: string; code?: string }
   | { type: "done" };
 
-export const SUGGESTED_QUESTIONS = [
-  "Who is Sree?",
-  "What did Sree work on at RightRev?",
+/** The four starter prompts shown when the assistant opens. */
+export const SUGGESTED_QUESTIONS = ["Who is Sree?", "What has he built?", "What did he do at RightRev?", "Why work with Sree?"] as const;
+
+/** Extra prompts offered on the full-page view. */
+export const MORE_QUESTIONS = [
   "Explain his Snowflake AI agent work",
-  "What are his strongest AI engineering skills?",
-  "What projects has Sree recently built?",
   "Tell me about the Singapore AUV Challenge",
   "What did Charlie win at the Google MLOps Expo?",
   "What are Sree's certifications?",
   "What experience does he have with Python and data engineering?",
-  "Why might Sree be a good fit for a software engineering role?",
   "How can I contact Sree?",
 ] as const;

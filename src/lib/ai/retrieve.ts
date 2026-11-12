@@ -43,6 +43,9 @@ const SYNONYMS: Record<string, string[]> = {
   skills: ["skill", "technologies"],
   projects: ["project", "built"],
   recent: ["projects", "2026"],
+  built: ["projects", "project", "aegis", "nexus", "sourceatlas"],
+  build: ["projects", "project"],
+  why: ["experience", "values", "skills"],
   ai: ["agents", "llm", "rag"],
   agent: ["agents"],
 };

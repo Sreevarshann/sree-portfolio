@@ -6,7 +6,10 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { MAX_INPUT, useAskSree, type ChatMessage } from "./AskSreeProvider";
-import { SUGGESTED_QUESTIONS } from "@/lib/ai/protocol";
+import { MORE_QUESTIONS, SUGGESTED_QUESTIONS } from "@/lib/ai/protocol";
+
+export const GREETING = "Hey, I'm Sree's AI. Ask me about his experience, projects, or what he's been building.";
+export const SUBTITLE = "My digital twin — ask about my work, projects, and experience.";
 
 function MdLink({ href = "", children, ...rest }: ComponentProps<"a">) {
   if (href.startsWith("/") || href.startsWith("#")) {
@@ -25,12 +28,26 @@ function MdLink({ href = "", children, ...rest }: ComponentProps<"a">) {
   );
 }
 
-function CopyButton({ text }: { text: string }) {
-  const [done, setDone] = useState(false);
+function IconButton({ label, onClick, children, disabled }: { label: string; onClick: () => void; children: React.ReactNode; disabled?: boolean }) {
   return (
     <button
       type="button"
-      className="chip !py-1"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+      className="inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-[0.75rem] text-fg-muted transition-colors hover:bg-[var(--glass-lo)] hover:text-fg disabled:opacity-40"
+    >
+      {children}
+    </button>
+  );
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [done, setDone] = useState(false);
+  return (
+    <IconButton
+      label={done ? "Copied" : "Copy response"}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);
@@ -38,10 +55,22 @@ function CopyButton({ text }: { text: string }) {
           window.setTimeout(() => setDone(false), 1600);
         } catch {}
       }}
-      aria-label={done ? "Copied" : "Copy response"}
     >
+      <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5">
+        {done ? <path d="M3 8.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" /> : <><rect x="5" y="5" width="8" height="8" rx="2" /><path d="M3 10V4a1 1 0 011-1h6" /></>}
+      </svg>
       {done ? "Copied" : "Copy"}
-    </button>
+    </IconButton>
+  );
+}
+
+function Typing() {
+  return (
+    <span className="inline-flex items-center gap-1 py-2" aria-label="Sree AI is thinking">
+      {[0, 1, 2].map((i) => (
+        <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-accent" style={{ animationDelay: `${i * 0.16}s` }} />
+      ))}
+    </span>
   );
 }
 
@@ -49,16 +78,18 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
   const { retry, busy } = useAskSree();
   if (m.role === "user") {
     return (
-      <div className="flex justify-end">
-        <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent-soft px-4 py-2.5 text-[0.94rem] text-fg">{m.content}</p>
+      <div className="msg-in flex justify-end">
+        <p className="max-w-[86%] whitespace-pre-wrap rounded-[20px] rounded-br-[6px] bg-gradient-to-br from-[var(--accent-solid)] to-[#1d47b0] px-4 py-2.5 text-[0.94rem] leading-relaxed text-white shadow-[0_8px_24px_-12px_rgb(31_95_224/0.7)]">
+          {m.content}
+        </p>
       </div>
     );
   }
   const streaming = m.status === "streaming";
   return (
-    <div className="flex gap-3">
+    <div className="msg-in flex gap-3">
       <div className="mt-0.5 shrink-0">
-        <SreeMark size={26} state={streaming ? "thinking" : "idle"} />
+        <SreeMark size={28} state={streaming ? "thinking" : "idle"} />
       </div>
       <div className="min-w-0 flex-1">
         {m.fallback && (
@@ -73,19 +104,17 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
             </ReactMarkdown>
           </div>
         ) : streaming ? (
-          <p className="text-sm text-fg-muted">
-            Thinking<span className="caret" />
-          </p>
+          <Typing />
         ) : null}
-        {m.status === "stopped" && <p className="mt-2 text-xs text-fg-muted">Stopped.</p>}
+        {m.status === "stopped" && <p className="mt-2 text-xs text-fg-muted">Stopped — ask again or retry.</p>}
         {m.status === "error" && (
-          <p role="alert" className="mt-1 text-sm text-[var(--warn)]">
+          <p role="alert" className="mt-1 rounded-xl border border-[color-mix(in_oklab,var(--warn)_40%,transparent)] px-3 py-2 text-sm text-[var(--warn)]">
             {m.error ?? "Something went wrong."}
           </p>
         )}
         {!!m.sources?.length && !streaming && (
           <div className="mt-3">
-            <p className="eyebrow !text-[0.62rem]">Sources</p>
+            <p className="eyebrow !text-[0.6rem]">Sources</p>
             <ul className="mt-1.5 flex flex-wrap gap-1.5">
               {m.sources.map((s) => (
                 <li key={s.href + s.title}>
@@ -100,12 +129,13 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
           </div>
         )}
         {!streaming && (m.content || m.status === "error") && (
-          <div className="mt-3 flex gap-1.5">
+          <div className="-ml-2 mt-2 flex gap-0.5">
             {m.content && <CopyButton text={m.content} />}
             {isLast && (
-              <button type="button" className="chip !py-1" onClick={retry} disabled={busy}>
+              <IconButton label="Retry" onClick={retry} disabled={busy}>
+                <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M13 8a5 5 0 11-1.5-3.6M13 2.5V5h-2.5" /></svg>
                 Retry
-              </button>
+              </IconButton>
             )}
           </div>
         )}
@@ -120,7 +150,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
   const input = useRef<HTMLTextAreaElement>(null);
   const stick = useRef(true);
   const last = messages[messages.length - 1];
-  const status = busy ? "Ask Sree is answering…" : last?.role === "assistant" && last.status === "done" ? "Answer ready." : "";
+  const status = busy ? "Sree AI is answering…" : last?.role === "assistant" && last.status === "done" ? "Answer ready." : "";
 
   useEffect(() => {
     const el = scroller.current;
@@ -131,7 +161,6 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
     input.current?.focus({ preventScroll: true });
   }, []);
 
-  // Auto-size the textarea.
   useEffect(() => {
     const el = input.current;
     if (!el) return;
@@ -141,33 +170,38 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-        <SreeMark size={34} state={busy ? "thinking" : "idle"} />
+      <div className="flex items-center gap-3 px-4 pb-3 pt-4">
+        <div className="relative">
+          <SreeMark size={40} state={busy ? "thinking" : "idle"} />
+          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[var(--bg)] bg-[var(--success)]" aria-hidden="true" />
+        </div>
         <div className="min-w-0 flex-1">
-          <h2 className="text-[0.98rem] font-semibold tracking-[-0.01em]">Ask Sree</h2>
-          <p className="truncate text-xs text-fg-muted">AI assistant · answers from Sree&apos;s verified portfolio</p>
+          <h2 className="text-[1.02rem] font-semibold tracking-[-0.015em]">Sree AI</h2>
+          <p className="truncate text-[0.74rem] text-fg-muted">{SUBTITLE}</p>
         </div>
         {messages.length > 0 && (
-          <button type="button" onClick={clear} className="chip" aria-label="Clear conversation">
-            Clear
-          </button>
+          <IconButton label="Clear conversation" onClick={clear}>
+            <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.7 8.5h5.6l.7-8.5" /></svg>
+            <span className="hidden sm:inline">New chat</span>
+          </IconButton>
         )}
         {variant === "floating" && (
           <>
-            <Link href="/ask" onClick={onClose} className="chip hidden sm:inline-flex" aria-label="Open full-page conversation">
-              Expand
+            <Link href="/ask" onClick={onClose} className="hidden h-8 w-8 items-center justify-center rounded-full text-fg-muted hover:bg-[var(--glass-lo)] hover:text-fg sm:inline-flex" aria-label="Open full-page conversation" title="Full page">
+              <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M9.5 2.5h4v4M13.5 2.5L9 7M6.5 13.5h-4v-4M2.5 13.5L7 9" /></svg>
             </Link>
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-fg-soft hover:border-accent hover:text-fg"
-              aria-label="Close Ask Sree"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-fg-soft hover:bg-[var(--glass-lo)] hover:text-fg"
+              aria-label="Close Sree AI"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
             </button>
           </>
         )}
       </div>
+      <div className="mx-4 h-px bg-gradient-to-r from-transparent via-line-strong to-transparent" aria-hidden="true" />
 
       <div
         ref={scroller}
@@ -178,25 +212,41 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
         className="thin-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5"
       >
         {messages.length === 0 ? (
-          <div>
-            <p className="text-[0.95rem] leading-relaxed text-fg-soft">
-              Hi — I&apos;m an AI assistant that answers questions about Sree&apos;s work, using only his verified resume, projects and public repositories. I&apos;m not Sree, but I can point you to the right place.
-            </p>
-            <p className="eyebrow mt-6">Try asking</p>
-            <ul className={`mt-3 grid gap-2 ${variant === "page" ? "sm:grid-cols-2" : ""}`}>
-              {SUGGESTED_QUESTIONS.map((q) => (
-                <li key={q}>
+          <div className="msg-in">
+            <div className="flex gap-3">
+              <div className="mt-0.5 shrink-0">
+                <SreeMark size={28} />
+              </div>
+              <p className="rounded-[20px] rounded-tl-[6px] bg-[var(--glass-lo)] px-4 py-3 text-[0.98rem] leading-relaxed text-fg ring-1 ring-line">{GREETING}</p>
+            </div>
+            <ul className="mt-5 grid grid-cols-2 gap-2" aria-label="Suggested questions">
+              {SUGGESTED_QUESTIONS.map((q, i) => (
+                <li key={q} className="msg-in" style={{ animationDelay: `${120 + i * 60}ms` }}>
                   <button
                     type="button"
                     onClick={() => send(q)}
-                    className="group flex w-full items-center justify-between gap-3 rounded-xl border border-line px-3.5 py-2.5 text-left text-sm text-fg-soft transition-colors hover:border-accent hover:bg-accent-soft hover:text-fg"
+                    className="group flex h-full w-full items-center justify-between gap-2 rounded-2xl border border-line bg-[var(--glass-lo)] px-3.5 py-3 text-left text-[0.88rem] text-fg-soft transition-[border-color,background-color,color,transform] duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-accent-soft hover:text-fg active:translate-y-0"
                   >
                     <span>{q}</span>
-                    <span className="shrink-0 text-fg-muted transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                    <span className="shrink-0 text-accent transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden="true">→</span>
                   </button>
                 </li>
               ))}
             </ul>
+            {variant === "page" && (
+              <>
+                <p className="eyebrow mt-8">More to ask</p>
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {MORE_QUESTIONS.map((q) => (
+                    <li key={q}>
+                      <button type="button" onClick={() => send(q)} className="chip !py-1.5 hover:!border-accent">
+                        {q}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
@@ -212,13 +262,13 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
       </p>
 
       <form
-        className="border-t border-line p-3"
+        className="px-3 pb-3"
         onSubmit={(e) => {
           e.preventDefault();
           send(draft);
         }}
       >
-        <div className="flex items-end gap-2 rounded-2xl border border-line bg-bg-elev px-3 py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/30">
+        <div className="flex items-end gap-2 rounded-[22px] border border-line bg-bg-elev px-3 py-2 shadow-[inset_0_1px_0_var(--glass-lo)] transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/15">
           <label htmlFor={`ask-input-${variant}`} className="sr-only">
             Ask a question about Sree
           </label>
@@ -235,8 +285,8 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
                 send(draft);
               }
             }}
-            placeholder="Ask about experience, projects, skills…"
-            className="max-h-40 min-h-[28px] flex-1 resize-none bg-transparent py-1 focus-visible:outline-none text-[16px] leading-6 text-fg outline-none placeholder:text-fg-muted sm:text-[0.95rem]"
+            placeholder="Ask about his work…"
+            className="chat-input max-h-40 min-h-[28px] flex-1 resize-none bg-transparent py-1 text-[16px] leading-6 text-fg outline-none placeholder:text-fg-muted focus-visible:outline-none sm:text-[0.95rem]"
           />
           {busy ? (
             <button type="button" onClick={stop} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-line px-3 text-sm hover:border-accent" aria-label="Stop generating">
@@ -246,18 +296,26 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
             <button
               type="submit"
               disabled={!draft.trim()}
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-solid text-white transition-opacity disabled:opacity-35"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-solid text-white transition-[opacity,transform] duration-300 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-35"
               aria-label="Send question"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           )}
         </div>
-        <p className="mt-2 flex justify-between gap-3 px-1 text-[0.68rem] text-fg-muted">
-          <span>AI can make mistakes — check the linked sources.</span>
-          <span className="mono tabular-nums">{draft.length}/{MAX_INPUT}</span>
+        <p className="mt-2 flex justify-between gap-3 px-2 text-[0.66rem] text-fg-muted">
+          <span>AI assistant · may be wrong, can&apos;t make commitments for Sree</span>
+          <span className="mono hidden tabular-nums sm:inline">{draft.length > 0 ? `${draft.length}/${MAX_INPUT}` : "Enter ↵ · Shift+Enter newline"}</span>
         </p>
       </form>
+      <style>{`
+        @media (prefers-reduced-motion: no-preference){
+          .msg-in{animation:msgIn 520ms var(--ease-spring) both}
+          .typing-dot{animation:typing 1.1s var(--ease-in-out) infinite}
+        }
+        @keyframes msgIn{from{opacity:0;transform:translateY(10px) scale(.985)}}
+        @keyframes typing{0%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+      `}</style>
     </div>
   );
 }

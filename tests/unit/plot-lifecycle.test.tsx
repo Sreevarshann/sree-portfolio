@@ -42,7 +42,7 @@ describe("plot controller", () => {
   it("does not resize before the first plot has finished", async () => {
     const P = fakePlotly();
     let release!: () => void;
-    P.react.mockImplementationOnce(() => new Promise<void>((r) => (release = r)));
+    P.react.mockImplementationOnce(() => new Promise<undefined>((r) => (release = () => r(undefined))));
     const c = createPlotController(el, async () => P);
     const pending = c.render([], {}, {});
     await flush();

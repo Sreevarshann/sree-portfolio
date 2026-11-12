@@ -5,7 +5,7 @@ import { projects } from "@/content/projects";
 import { skillClusters, evidenceLabels } from "@/content/skills";
 
 /**
- * The Ask Sree knowledge base, built only from the typed portfolio content
+ * The Sree AI knowledge base, built only from the typed portfolio content
  * (itself sourced from the sanitized resume and public repositories).
  * PRIVACY: the phone number is not present in any source module, and
  * `assertNoPrivateData` guards against it being added by mistake.
@@ -165,7 +165,7 @@ add({
   title: "Portfolio pages",
   section: "Site",
   href: "/",
-  text: "Portfolio pages: /about (story, values, skills map), /experience (work history), /projects (catalog with case studies at /projects/<slug>), /achievements (Singapore AUV Challenge, Google MLOps Expo), /education, /certifications, /lab (interactive Plotly charts from project results), /contact, /ask (full-page Ask Sree).",
+  text: "Portfolio pages: /about (story, values, skills map), /experience (work history), /projects (catalog with case studies at /projects/<slug>), /achievements (Singapore AUV Challenge, Google MLOps Expo), /education, /certifications, /lab (interactive Plotly charts from project results), /contact, /ask (full-page Sree AI).",
 });
 
 const PHONE_LIKE = /\+?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/;

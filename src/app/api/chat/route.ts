@@ -71,7 +71,7 @@ export async function POST(req: Request) {
   const rate = checkRate(await clientKey(req));
   if (!rate.ok) {
     if (rate.reason === "budget") {
-      return ndjson([{ type: "fallback", sources, text: searchFallback(chunks, "Ask Sree has reached today's usage budget, so the AI model is paused.") }, { type: "done" }]);
+      return ndjson([{ type: "fallback", sources, text: searchFallback(chunks, "Sree AI has reached today's usage budget, so the AI model is paused.") }, { type: "done" }]);
     }
     return ndjson(
       [{ type: "error", code: "rate_limited", message: `You're asking quickly — please wait ${rate.retryAfter < 120 ? `${rate.retryAfter} seconds` : "a while"} and try again.` }],
