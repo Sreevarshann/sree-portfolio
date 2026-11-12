@@ -3,7 +3,6 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
 import { KineticText } from "@/components/motion/KineticText";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { useAskSree } from "@/components/ask/AskSreeProvider";
@@ -20,20 +19,17 @@ function Coordinates() {
   useEffect(() => {
     const el = ref.current;
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const o = { lat: 0, lng: 0 };
-    const tw = gsap.to(o, {
-      lat: 42.3601,
-      lng: 71.0589,
-      duration: 1.6,
-      ease: "expo.out",
-      delay: 0.2,
-      onUpdate: () => {
-        el.textContent = `${o.lat.toFixed(4)}° N, ${o.lng.toFixed(4)}° W`;
-      },
-    });
-    return () => {
-      tw.kill();
+    // Count up to Boston's coordinates (expo-out over 1.6 s, after 0.2 s).
+    const start = performance.now() + 200;
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, Math.max(0, (now - start) / 1600));
+      const e = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+      el.textContent = `${(42.3601 * e).toFixed(4)}° N, ${(71.0589 * e).toFixed(4)}° W`;
+      if (t < 1) raf = requestAnimationFrame(tick);
     };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, []);
   return (
     <span ref={ref} className="tabular-nums">

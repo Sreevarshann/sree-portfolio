@@ -1,4 +1,4 @@
-import { iconFor } from "./BrandIcon";
+import { iconFor, iconSlug } from "./BrandIcon";
 
 /**
  * Technology tag. Shows the tool's mark when one is available; on hover the
@@ -10,7 +10,7 @@ export function TechChip({ name }: { name: string }) {
     <span className="tech-chip chip group/tc" style={icon ? ({ ["--brand" as string]: icon.hex } as React.CSSProperties) : undefined}>
       {icon && (
         <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" className="tech-chip-icon shrink-0">
-          <path d={icon.path} />
+          <use href={`/brand-icons.svg#${iconSlug(name)}`} />
         </svg>
       )}
       {name}

@@ -60,7 +60,7 @@ export function ProjectCatalog() {
       </div>
       <div className="mt-16 space-y-28 md:space-y-40">
         {list.map((p, i) => (
-          <ProjectFeature key={p.slug} project={p} index={i} priority={i === 0} />
+          <ProjectFeature key={p.slug} project={p} index={i} priority={i === 0} headingLevel={2} />
         ))}
       </div>
     </div>

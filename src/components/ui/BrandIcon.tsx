@@ -14,13 +14,17 @@ const ALIASES: Record<string, string> = {
   "google scholar": "googlescholar", google: "google", cisco: "cisco",
 };
 
+export function iconSlug(name: string) {
+  return brandIcons[name] ? name : ALIASES[name.toLowerCase().trim()];
+}
+
 export function iconFor(name: string) {
   const key = ALIASES[name.toLowerCase().trim()];
   return key ? brandIcons[key] : undefined;
 }
 
 /**
- * Monochrome brand mark (Simple Icons, CC0). Inherits currentColor; pass
+ * Monochrome brand mark (Simple Icons, CC0), drawn from one cached SVG sprite. Inherits currentColor; pass
  * `brand` to use the official brand color. Renders nothing for unknown names
  * so callers can fall back to text.
  */
@@ -38,7 +42,7 @@ export function BrandIcon({ name, size = 16, brand = false, className = "", titl
       aria-label={title}
       fill={brand ? icon.hex : "currentColor"}
     >
-      <path d={icon.path} />
+      <use href={`/brand-icons.svg#${iconSlug(name)}`} />
     </svg>
   );
 }

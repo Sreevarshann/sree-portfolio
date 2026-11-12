@@ -342,10 +342,16 @@ button.chip:hover {
     }
   }
 }
+/* Masked reveal: content is uncovered top-down while rising. Text keeps full
+   opacity throughout, so it is never rendered at reduced contrast. The end
+   state uses negative insets so shadows and hover lifts are not clipped. */
 @keyframes reveal-up {
   from {
-    opacity: 0;
-    transform: translateY(28px);
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(26px);
+  }
+  to {
+    clip-path: inset(-120px -120px -120px -120px);
   }
 }
 @keyframes reveal-clip {
@@ -366,15 +372,16 @@ button.chip:hover {
     animation: line-draw 1.4s cubic-bezier(0.65, 0, 0.35, 1) both;
   }
   .kinetic-css .split-char {
-    animation: kt-rise 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: kt-rise 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
-  /* Scroll-triggered kinetic headings (below the fold) are armed by JS. */
-  html.js .kinetic .split-char {
+  /* Scroll-triggered kinetic headings: hidden only while armed by JS, then
+     revealed by CSS when an IntersectionObserver marks them in view. */
+  .kinetic.is-armed .split-char {
     transform: translateY(115%) rotate(4deg);
-    animation: char-fallback 0s linear 3s forwards;
   }
-  html.js .kinetic.is-armed .split-char {
-    animation: none;
+  .kinetic.is-armed.is-in .split-char {
+    transform: none;
+    animation: kt-rise-full 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
 @keyframes enter-fade {
@@ -388,14 +395,17 @@ button.chip:hover {
     transform: scaleX(0);
   }
 }
+/* Visible from the first frame (so it paints immediately and counts as the
+   page's main content right away), then rises and sharpens into place. */
 @keyframes kt-rise {
   from {
-    transform: translateY(115%) rotate(4deg);
+    transform: translateY(48%) rotate(3deg);
+    opacity: 0.16;
   }
 }
-@keyframes char-fallback {
-  to {
-    transform: none;
+@keyframes kt-rise-full {
+  from {
+    transform: translateY(115%) rotate(4deg);
   }
 }
 
@@ -847,7 +857,7 @@ button.chip:hover {
 }
 @keyframes reveal-media {
   from {
-    opacity: 0;
+    opacity: 0.35;
     transform: perspective(1400px) rotateX(14deg) translateY(60px) scale(0.92);
   }
 }

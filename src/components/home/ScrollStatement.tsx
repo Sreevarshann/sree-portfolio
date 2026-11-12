@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { loadGsap } from "@/lib/loadGsap";
 
 /** A statement whose words light up as the reader scrolls through it. */
 export function ScrollStatement({ text, highlight = [] }: { text: string; highlight?: string[] }) {
@@ -13,14 +10,22 @@ export function ScrollStatement({ text, highlight = [] }: { text: string; highli
     const el = ref.current;
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const words = el.querySelectorAll<HTMLElement>("[data-w]");
-    const ctx = gsap.context(() => {
+    let ctx: { revert: () => void } | undefined;
+    let cancelled = false;
+    void loadGsap().then(({ gsap }) => {
+      if (cancelled) return;
+      ctx = gsap.context(() => {
       gsap.fromTo(
         words,
-        { opacity: 0.42 },
+        { opacity: 0.56 },
         { opacity: 1, stagger: 0.05, ease: "none", scrollTrigger: { trigger: el, start: "top 80%", end: "bottom 45%", scrub: 0.4 } },
       );
-    }, el);
-    return () => ctx.revert();
+      }, el);
+    });
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
   }, []);
   const hl = new Set(highlight.map((h) => h.toLowerCase()));
   return (

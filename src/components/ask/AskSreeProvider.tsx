@@ -174,6 +174,13 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
     window.setTimeout(() => launcherRef.current?.focus(), 0);
   }, []);
 
+  // Warm the chat bundle once the page is idle so the first open is instant.
+  useEffect(() => {
+    const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 3000));
+    const id = ric(() => void import("./ChatView"), { timeout: 6000 } as IdleRequestOptions);
+    return () => (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
+  }, []);
+
   // Keyboard shortcut: "/" opens Sree AI when not typing elsewhere.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

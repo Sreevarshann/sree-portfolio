@@ -97,7 +97,8 @@ test("Sree AI greets with the four starter prompts and opens with Ctrl+K", async
   await page.keyboard.press("Control+k");
   const panel = page.getByRole("dialog", { name: /Sree AI assistant/ });
   await expect(panel).toBeVisible();
-  await expect(panel.getByText("Hey, I'm Sree's AI. Ask me about his experience, projects, or what he's been building.")).toBeVisible();
+  // The chat bundle is lazy-loaded on first open; allow for a cold load under parallel test runs.
+  await expect(panel.getByText("Hey, I'm Sree's AI. Ask me about his experience, projects, or what he's been building.")).toBeVisible({ timeout: 15_000 });
   for (const q of ["Who is Sree?", "What has he built?", "What did he do at RightRev?", "Why work with Sree?"]) {
     await expect(panel.getByRole("button", { name: new RegExp(q.replace("?", "\\?")) })).toBeVisible();
   }

@@ -2,10 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { loadGsap } from "@/lib/loadGsap";
 
 /**
  * Scroll-linked choreography that CSS can't express on its own:
@@ -21,8 +18,16 @@ export function MotionRuntime() {
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let ctx: gsap.Context | undefined;
-    const start = () => {
+    let ctx: { revert: () => void } | undefined;
+    let cancelled = false;
+    let refresh = () => {};
+    const start = async () => {
+      if (!document.querySelector("[data-parallax], [data-progress], [data-scroll-out]")) return;
+      const { gsap, ScrollTrigger } = await loadGsap();
+      if (cancelled) return;
+      refresh = () => ScrollTrigger.refresh();
+      window.addEventListener("load", refresh);
+      document.fonts?.ready.then(refresh).catch(() => {});
       ctx = gsap.context(() => {
         gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
           const amt = parseFloat(el.dataset.parallax || "0.12");
@@ -54,11 +59,9 @@ export function MotionRuntime() {
     };
     const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
     const cic = window.cancelIdleCallback ?? window.clearTimeout;
-    const id = ric(start, { timeout: 1500 } as IdleRequestOptions);
-    const refresh = () => ScrollTrigger.refresh();
-    window.addEventListener("load", refresh);
-    document.fonts?.ready.then(refresh).catch(() => {});
+    const id = ric(() => void start(), { timeout: 1500 } as IdleRequestOptions);
     return () => {
+      cancelled = true;
       cic(id as number);
       window.removeEventListener("load", refresh);
       ctx?.revert();

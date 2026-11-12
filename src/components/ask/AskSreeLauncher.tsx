@@ -4,7 +4,17 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { useAskSree } from "./AskSreeProvider";
-import { ChatView } from "./ChatView";
+import dynamic from "next/dynamic";
+
+// The chat (with its Markdown renderer) loads on first open, not with the page.
+const ChatView = dynamic(() => import("./ChatView").then((m) => m.ChatView), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center text-sm text-fg-muted" role="status">
+      Opening Sree AI…
+    </div>
+  ),
+});
 import { useFocusTrap } from "@/lib/useFocusTrap";
 
 /** Floating entry point + panel. Desktop: anchored popover. Mobile: full-height sheet. */

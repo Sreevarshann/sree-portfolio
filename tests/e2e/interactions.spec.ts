@@ -36,7 +36,7 @@ test("Sree AI opens, answers with an honest fallback without a key, and closes w
   const panel = page.getByRole("dialog", { name: /Sree AI assistant/ });
   await expect(panel).toBeVisible();
   const input = panel.getByLabel("Ask a question about Sree");
-  await expect(input).toBeFocused();
+  await expect(input).toBeFocused({ timeout: 15_000 });
   await input.fill("What did Sree work on at RightRev?");
   await input.press("Enter");
   await expect(panel.getByText("Search results · AI model offline")).toBeVisible();

@@ -6,7 +6,8 @@ import { TechChip } from "@/components/ui/TechChip";
 import { iconFor } from "@/components/ui/BrandIcon";
 
 /** Alternating editorial composition: large preview + narrative column. */
-export function ProjectFeature({ project, index, priority = false }: { project: Project; index: number; priority?: boolean }) {
+export function ProjectFeature({ project, index, priority = false, headingLevel = 3 }: { project: Project; index: number; priority?: boolean; headingLevel?: 2 | 3 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   const flip = index % 2 === 1;
   const secondary = project.screenshots[3] ?? project.screenshots[2];
   return (
@@ -14,7 +15,9 @@ export function ProjectFeature({ project, index, priority = false }: { project: 
       <Link
         href={`/projects/${project.slug}`}
         className={`relative block lg:col-span-7 ${flip ? "lg:order-2" : ""}`}
-        aria-label={`${project.name} case study`}
+        // Duplicate of the title link for pointer users; hidden from assistive tech and the tab order.
+        aria-hidden="true"
+        tabIndex={-1}
         data-reveal="media"
         data-cursor
       >
@@ -37,11 +40,11 @@ export function ProjectFeature({ project, index, priority = false }: { project: 
           <span className="text-accent">{String(index + 1).padStart(2, "0")}</span>
           <span>{project.categories.join(" · ")}</span>
         </p>
-        <h3 id={`p-${project.slug}`} className="mt-4 text-[clamp(2rem,4vw,3.25rem)] font-medium leading-none tracking-[-0.04em]">
+        <Heading id={`p-${project.slug}`} className="mt-4 text-[clamp(2rem,4vw,3.25rem)] font-medium leading-none tracking-[-0.04em]">
           <Link href={`/projects/${project.slug}`} className="transition-colors hover:text-accent-fg">
             {project.name}
           </Link>
-        </h3>
+        </Heading>
         <p className="mt-3 text-lg text-fg-soft">{project.tagline}</p>
         <p className="mt-5 leading-relaxed text-fg-muted">{project.oneLiner}</p>
         <ul className="mt-6 flex flex-wrap gap-1.5" aria-label="Key technologies">
