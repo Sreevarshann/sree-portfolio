@@ -32,6 +32,17 @@ export function MotionRuntime() {
             { yPercent: amt * 50, ease: "none", scrollTrigger: { trigger: el.parentElement ?? el, start: "top bottom", end: "bottom top", scrub: true } },
           );
         });
+        // The hero recedes as the page scrolls away from it.
+        gsap.utils.toArray<HTMLElement>("[data-scroll-out]").forEach((el) => {
+          gsap.to(el, {
+            yPercent: -8,
+            opacity: 0.25,
+            scale: 0.97,
+            ease: "none",
+            transformOrigin: "50% 0%",
+            scrollTrigger: { trigger: el.closest("section") ?? el, start: "top top", end: "bottom top", scrub: true },
+          });
+        });
         gsap.utils.toArray<HTMLElement>("[data-progress]").forEach((el) => {
           gsap.fromTo(
             el,

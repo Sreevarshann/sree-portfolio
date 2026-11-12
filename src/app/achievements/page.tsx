@@ -21,7 +21,7 @@ export default function AchievementsPage() {
               <div className="flex flex-col justify-between gap-10 border-b border-line p-8 md:p-12 lg:border-b-0 lg:border-r" data-reveal>
                 <div>
                   <p className="eyebrow">{a.event}</p>
-                  <p className="mt-6 text-[clamp(6rem,16vw,12rem)] font-medium leading-[0.78] tracking-[-0.07em]">
+                  <p className="rank-reveal mt-6 text-[clamp(6rem,16vw,12rem)] font-medium leading-[0.78] tracking-[-0.07em]">
                     {a.rank.place}
                     <span className="serif-accent align-top text-[0.32em] text-accent-fg">{a.rank.suffix}</span>
                   </p>

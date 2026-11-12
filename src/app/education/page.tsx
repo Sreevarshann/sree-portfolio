@@ -16,7 +16,7 @@ export default function EducationPage() {
       <section className="container-x pb-16" aria-label="Degrees">
         <ol className="relative space-y-8">
           {education.map((e, i) => (
-            <li key={e.institution} className="panel overflow-hidden" data-reveal>
+            <li key={e.institution} className="panel overflow-hidden" data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
               <div className="grid md:grid-cols-[1fr_1.3fr]">
                 <div className="flex flex-col justify-between gap-10 border-b border-line p-8 md:border-b-0 md:border-r md:p-10">
                   <a href={e.url} target="_blank" rel="noopener noreferrer" aria-label={`${e.institution} website`} className={`inline-block w-fit ${e.institution === "Anna University" ? "rounded-lg bg-white p-2" : ""}`}>

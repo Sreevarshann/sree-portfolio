@@ -2,6 +2,7 @@ import Link from "next/link";
 import { profile } from "@/content/profile";
 import { navLinks } from "./navLinks";
 import { BostonLine } from "@/components/ui/BostonLine";
+import { ContourEcho } from "@/components/ui/ContourEcho";
 import { BostonClock } from "./BostonClock";
 import { BrandIcon } from "@/components/ui/BrandIcon";
 
@@ -42,14 +43,15 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="relative mt-16 text-fg-muted">
-        <BostonLine className="mx-auto block h-auto w-full max-w-[1400px] px-[var(--gutter)]" />
+      <div className="relative mt-16 overflow-hidden text-fg-muted">
+        <ContourEcho className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%] w-full text-accent opacity-25" />
+        <BostonLine className="relative mx-auto block h-auto w-full max-w-[1400px] px-[var(--gutter)]" />
       </div>
-      <div className="container-x flex flex-col gap-3 border-t border-line py-6 text-xs text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+      <div className="container-x flex flex-col gap-3 border-t border-line pb-24 pt-6 text-xs text-fg-muted sm:flex-row sm:items-center sm:justify-between sm:pb-6">
         <p className="mono">
           {profile.coordinates.lat}, {profile.coordinates.lng} · <BostonClock />
         </p>
-        <p className="mono">© 2026 {profile.name}. Designed and engineered by Sree.</p>
+        <p className="mono sm:mr-[190px] xl:mr-[150px]">© 2026 {profile.name}. Designed and engineered by Sree.</p>
       </div>
     </footer>
   );

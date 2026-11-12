@@ -81,7 +81,7 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-bg" />
       </div>
 
-      <div className="container-x flex flex-1 flex-col justify-center pb-10">
+      <div className="container-x flex flex-1 flex-col justify-center pb-10" data-scroll-out>
         <div className="hero-fade flex items-end justify-between gap-3 lg:flex-wrap lg:items-center" style={{ ["--enter-delay" as string]: "0.05s" }}>
           <p className="eyebrow flex items-center gap-3">
             <span className="relative flex h-2 w-2" aria-hidden="true">
@@ -125,7 +125,7 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
             </div>
           </div>
           <div className="hero-fade flex flex-wrap gap-3 md:justify-end" style={{ ["--enter-delay" as string]: "0.7s" }}>
-            <Link href="/projects" className="btn btn-primary">
+            <Link href="/projects" className="btn btn-primary" data-magnetic>
               View projects <span className="arrow" aria-hidden="true">→</span>
             </Link>
             <button type="button" onClick={() => openChat()} className="btn btn-ghost group">

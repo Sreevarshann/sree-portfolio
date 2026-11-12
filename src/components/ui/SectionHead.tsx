@@ -17,6 +17,8 @@ export function SectionHead({
   hrefLabel?: string;
 }) {
   return (
+    <>
+    <div className="rule-draw -mt-px mb-14 h-px w-full bg-gradient-to-r from-accent via-line-strong to-transparent md:mb-20" aria-hidden="true" />
     <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
       <div>
         <p className="eyebrow flex items-center gap-3" data-reveal>
@@ -37,5 +39,6 @@ export function SectionHead({
         </Link>
       )}
     </div>
+    </>
   );
 }

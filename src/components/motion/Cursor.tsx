@@ -16,7 +16,25 @@ export function Cursor() {
     if (!fine || reduce || !el) return;
 
     let x = -100, y = -100, tx = -100, ty = -100, scale = 1, ts = 1, raf = 0, visible = false;
+    // Magnetic elements: [data-magnetic] lean toward the pointer, then spring back.
+    let magnet: HTMLElement | null = null;
+    const release = () => {
+      if (!magnet) return;
+      magnet.style.transform = "";
+      magnet.style.transition = "transform 600ms cubic-bezier(.34,1.32,.64,1)";
+      magnet = null;
+    };
     const move = (e: PointerEvent) => {
+      const m = (e.target as Element | null)?.closest<HTMLElement>("[data-magnetic]") ?? null;
+      if (m !== magnet) release();
+      if (m) {
+        magnet = m;
+        const r = m.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        m.style.transition = "transform 160ms ease-out";
+        m.style.transform = `translate(${dx * 0.18}px, ${dy * 0.28}px)`;
+      }
       tx = e.clientX;
       ty = e.clientY;
       if (!visible) {
@@ -45,6 +63,7 @@ export function Cursor() {
     window.addEventListener("pointermove", move, { passive: true });
     document.addEventListener("pointerleave", leave);
     return () => {
+      release();
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", move);
       document.removeEventListener("pointerleave", leave);

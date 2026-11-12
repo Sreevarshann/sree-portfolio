@@ -36,7 +36,7 @@ export default function Home() {
         <Capabilities />
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Selected work">
+      <section className="container-x section" aria-label="Selected work">
         <SectionHead index="01" eyebrow="Selected work" title="Systems built" accent="end to end." href="/projects" hrefLabel="All projects" />
         <div className="mt-20 space-y-28 md:space-y-40">
           {featured.map((p, i) => (
@@ -45,14 +45,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Experience">
+      <section className="container-x section" aria-label="Experience">
         <SectionHead index="02" eyebrow="Experience" title="Where I've" accent="shipped." href="/experience" hrefLabel="Full experience" />
         <div className="mt-16">
           <ExperienceTimeline compact />
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Achievements">
+      <section className="container-x section" aria-label="Achievements">
         <SectionHead index="03" eyebrow="Recognition" title="Results under" accent="pressure." href="/achievements" hrefLabel="Achievements" />
         <div className="mt-16 grid gap-6 md:grid-cols-2">
           {achievements.map((a) => (
@@ -63,7 +63,7 @@ export default function Home() {
               data-reveal
             >
               <div className="flex items-start justify-between gap-6">
-                <p className="text-[clamp(5rem,12vw,9rem)] font-medium leading-[0.8] tracking-[-0.06em]">
+                <p className="rank-reveal text-[clamp(5rem,12vw,9rem)] font-medium leading-[0.8] tracking-[-0.06em]">
                   {a.rank.place}
                   <span className="serif-accent align-top text-[0.35em] text-accent-fg">{a.rank.suffix}</span>
                 </p>
@@ -79,7 +79,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Lab">
+      <section className="container-x section" aria-label="Lab">
         <SectionHead index="04" eyebrow="Lab" title="Results you can" accent="explore." href="/lab" hrefLabel="Open the Lab" />
         <div className="mt-16">
           <LabTeaser />
@@ -96,7 +96,7 @@ export default function Home() {
           Let&apos;s build something <span className="serif-accent text-accent-fg">worth trusting.</span>
         </h2>
         <div className="mt-12 flex flex-wrap gap-3" data-reveal>
-          <a href={`mailto:${profile.email}`} className="btn btn-primary">
+          <a href={`mailto:${profile.email}`} className="btn btn-primary" data-magnetic>
             {profile.email} <span className="arrow" aria-hidden="true">→</span>
           </a>
           <a href={profile.links.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">LinkedIn ↗</a>

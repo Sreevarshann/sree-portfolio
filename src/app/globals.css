@@ -807,3 +807,88 @@ button.chip:hover {
 :root:not([data-theme="light"]) .tech-chip:hover .tech-chip-icon {
   filter: brightness(1.6) saturate(1.1);
 }
+
+/* ------------------------------------------------------------------ motion v2
+   All scroll-driven (no JS, never blocks first paint); browsers without
+   view timelines show the final state. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Media arrives tilted back in space and settles flat, like a product reveal. */
+    [data-reveal="media"] {
+      animation: reveal-media linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 38%;
+      transform-origin: 50% 100%;
+    }
+    /* Staggered siblings: set --i on each item. */
+    [data-reveal][style*="--i"] {
+      animation-range: entry calc(var(--i) * 6%) entry calc(38% + var(--i) * 6%);
+    }
+    /* Section rules draw across as their section arrives. */
+    .rule-draw {
+      animation: rule-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+      transform-origin: left;
+    }
+    /* Big numerals rise out of a mask. */
+    .rank-reveal {
+      animation: rank-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 15% cover 40%;
+    }
+    /* Secondary media layer drifts at its own speed for depth. */
+    .layer-drift {
+      animation: layer-drift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+@keyframes reveal-media {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) rotateX(14deg) translateY(60px) scale(0.92);
+  }
+}
+@keyframes rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes rank-rise {
+  from {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(30%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes layer-drift {
+  from {
+    transform: translateY(40px) rotate(-2deg);
+  }
+  to {
+    transform: translateY(-50px) rotate(1deg);
+  }
+}
+
+/* Gliding selection pill for segmented controls and filters. */
+.glide-pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  transition:
+    transform 560ms var(--ease-spring),
+    width 560ms var(--ease-spring),
+    height 300ms var(--ease-out),
+    opacity 200ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .glide-pill {
+    transition: none;
+  }
+}

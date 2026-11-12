@@ -16,7 +16,7 @@ export default function CertificationsPage() {
       <section className="container-x pb-16" aria-label="Certifications">
         <ul className="grid gap-6 md:grid-cols-3">
           {certifications.map((c, i) => (
-            <li key={c.name} data-reveal>
+            <li key={c.name} data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
               <article className="cert panel group relative flex h-full flex-col overflow-hidden p-7 transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-accent">
                 <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full border border-line" aria-hidden="true" />
                 <div className="pointer-events-none absolute -right-4 -top-4 h-28 w-28 rounded-full border border-line" aria-hidden="true" />

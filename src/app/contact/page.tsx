@@ -28,7 +28,7 @@ export default function ContactPage() {
             {profile.email}
           </a>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href={`mailto:${profile.email}`} className="btn btn-primary">Write an email <span className="arrow" aria-hidden="true">→</span></a>
+            <a href={`mailto:${profile.email}`} className="btn btn-primary" data-magnetic>Write an email <span className="arrow" aria-hidden="true">→</span></a>
             <CopyEmail email={profile.email} />
           </div>
         </div>

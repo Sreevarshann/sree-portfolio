@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useGlide } from "@/lib/useGlide";
 import { categories, projects, type Category } from "@/content/projects";
 import { ProjectFeature } from "./ProjectFeature";
 
@@ -8,6 +9,8 @@ type Filter = "All" | Category;
 
 export function ProjectCatalog() {
   const [filter, setFilter] = useState<Filter>("All");
+  const groupRef = useRef<HTMLDivElement>(null);
+  const glide = useGlide(groupRef, filter);
 
   // Restore filter from ?category= on load; keep the URL shareable.
   useEffect(() => {
@@ -29,7 +32,8 @@ export function ProjectCatalog() {
   return (
     <div>
       <div className="sticky top-[76px] z-20 -mx-[var(--gutter)] border-y border-line bg-[color-mix(in_oklab,var(--bg)_85%,transparent)] px-[var(--gutter)] py-3 backdrop-blur-xl md:top-[84px]">
-        <div role="group" aria-label="Filter projects by category" className="flex flex-wrap items-center gap-2">
+        <div ref={groupRef} role="group" aria-label="Filter projects by category" className="relative flex flex-wrap items-center gap-2">
+          <span className="glide-pill bg-accent-solid shadow-[0_6px_20px_-8px_rgb(31_95_224/0.8)]" style={glide.style} aria-hidden="true" />
           {options.map((o) => {
             const count = o === "All" ? projects.length : projects.filter((p) => p.categories.includes(o)).length;
             const on = filter === o;
@@ -38,9 +42,10 @@ export function ProjectCatalog() {
                 key={o}
                 type="button"
                 aria-pressed={on}
+                data-glide-key={o}
                 onClick={() => choose(o)}
-                className={`inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm transition-colors ${
-                  on ? "border-accent-solid bg-accent-solid text-white" : "border-line text-fg-soft hover:border-accent hover:text-fg"
+                className={`relative z-[1] inline-flex h-9 items-center gap-2 rounded-full border px-4 text-sm transition-[color,border-color,transform] duration-300 active:scale-95 ${
+                  on ? "border-transparent text-white" : "border-line text-fg-soft hover:border-accent hover:text-fg"
                 }`}
               >
                 {o}

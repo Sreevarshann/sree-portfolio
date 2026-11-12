@@ -69,7 +69,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Engineering values">
+      <section className="container-x section" aria-label="Engineering values">
         <SectionHead index="A.1" eyebrow="Values" title="How I" accent="work." />
         <div className="mt-14 grid gap-px overflow-hidden rounded-[22px] border border-line bg-line sm:grid-cols-2">
           {profile.values.map((v, i) => (
@@ -82,7 +82,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section id="skills" className="container-x section scroll-mt-24 border-t border-line" aria-label="Skills">
+      <section id="skills" className="container-x section scroll-mt-24" aria-label="Skills">
         <SectionHead index="A.2" eyebrow="Capability map" title="Skills, with" accent="receipts." />
         <p className="lede mt-6 max-w-2xl" data-reveal>
           No percentage bars. Select a skill to see the roles and projects where it was actually used.
