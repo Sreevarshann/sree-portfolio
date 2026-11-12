@@ -21,7 +21,7 @@ export function SiteFooter() {
           <nav aria-label="Footer">
             <p className="eyebrow">Index</p>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              {[{ href: "/", label: "Home" }, ...navLinks, { href: "/ask", label: "Ask Sree" }].map((l) => (
+              {[{ href: "/", label: "Home" }, ...navLinks, { href: "/ask", label: "Sree AI" }].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="link-u text-fg-soft hover:text-fg">
                     {l.label}

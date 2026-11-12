@@ -28,7 +28,7 @@ export function ProjectCatalog() {
 
   return (
     <div>
-      <div className="sticky top-16 z-20 -mx-[var(--gutter)] border-y border-line bg-[color-mix(in_oklab,var(--bg)_85%,transparent)] px-[var(--gutter)] py-3 backdrop-blur-xl md:top-[72px]">
+      <div className="sticky top-[76px] z-20 -mx-[var(--gutter)] border-y border-line bg-[color-mix(in_oklab,var(--bg)_85%,transparent)] px-[var(--gutter)] py-3 backdrop-blur-xl md:top-[84px]">
         <div role="group" aria-label="Filter projects by category" className="flex flex-wrap items-center gap-2">
           {options.map((o) => {
             const count = o === "All" ? projects.length : projects.filter((p) => p.categories.includes(o)).length;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { navLinks } from "./navLinks";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAskSree } from "@/components/ask/AskSreeProvider";
@@ -10,41 +10,86 @@ import { SreeMark } from "@/components/ui/SreeMark";
 import { profile } from "@/content/profile";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 
+const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+/**
+ * Floating liquid-glass navigation. Expanded at the top of the page, it
+ * condenses as the visitor scrolls. A single indicator glides between links
+ * (following hover, resting on the current page). Below xl it becomes a
+ * compact capsule whose menu unfolds from the capsule itself.
+ */
 export function SiteNav() {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
+  const [compact, setCompact] = useState(false);
   const [open, setOpen] = useState(false);
   const { openChat } = useAskSree();
+  const glassRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const [indicator, setIndicator] = useState<{ x: number; w: number; visible: boolean }>({ x: 0, w: 0, visible: false });
+  const [hovered, setHovered] = useState<string | null>(null);
 
+  const isActive = useCallback((href: string) => pathname === href || pathname.startsWith(href + "/"), [pathname]);
+
+  // Condense on scroll (rAF-throttled, passive).
   useEffect(() => {
-    let last = window.scrollY;
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const y = window.scrollY;
-        setScrolled(y > 12);
-        setHidden(y > 160 && y > last + 2);
-        if (y < last - 2) setHidden(false);
-        last = y;
-        ticking = false;
+    let raf = 0;
+    const on = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setCompact(window.scrollY > 64);
       });
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", on);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
-  const close = useCallback(() => {
+  // Pointer-following specular highlight on the glass.
+  useEffect(() => {
+    const el = glassRef.current;
+    if (!el || !window.matchMedia("(hover: hover)").matches) return;
+    const move = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--gx", `${((e.clientX - r.left) / r.width) * 100}%`);
+      el.style.setProperty("--gy", `${((e.clientY - r.top) / r.height) * 100}%`);
+    };
+    el.addEventListener("pointermove", move);
+    return () => el.removeEventListener("pointermove", move);
+  }, []);
+
+  // Measure the indicator target: hovered link, else the active one.
+  const measure = useCallback(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const target =
+      (hovered && list.querySelector<HTMLElement>(`[data-href="${hovered}"]`)) ||
+      Array.from(list.querySelectorAll<HTMLElement>("[data-href]")).find((a) => isActive(a.dataset.href!));
+    if (!target) return setIndicator((s) => ({ ...s, visible: false }));
+    setIndicator({ x: target.offsetLeft, w: target.offsetWidth, visible: true });
+  }, [hovered, isActive]);
+  useIsoLayoutEffect(() => {
+    measure();
+  }, [measure, compact]);
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(list);
+    return () => ro.disconnect();
+  }, [measure]);
+
+  const close = useCallback((restoreFocus = true) => {
     setOpen(false);
-    buttonRef.current?.focus();
+    if (restoreFocus) buttonRef.current?.focus();
   }, []);
 
-  // Close the menu when the route changes.
+  // Close the menu on navigation.
   const [lastPath, setLastPath] = useState(pathname);
   if (pathname !== lastPath) {
     setLastPath(pathname);
@@ -53,85 +98,100 @@ export function SiteNav() {
 
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!menuRef.current?.contains(t) && !glassRef.current?.contains(t)) close(false);
+    };
     window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
     return () => {
-      document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
     };
   }, [open, close]);
 
   useFocusTrap(menuRef, open);
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
-
   return (
-    <>
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-[transform,background-color,border-color] duration-500 ease-[cubic-bezier(.22,1,.36,1)] ${
-          hidden && !open ? "-translate-y-full" : "translate-y-0"
-        } ${scrolled || open ? "border-b border-line bg-[color-mix(in_oklab,var(--bg)_78%,transparent)] backdrop-blur-xl" : "border-b border-transparent"}`}
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4 md:pt-4">
+      <div
+        ref={glassRef}
+        data-dense={compact || open}
+        className={`glass pointer-events-auto relative flex w-full items-center justify-between gap-2 rounded-full transition-[max-width,height,padding] duration-700 ease-[var(--ease-spring)] ${
+          compact ? "h-[52px] max-w-[1080px] px-2" : "h-[60px] max-w-[1240px] px-3"
+        }`}
       >
-        <nav aria-label="Primary" className="container-x flex h-16 items-center justify-between gap-4 md:h-[72px]">
-          <Link href="/" className="group flex items-center gap-3" aria-label="Sree — home">
-            <span className="text-[1.35rem] font-semibold tracking-[-0.04em]">
-              Sree<span className="text-accent">.</span>
-            </span>
-            <span className="eyebrow hidden translate-y-px sm:inline">AI · Data · Software</span>
-          </Link>
+        <Link href="/" className="group flex shrink-0 items-center gap-2.5 rounded-full py-1 pl-2 pr-3" aria-label="Sree — home">
+          <span className={`font-semibold tracking-[-0.04em] transition-[font-size] duration-500 ${compact ? "text-[1.15rem]" : "text-[1.3rem]"}`}>
+            Sree<span className="text-accent transition-colors group-hover:text-accent-fg">.</span>
+          </span>
+          <span className={`eyebrow hidden transition-opacity duration-500 2xl:inline ${compact ? "opacity-0" : "opacity-100"}`}>AI · Data · Software</span>
+        </Link>
 
-          <ul className="hidden items-center gap-1 xl:flex">
-            {navLinks.map((l) => (
-              <li key={l.href}>
-                <Link
-                  href={l.href}
-                  aria-current={isActive(l.href) ? "page" : undefined}
-                  className={`relative rounded-full px-3 py-2 text-[0.88rem] transition-colors ${
-                    isActive(l.href) ? "text-fg" : "text-fg-muted hover:text-fg"
-                  }`}
-                >
-                  {l.label}
-                  <span
-                    aria-hidden="true"
-                    className={`absolute bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-accent transition-all duration-300 ${
-                      isActive(l.href) ? "scale-100 opacity-100" : "scale-0 opacity-0"
+        <nav aria-label="Primary" className="relative hidden xl:block">
+          <ul ref={listRef} className="relative flex items-center" onMouseLeave={() => setHovered(null)}>
+            <span
+              aria-hidden="true"
+              className="nav-indicator pointer-events-none absolute top-1/2 h-9 rounded-full"
+              style={{
+                width: indicator.w,
+                transform: `translate3d(${indicator.x}px, -50%, 0)`,
+                opacity: indicator.visible ? 1 : 0,
+              }}
+            />
+            {navLinks.map((l) => {
+              const active = isActive(l.href);
+              return (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    data-href={l.href}
+                    aria-current={active ? "page" : undefined}
+                    onMouseEnter={() => setHovered(l.href)}
+                    onFocus={() => setHovered(l.href)}
+                    onBlur={() => setHovered(null)}
+                    className={`relative z-[1] block rounded-full px-3.5 py-2 text-[0.86rem] transition-colors duration-300 ${
+                      active ? "text-fg" : "text-fg-muted hover:text-fg"
                     }`}
-                  />
-                </Link>
-              </li>
-            ))}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => openChat()}
-              className="group hidden h-10 items-center gap-2 rounded-full border border-line pl-1.5 pr-4 text-sm text-fg-soft transition-colors hover:border-accent hover:text-fg sm:inline-flex"
-            >
-              <SreeMark size={28} />
-              Ask Sree
-            </button>
-            <ThemeToggle />
-            <button
-              ref={buttonRef}
-              type="button"
-              className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-4 text-sm text-fg-soft hover:border-accent hover:text-fg xl:hidden"
-              aria-expanded={open}
-              aria-controls="site-menu"
-              onClick={() => setOpen((o) => !o)}
-            >
-              <span className="relative block h-3 w-4" aria-hidden="true">
-                <span className={`absolute left-0 h-px w-4 bg-current transition-transform duration-300 ${open ? "top-1.5 rotate-45" : "top-0.5"}`} />
-                <span className={`absolute left-0 h-px w-4 bg-current transition-transform duration-300 ${open ? "top-1.5 -rotate-45" : "top-2.5"}`} />
-              </span>
-              {open ? "Close" : "Menu"}
-            </button>
-          </div>
         </nav>
-      </header>
 
+        <div className="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => openChat()}
+            className="ai-pill group inline-flex h-10 items-center gap-2 rounded-full pl-1.5 pr-3 text-sm font-medium text-fg sm:pr-4"
+            aria-label="Ask My AI — open Sree AI"
+          >
+            <SreeMark size={28} />
+            <span className="hidden sm:inline">Ask My AI</span>
+          </button>
+          <ThemeToggle className="!border-transparent hover:!border-line" />
+          <button
+            ref={buttonRef}
+            type="button"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-fg-soft transition-colors hover:bg-[var(--glass-lo)] hover:text-fg xl:hidden"
+            aria-expanded={open}
+            aria-controls="site-menu"
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((o) => !o)}
+          >
+            <span className="relative block h-3 w-4" aria-hidden="true">
+              <span className={`absolute left-0 h-[1.5px] w-4 rounded bg-current transition-transform duration-500 ease-[var(--ease-spring)] ${open ? "top-1.5 rotate-45" : "top-0.5"}`} />
+              <span className={`absolute left-0 h-[1.5px] w-4 rounded bg-current transition-transform duration-500 ease-[var(--ease-spring)] ${open ? "top-1.5 -rotate-45" : "top-2.5"}`} />
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Compact menu: unfolds from the capsule. */}
       <div
         id="site-menu"
         ref={menuRef}
@@ -139,48 +199,64 @@ export function SiteNav() {
         aria-modal="true"
         aria-label="Site menu"
         hidden={!open}
-        className="fixed inset-0 z-40 overflow-y-auto bg-bg pt-20 xl:hidden"
+        className="glass pointer-events-auto absolute left-3 right-3 top-[calc(max(0.75rem,env(safe-area-inset-top))+64px)] mx-auto max-h-[calc(100dvh-6rem)] max-w-md overflow-y-auto rounded-[28px] p-3 sm:left-auto sm:right-4 sm:w-[380px] md:top-[84px] xl:hidden"
+        data-dense="true"
+        style={{ animation: open ? "menu-unfold 520ms var(--ease-spring) both" : undefined }}
       >
-        <div className="container-x flex min-h-[calc(100dvh-5rem)] flex-col justify-between pb-10">
-          <ul className="mt-6 space-y-1">
-            {[{ href: "/", label: "Home" }, ...navLinks].map((l, i) => (
-              <li
-                key={l.href}
-                className="overflow-hidden"
-                style={{ animation: open ? `menu-in 600ms ${80 + i * 45}ms cubic-bezier(.22,1,.36,1) both` : undefined }}
-              >
-                <Link
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  aria-current={pathname === l.href ? "page" : undefined}
-                  className="group flex items-baseline gap-4 py-1.5 text-[clamp(2rem,9vw,3.4rem)] font-medium tracking-[-0.04em]"
-                >
-                  <span className="mono w-8 text-xs text-fg-muted" aria-hidden="true">{String(i).padStart(2, "0")}</span>
-                  <span className={pathname === l.href ? "text-accent" : "text-fg transition-colors group-hover:text-accent"}>{l.label}</span>
-                </Link>
-              </li>
-            ))}
+        <nav aria-label="Site">
+          <ul className="grid grid-cols-2 gap-1">
+            {[{ href: "/", label: "Home" }, ...navLinks].map((l, i) => {
+              const active = l.href === "/" ? pathname === "/" : isActive(l.href);
+              return (
+                <li key={l.href} style={{ animation: open ? `menu-item 520ms ${60 + i * 28}ms var(--ease-out) both` : undefined }}>
+                  <Link
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex min-h-12 items-center rounded-2xl px-4 text-[1.02rem] transition-colors ${
+                      active ? "bg-accent-soft text-fg" : "text-fg-soft hover:bg-[var(--glass-lo)] hover:text-fg"
+                    }`}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => {
-                setOpen(false);
-                openChat();
-              }}
-            >
-              <SreeMark size={22} /> Ask Sree
-            </button>
-            <a className="btn btn-ghost" href={profile.resumePath} target="_blank" rel="noopener">
-              Resume (PDF)
-            </a>
-            <a className="chip" href={profile.links.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a className="chip" href={profile.links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </nav>
+        <div className="mt-3 grid gap-2 border-t border-line pt-3">
+          <button
+            type="button"
+            className="btn btn-primary w-full"
+            onClick={() => {
+              setOpen(false);
+              openChat();
+            }}
+          >
+            <SreeMark size={22} /> Ask My AI
+          </button>
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+            <a className="link-u text-sm text-fg-soft" href={profile.resumePath} target="_blank" rel="noopener">Resume (PDF)</a>
+            <span className="flex gap-3 text-sm">
+              <a className="link-u text-fg-soft" href={profile.links.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a className="link-u text-fg-soft" href={profile.links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </span>
           </div>
         </div>
       </div>
-      <style>{`@keyframes menu-in{from{transform:translateY(110%);opacity:0}to{transform:none;opacity:1}}`}</style>
-    </>
+      <style>{`
+        @keyframes menu-unfold{from{opacity:0;transform:translateY(-10px) scale(.96);transform-origin:top right}to{opacity:1;transform:none}}
+        @keyframes menu-item{from{opacity:0;transform:translateY(6px)}}
+        .nav-indicator{
+          left:0;background:var(--accent-soft);
+          box-shadow: inset 0 1px 0 rgb(255 255 255 / .12), inset 0 0 0 1px rgb(120 170 255 / .18);
+          transition: transform 560ms var(--ease-spring), width 560ms var(--ease-spring), opacity 300ms var(--ease-out);
+        }
+        .ai-pill{background:linear-gradient(135deg,rgb(79 143 255/.18),rgb(79 143 255/.04));box-shadow:inset 0 0 0 1px rgb(120 170 255/.28),inset 0 1px 0 rgb(255 255 255/.12);transition:box-shadow .4s var(--ease-out),transform .4s var(--ease-spring)}
+        .ai-pill:hover{box-shadow:inset 0 0 0 1px rgb(120 170 255/.6),0 6px 22px -8px rgb(47 116 255/.6);transform:translateY(-1px)}
+        .ai-pill:active{transform:scale(.97)}
+        @media (prefers-reduced-motion: reduce){.nav-indicator{transition:none}}
+      `}</style>
+    </header>
   );
 }
