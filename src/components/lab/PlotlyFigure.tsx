@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Data, Layout } from "plotly.js-dist-min";
+import { createPlotController, type PlotController, type PlotlyLike } from "./plotController";
 
 export type ChartTheme = {
   mode: "light" | "dark";
@@ -51,7 +52,13 @@ export function baseLayout(t: ChartTheme, extra: Partial<Layout> = {}): Partial<
 
 type PlotlyLib = typeof import("plotly.js-dist-min");
 let plotlyPromise: Promise<PlotlyLib> | null = null;
-const loadPlotly = () => (plotlyPromise ??= import("plotly.js-dist-min").then((m) => (m as unknown as { default: PlotlyLib }).default ?? m));
+const loadPlotly = () =>
+  (plotlyPromise ??= import("plotly.js-dist-min")
+    .then((m) => (m as unknown as { default: PlotlyLib }).default ?? m)
+    .catch((err) => {
+      plotlyPromise = null; // allow a later retry (e.g. after a network blip)
+      throw err;
+    }));
 
 /**
  * Lazy Plotly renderer: the library (~1 MB gz) is fetched only when a chart
@@ -69,6 +76,7 @@ export function PlotlyFigure({
   label: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const ctrlRef = useRef<PlotController | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [near, setNear] = useState(false);
   const [themeTick, setThemeTick] = useState(0);
@@ -77,62 +85,62 @@ export function PlotlyFigure({
     buildRef.current = build;
   });
 
+  // One controller per mount. Strict Mode's mount → unmount → mount gets a
+  // fresh controller, and the disposed one can no longer touch the element.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setNear(true), io.disconnect()), { rootMargin: "150px" });
+    const ctrl = createPlotController(el, loadPlotly as () => Promise<PlotlyLike>);
+    ctrlRef.current = ctrl;
+    // Plotly's own `responsive` handler is disabled; this observer is the only resize path.
+    const ro = new ResizeObserver(() => ctrl.requestResize());
+    ro.observe(el);
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setNear(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "150px" },
+    );
     io.observe(el);
     const mo = new MutationObserver(() => setThemeTick((n) => n + 1));
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     return () => {
+      ro.disconnect();
       io.disconnect();
       mo.disconnect();
+      ctrl.dispose();
+      if (ctrlRef.current === ctrl) ctrlRef.current = null;
     };
   }, []);
 
   useEffect(() => {
-    if (!near || !ref.current) return;
-    let cancelled = false;
-    const el = ref.current;
+    const ctrl = ctrlRef.current;
+    if (!near || !ctrl) return;
+    let stale = false;
     setState((s) => (s === "ready" ? s : "loading"));
-    loadPlotly()
-      .then((Plotly) => {
-        if (cancelled) return;
-        const t = chartTheme();
-        const fig = buildRef.current(t);
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const layout = baseLayout(t, { height, ...fig.layout });
-        if (reduce) layout.transition = { duration: 0 };
-        return Plotly.react(el, fig.data, layout, {
-          responsive: true,
-          displayModeBar: false,
-          displaylogo: false,
-          scrollZoom: false,
-        }).then(() => !cancelled && setState("ready"));
+    const t = chartTheme();
+    const fig = buildRef.current(t);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const layout = baseLayout(t, { height, ...fig.layout });
+    if (reduce) layout.transition = { duration: 0 };
+    ctrl
+      .render(fig.data, layout, { responsive: false, displayModeBar: false, displaylogo: false, scrollZoom: false })
+      .then((ok) => {
+        if (ok && !stale) setState("ready");
       })
-      .catch(() => !cancelled && setState("error"));
+      .catch((err) => {
+        if (stale || ctrl.disposed) return;
+        console.error("[lab] chart failed to render", err);
+        setState("error");
+      });
     return () => {
-      cancelled = true;
+      stale = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [near, themeTick, height, ...deps]);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => {
-      if (state === "ready") loadPlotly().then((P) => P.Plots.resize(el));
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [state]);
-
-  useEffect(() => {
-    const el = ref.current;
-    return () => {
-      if (el && plotlyPromise) plotlyPromise.then((P) => P.purge(el)).catch(() => {});
-    };
-  }, []);
 
   return (
     <div className="relative" style={{ minHeight: height }}>
