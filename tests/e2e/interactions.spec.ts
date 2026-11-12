@@ -6,7 +6,7 @@ test("navigation reaches every section (desktop nav or mobile menu)", async ({ p
   const targets = ["About", "Experience", "Projects", "Achievements", "Education", "Certifications", "Lab", "Contact"];
   for (const label of targets) {
     if (isMobile) {
-      await page.getByRole("button", { name: "Menu" }).click();
+      await page.getByRole("button", { name: "Open menu" }).click();
       const menu = page.getByRole("dialog", { name: "Site menu" });
       await expect(menu).toBeVisible();
       await menu.getByRole("link", { name: label, exact: true }).click();
@@ -22,12 +22,11 @@ test("navigation reaches every section (desktop nav or mobile menu)", async ({ p
 test("mobile menu traps focus and closes with Escape", async ({ page, isMobile }) => {
   test.skip(!isMobile, "mobile only");
   await page.goto("/about");
-  const btn = page.getByRole("button", { name: "Menu" });
-  await btn.click();
+  await page.getByRole("button", { name: "Open menu" }).click();
   await expect(page.getByRole("dialog", { name: "Site menu" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog", { name: "Site menu" })).toBeHidden();
-  await expect(btn).toBeFocused();
+  await expect(page.getByRole("button", { name: "Open menu" })).toBeFocused();
 });
 
 test("Sree AI opens, answers with an honest fallback without a key, and closes with Escape", async ({ page }) => {
