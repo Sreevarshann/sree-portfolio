@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { TeamField, Podium } from "@/components/achievements/FieldViz";
 import { achievements } from "@/content/credentials";
+import { TechChip } from "@/components/ui/TechChip";
 
 export const metadata: Metadata = {
   title: "Achievements",
@@ -45,7 +46,7 @@ export default function AchievementsPage() {
                   ))}
                 </ul>
                 <ul className="mt-8 flex flex-wrap gap-1.5" aria-label="Technologies">
-                  {a.stack.map((s) => <li key={s} className="chip">{s}</li>)}
+                  {a.stack.map((s) => <li key={s}><TechChip name={s} /></li>)}
                 </ul>
                 <div className="mt-10 border-t border-line pt-6">
                   <h3 className="eyebrow">Evidence</h3>

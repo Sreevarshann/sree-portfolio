@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { LogoImage } from "@/components/ui/LogoImage";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { education } from "@/content/credentials";
 
@@ -20,9 +20,9 @@ export default function EducationPage() {
               <div className="grid md:grid-cols-[1fr_1.3fr]">
                 <div className="flex flex-col justify-between gap-10 border-b border-line p-8 md:border-b-0 md:border-r md:p-10">
                   <a href={e.url} target="_blank" rel="noopener noreferrer" aria-label={`${e.institution} website`} className={`inline-block w-fit ${e.institution === "Anna University" ? "rounded-lg bg-white p-2" : ""}`}>
-                    <Image src={e.logo.light} alt={e.logo.alt} width={e.logo.width} height={e.logo.height} className={`h-9 w-auto ${e.logo.light !== e.logo.dark ? "only-light" : ""}`} />
+                    <LogoImage src={e.logo.light} alt={e.logo.alt} width={e.logo.width} height={e.logo.height} fallback={e.institution} variant={e.logo.light !== e.logo.dark ? "light" : "both"} className="h-9 w-auto" />
                     {e.logo.light !== e.logo.dark && (
-                      <Image src={e.logo.dark} alt={e.logo.alt} width={e.logo.width} height={e.logo.height} className="only-dark h-9 w-auto" />
+                      <LogoImage src={e.logo.dark} alt={e.logo.alt} width={e.logo.width} height={e.logo.height} fallback={e.institution} variant="dark" className="h-9 w-auto" />
                     )}
                   </a>
                   <div>

@@ -64,6 +64,8 @@ export type Certification = {
   verifyUrl: string;
   verifyLabel: string;
   issuerMark: string;
+  /** Simple Icons slug for the issuer, when a licensed mark exists. */
+  issuerIcon?: string;
 };
 
 export const certifications: Certification[] = [
@@ -74,6 +76,7 @@ export const certifications: Certification[] = [
     verifyUrl: "https://drive.google.com/file/d/1sF5mPbxL7W--bid7-71LwjQE3Nz3JFLP/view?usp=sharing",
     verifyLabel: "View certificate (PDF)",
     issuerMark: "G",
+    issuerIcon: "google",
   },
   {
     name: "Data Analytics Essentials",
@@ -82,6 +85,7 @@ export const certifications: Certification[] = [
     verifyUrl: "https://drive.google.com/file/d/1D6gsMpZ5aSsYVwvO5OmXpDWg4nN4AgyA/view?usp=sharing",
     verifyLabel: "View certificate (PDF)",
     issuerMark: "C",
+    issuerIcon: "cisco",
   },
   {
     name: "AWS Cloud Practitioner Essentials",
@@ -90,7 +94,7 @@ export const certifications: Certification[] = [
     note: "Completion of AWS's foundational training course. This is not the AWS Certified Cloud Practitioner exam credential.",
     verifyUrl: "https://drive.google.com/file/d/18PYah5Fp-fCwIiDXDmiKgSs3xLvFiMWW/view?usp=sharing",
     verifyLabel: "View course certificate (PDF)",
-    issuerMark: "A",
+    issuerMark: "aws",
   },
 ];
 

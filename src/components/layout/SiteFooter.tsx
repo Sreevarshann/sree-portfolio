@@ -3,6 +3,7 @@ import { profile } from "@/content/profile";
 import { navLinks } from "./navLinks";
 import { BostonLine } from "@/components/ui/BostonLine";
 import { BostonClock } from "./BostonClock";
+import { BrandIcon } from "@/components/ui/BrandIcon";
 
 export function SiteFooter() {
   return (
@@ -33,9 +34,9 @@ export function SiteFooter() {
           <div>
             <p className="eyebrow">Elsewhere</p>
             <ul className="mt-4 space-y-2 text-sm">
-              <li><a className="link-u text-fg-soft hover:text-fg" href={profile.links.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a></li>
-              <li><a className="link-u text-fg-soft hover:text-fg" href={profile.links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
-              <li><a className="link-u text-fg-soft hover:text-fg" href={profile.links.scholar} target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></li>
+              <li><a className="group inline-flex items-center gap-2 text-fg-soft hover:text-fg" href={profile.links.github} target="_blank" rel="noopener noreferrer"><BrandIcon name="github" size={14} /><span className="link-u">GitHub ↗</span></a></li>
+              <li><a className="group inline-flex items-center gap-2 text-fg-soft hover:text-fg" href={profile.links.linkedin} target="_blank" rel="noopener noreferrer"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="8" cy="5.5" r="2.6" /><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3" strokeLinecap="round" /></svg><span className="link-u">LinkedIn ↗</span></a></li>
+              <li><a className="group inline-flex items-center gap-2 text-fg-soft hover:text-fg" href={profile.links.scholar} target="_blank" rel="noopener noreferrer"><BrandIcon name="googlescholar" size={14} /><span className="link-u">Google Scholar ↗</span></a></li>
               <li><a className="link-u text-fg-soft hover:text-fg" href={profile.resumePath} target="_blank" rel="noopener">Resume (PDF) ↗</a></li>
             </ul>
           </div>

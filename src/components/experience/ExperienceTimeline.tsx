@@ -1,20 +1,27 @@
-import Image from "next/image";
+import { LogoImage } from "@/components/ui/LogoImage";
 import { experience } from "@/content/experience";
 import { RoleArt } from "./RoleArt";
+import { TechChip } from "@/components/ui/TechChip";
 
 function CompanyMark({ e }: { e: (typeof experience)[number] }) {
   if (e.logo)
     return (
       <span className="inline-flex h-8 items-center">
-        <Image src={e.logo.light} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} className="only-light h-6 w-auto" />
-        <Image src={e.logo.dark} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} className="only-dark h-6 w-auto" />
+        <LogoImage variant="light" src={e.logo.light} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="h-6 w-auto" />
+        <LogoImage variant="dark" src={e.logo.dark} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="h-6 w-auto" />
       </span>
     );
-  // Text identifier — deliberately not an imitation of any official logo.
+  // Typographic identifier — deliberately not an imitation of any official logo.
   return (
-    <span className="inline-flex items-center gap-2.5">
-      <span className="mono inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line-strong text-[0.7rem] font-semibold text-fg-soft">{e.monogram}</span>
-      <span className="text-sm font-medium text-fg-soft">{e.company}</span>
+    <span className="type-mark inline-flex items-center gap-3">
+      <span className="relative inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-[10px] bg-gradient-to-br from-[var(--surface-2)] to-[var(--bg)] text-[0.78rem] font-semibold tracking-[-0.02em] text-fg ring-1 ring-line-strong">
+        {e.monogram}
+        <span className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent" aria-hidden="true" />
+      </span>
+      <span className="flex flex-col leading-tight">
+        <span className="text-[0.98rem] font-semibold tracking-[-0.02em] text-fg">{e.company}</span>
+        <span className="mono text-[0.62rem] uppercase tracking-[0.14em] text-fg-muted">{e.location}</span>
+      </span>
     </span>
   );
 }
@@ -74,7 +81,9 @@ export function ExperienceTimeline({ compact = false }: { compact?: boolean }) {
               )}
               <ul className="flex flex-wrap gap-1.5 border-t border-line px-6 py-4 md:px-8" aria-label="Technologies">
                 {e.stack.map((s) => (
-                  <li key={s} className="chip">{s}</li>
+                  <li key={s}>
+                    <TechChip name={s} />
+                  </li>
                 ))}
               </ul>
             </div>
