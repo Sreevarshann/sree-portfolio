@@ -26,7 +26,8 @@ function CompanyMark({ e }: { e: (typeof experience)[number] }) {
   );
 }
 
-export function ExperienceTimeline({ compact = false }: { compact?: boolean }) {
+export function ExperienceTimeline({ compact = false, headingLevel = 3 }: { compact?: boolean; headingLevel?: 2 | 3 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   return (
     <ol className="relative">
       <span className="absolute bottom-0 left-[7px] top-2 w-px bg-line md:left-[calc(25%+7px)]" aria-hidden="true">
@@ -50,7 +51,7 @@ export function ExperienceTimeline({ compact = false }: { compact?: boolean }) {
                   ) : (
                     <CompanyMark e={e} />
                   )}
-                  <h3 className="mt-5 text-2xl font-medium tracking-[-0.03em] md:text-[1.75rem]">{e.role}</h3>
+                  <Heading className="mt-5 text-2xl font-medium tracking-[-0.03em] md:text-[1.75rem]">{e.role}</Heading>
                   <p className="mt-1 text-fg-muted">{e.company}</p>
                   <p className="mt-4 leading-relaxed text-fg-soft">{e.summary}</p>
                 </div>

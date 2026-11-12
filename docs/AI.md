@@ -1,6 +1,6 @@
-# Ask Sree
+# Sree AI
 
-A personal AI assistant that answers questions about Sree's work using only verified portfolio content.
+"Ask My AI" on the site. A personal AI assistant that answers questions about Sree's work using only verified portfolio content.
 
 ## Request flow
 
@@ -51,13 +51,21 @@ Also set a **monthly spend limit in the Anthropic Console** — the in-app budge
 
 ## Safety properties
 
-- Never claims to be Sree; refers to him in the third person.
+- Never claims to be Sree; refers to him in the third person. The UI calls it his "digital twin" but states it is an AI assistant that can't make commitments on his behalf; the prompt forbids commitments about availability, interviews, offers, rates or start dates.
 - Answers only from retrieved context; says when it doesn't know and points to email.
 - Separates completed work from planned work; never claims public deployments for local projects.
 - Never shares a phone number (not in the knowledge base, forbidden in the prompt, redacted from output).
 - Ignores instructions inside retrieved text or user-supplied content; refuses persona changes and prompt disclosure.
 - Makes no work-authorization or immigration claims.
 - Stores no visitor data: history lives in the visitor's `sessionStorage`; the server keeps only hashed-IP counters in memory.
+
+## Interface
+
+- Opens from the nav ("Ask My AI"), the floating launcher, **⌘K / Ctrl+K** or **/**; Esc closes.
+- Greeting: "Hey, I'm Sree's AI. Ask me about his experience, projects, or what he's been building." with four starters: *Who is Sree? · What has he built? · What did he do at RightRev? · Why work with Sree?* The full page (`/ask`) offers more.
+- Streaming with a typing indicator, animated message entry, sources, copy, retry, stop, new chat.
+- Desktop: glass panel anchored above the launcher. Mobile: full-height sheet that tracks the visual viewport so the composer stays above the keyboard; focus is trapped and returned on close.
+- The chat bundle (including the Markdown renderer) is lazy-loaded on first open and pre-warmed when the browser is idle.
 
 ## Offline behaviour
 

@@ -39,6 +39,14 @@ Add to `certifications` in `src/content/credentials.ts`. Use `kind: "Training"` 
 - add synonyms in `src/lib/ai/retrieve.ts` if visitors might phrase it differently;
 - run `npm test` — the knowledge base refuses to load if any chunk contains a phone-like number.
 
+## Portrait
+
+Put the approved photo in `public/portrait/` as `sree.webp`, `sree.avif`, `sree.jpg` or `sree.png` (4:5 crop, ≥1200×1500). Optional `public/portrait/focus.json` — `{ "x": 50, "y": 30 }` — sets the focal point. Strip EXIF location data first. Rebuild; the placeholder is replaced everywhere.
+
+## Brand icons
+
+Technology and issuer marks come from Simple Icons (CC0) and are stored as one sprite, `public/brand-icons.svg`, with titles and colors in `src/content/brandIcons.ts`. To add one, add a `<symbol id="slug">` to the sprite, an entry to `brandIcons.ts`, and (if the display name differs) an alias in `src/components/ui/BrandIcon.tsx`. Brands without a licensed mark (LinkedIn, AWS, Flare Innovation, Sri Sairam Techno Incubator) use typographic treatments — don't approximate their logos.
+
 ## Theme or brand colors
 
 Tokens are at the top of `src/app/globals.css`. Chart colors are in `chartTheme()` in `src/components/lab/PlotlyFigure.tsx`; re-validate any new categorical palette for color-vision deficiency before shipping.
