@@ -103,7 +103,7 @@ export default function Home() {
           Let&apos;s build something <span className="serif-accent text-accent-fg">worth trusting.</span>
         </h2>
         <div className="mt-12 flex flex-wrap gap-3" data-reveal>
-          <a href={`mailto:${profile.email}`} className="btn btn-primary" data-magnetic>
+          <a href={`mailto:${profile.email}`} className="btn btn-primary">
             {profile.email} <span className="arrow" aria-hidden="true">→</span>
           </a>
           <a href={profile.links.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">LinkedIn ↗</a>

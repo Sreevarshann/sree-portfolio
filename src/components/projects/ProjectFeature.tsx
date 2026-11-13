@@ -19,7 +19,6 @@ export function ProjectFeature({ project, index, priority = false, headingLevel 
         aria-hidden="true"
         tabIndex={-1}
         data-reveal="media"
-        data-cursor
       >
         <div data-parallax="0.06">
           <ProjectPreview project={project} priority={priority} />
