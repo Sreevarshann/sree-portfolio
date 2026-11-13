@@ -20,6 +20,8 @@ describe("retrieval", () => {
     ["What has he built?", "proj-"],
     ["What did he do at RightRev?", "exp-rightrev"],
     ["Why work with Sree?", "profile"],
+    ["Who is Sreevarshan Sathiyamurthy?", "profile"],
+    ["Who is SS?", "profile"],
   ])("ranks the right chunk for %s", (q, prefix) => {
     const ids = retrieve(q, 6).map((c) => c.id);
     expect(ids.some((id) => id.startsWith(prefix))).toBe(true);

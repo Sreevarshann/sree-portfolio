@@ -23,15 +23,17 @@ const add = (c: KnowledgeChunk) => chunks.push(c);
 
 add({
   id: "profile",
-  title: "Who Sree is",
+  title: "Who Sreevarshan (Sree, SS) is",
   section: "About",
   href: "/about",
   text: [
     `${profile.name} (preferred name: ${profile.displayName}) is based in ${profile.location}.`,
+    `"Sreevarshan Sathiyamurthy", "Sreevarshan", "Sree" and "SS" all refer to the same person. SS is his monogram on this website.`,
     `Positioning: ${profile.roles.join(", ")}.`,
-    profile.summary,
+    "Sreevarshan is an engineer in Boston building intelligent systems, data platforms and software products. He works across the pipeline, the model and the product, because an AI feature is only as good as the data it reads, the checks around it and the interface that explains it.",
+    "He is finishing an M.S. in Data Analytics Engineering at Northeastern University and most recently built Snowflake Cortex AI agents and MCP integrations as a Software & Data Engineer Intern at RightRev. Before that he was a data analyst and engineer at Flare Innovation in Chennai, and earlier a machine learning engineer at the Sri Sairam Techno Incubator Foundation working on an autonomous underwater vehicle.",
+    "He wants to build AI systems teams can trust: agents that cite their sources, data that is checked before it is used, and results that are measured. His personal projects ship with tests, evaluations and honest notes on their limits.",
     profile.headline,
-    ...profile.about,
     `Current focus: ${profile.focus.join("; ")}.`,
     `Engineering values: ${profile.values.map((v) => `${v.title} — ${v.body}`).join(" ")}`,
   ].join(" "),

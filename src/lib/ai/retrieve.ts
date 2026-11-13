@@ -51,6 +51,9 @@ const SYNONYMS: Record<string, string[]> = {
   why: ["experience", "values", "skills"],
   ai: ["agents", "llm", "rag"],
   agent: ["agents"],
+  sreevarshan: ["sree", "sathiyamurthy"],
+  sathiyamurthy: ["sree", "sreevarshan"],
+  ss: ["sree", "sreevarshan", "sathiyamurthy"],
 };
 
 function stem(t: string) {
