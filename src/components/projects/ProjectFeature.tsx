@@ -4,24 +4,44 @@ import type { Project } from "@/content/projects";
 import { ProjectPreview } from "./ProjectPreview";
 import { TechChip } from "@/components/ui/TechChip";
 import { iconFor } from "@/components/ui/BrandIcon";
+import { TiltStage } from "./TiltStage";
+
+/** The project's main path: documented first-row components, left to right. */
+function signalPath(project: Project) {
+  return project.architecture.nodes
+    .filter((n) => n.row === 0)
+    .sort((a, b) => a.col - b.col)
+    .slice(0, 5)
+    .map((n) => n.label);
+}
 
 /** Alternating editorial composition: large preview + narrative column. */
 export function ProjectFeature({ project, index, priority = false, headingLevel = 3 }: { project: Project; index: number; priority?: boolean; headingLevel?: 2 | 3 }) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const flip = index % 2 === 1;
   const secondary = project.screenshots[3] ?? project.screenshots[2];
+  const path = signalPath(project);
+  const num = String(index + 1).padStart(2, "0");
   return (
-    <article className="group grid items-center gap-8 lg:grid-cols-12 lg:gap-12" aria-labelledby={`p-${project.slug}`}>
+    <article
+      className="project-stage group relative grid items-center gap-8 lg:grid-cols-12 lg:gap-12"
+      aria-labelledby={`p-${project.slug}`}
+      style={{ ["--p" as string]: project.accent } as React.CSSProperties}
+    >
+      <div className={`stage-glow ${flip ? "stage-glow-right" : ""}`} aria-hidden="true" />
       <Link
         href={`/projects/${project.slug}`}
-        className={`relative block lg:col-span-7 ${flip ? "lg:order-2" : ""}`}
+        className={`relative block min-w-0 lg:col-span-7 ${flip ? "lg:order-2" : ""}`}
         // Duplicate of the title link for pointer users; hidden from assistive tech and the tab order.
         aria-hidden="true"
         tabIndex={-1}
         data-reveal="media"
       >
+        <span className={`stage-index ${flip ? "stage-index-right" : ""}`} aria-hidden="true">{num}</span>
         <div data-parallax="0.06">
-          <ProjectPreview project={project} priority={priority} />
+          <TiltStage className="stage-media">
+            <ProjectPreview project={project} priority={priority} />
+          </TiltStage>
         </div>
         {secondary && (
           <div
@@ -34,9 +54,10 @@ export function ProjectFeature({ project, index, priority = false, headingLevel 
           </div>
         )}
       </Link>
-      <div className={`lg:col-span-5 ${flip ? "lg:order-1" : ""}`} data-reveal>
-        <p className="eyebrow flex items-center gap-3">
-          <span className="text-accent">{String(index + 1).padStart(2, "0")}</span>
+      <div className={`relative min-w-0 lg:col-span-5 ${flip ? "lg:order-1" : ""}`} data-reveal>
+        <p className="eyebrow relative flex items-center gap-3">
+          <span className="stage-dot" aria-hidden="true" />
+          <span className="text-accent">{num}</span>
           <span>{project.categories.join(" · ")}</span>
         </p>
         <Heading id={`p-${project.slug}`} className="mt-4 text-[clamp(2rem,4vw,3.25rem)] font-medium leading-none tracking-[-0.04em]">
@@ -46,9 +67,22 @@ export function ProjectFeature({ project, index, priority = false, headingLevel 
         </Heading>
         <p className="mt-3 text-lg text-fg-soft">{project.tagline}</p>
         <p className="mt-5 leading-relaxed text-fg-muted">{project.oneLiner}</p>
+        {path.length > 2 && (
+          <div className="signal-path mt-6" aria-label={`Main data path: ${path.join(" to ")}`} role="img">
+            <span className="signal-line" aria-hidden="true"><span className="signal-pulse" /></span>
+            <ol className="relative flex justify-between gap-2" aria-hidden="true">
+              {path.map((label, i) => (
+                <li key={label} className="signal-node" style={{ ["--n" as string]: i } as React.CSSProperties}>
+                  <span className="signal-tick" />
+                  <span className="signal-label">{label}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
         <ul className="mt-6 flex flex-wrap gap-1.5" aria-label="Key technologies">
-          {project.stack.flatMap((g) => g.items).filter((n) => iconFor(n)).slice(0, 5).map((n) => (
-            <li key={n}>
+          {project.stack.flatMap((g) => g.items).filter((n) => iconFor(n)).slice(0, 5).map((n, i) => (
+            <li key={n} className="chip-rise" style={{ ["--i" as string]: i } as React.CSSProperties}>
               <TechChip name={n} />
             </li>
           ))}

@@ -38,6 +38,7 @@ export type Project = {
   ci: string;
   metrics: { value: string; label: string }[];
   screenshots: { src: string; alt: string; caption: string; width: number; height: number }[];
+  /** Signature hue for this project's showcase (decorative only; text keeps theme colours). */
   accent: string;
   credit?: string;
   runNote: string;
@@ -138,7 +139,7 @@ export const projects: Project[] = [
       { src: "/projects/aegis/07-model-intelligence.webp", alt: "Model intelligence page comparing models and drift", caption: "Model intelligence: calibration, comparison and drift", width: 1600, height: 1894 },
       { src: "/projects/aegis/02-live-transactions.webp", alt: "Live transactions table with risk scores", caption: "Live transactions with risk scores", width: 1600, height: 1000 },
     ],
-    accent: "#4C8DFF",
+    accent: "#FF7A59",
     runNote: "Runs locally with Docker Compose (`make demo`). Synthetic data only; not publicly deployed.",
   },
   {
@@ -226,7 +227,7 @@ export const projects: Project[] = [
       { src: "/projects/nexus/data-lab-chart.webp", alt: "Data Lab with a generated chart over DuckDB data", caption: "Data Lab: guarded SQL over DuckDB", width: 1440, height: 900 },
       { src: "/projects/nexus/workspace-conversation-1440.webp", alt: "Streaming conversation workspace", caption: "Streaming workspace conversation", width: 1440, height: 900 },
     ],
-    accent: "#7AA7FF",
+    accent: "#9B7BFF",
     credit: "Evaluation quality gates were contributed by collaborator rithika-sr (merged PR #1).",
     runNote: "Runs locally with Docker Compose and Ollama. Not publicly deployed.",
   },
@@ -309,7 +310,7 @@ export const projects: Project[] = [
       { src: "/projects/sourceatlas/06-pdf-highlight.webp", alt: "PDF viewer highlighting the cited passage", caption: "Cited passage highlighted in the source PDF", width: 1440, height: 900 },
       { src: "/projects/sourceatlas/07-evaluation.webp", alt: "Evaluation dashboard with retrieval and answer metrics", caption: "Evaluation dashboard", width: 1440, height: 2426 },
     ],
-    accent: "#5FB3FF",
+    accent: "#2FC4B2",
     runNote: "Runs locally with Docker Compose and Ollama. Single-tenant, not publicly deployed.",
   },
   {
@@ -390,7 +391,7 @@ export const projects: Project[] = [
       { src: "/projects/tunelab/05-compare.webp", alt: "Comparison of multiple fine-tuning runs", caption: "Run comparison", width: 1440, height: 1100 },
       { src: "/projects/tunelab/08-playground.webp", alt: "Playground for trying the base and tuned model", caption: "Playground", width: 1440, height: 900 },
     ],
-    accent: "#8FB8FF",
+    accent: "#F2B544",
     runNote: "Runs locally on Apple Silicon. Synthetic task, single seed per configuration; not publicly deployed.",
   },
   {
@@ -473,7 +474,7 @@ export const projects: Project[] = [
       { src: "/projects/insightforge/05-chart-studio.webp", alt: "Chart Studio for building Plotly charts", caption: "Chart Studio", width: 1440, height: 900 },
       { src: "/projects/insightforge/07-query-console.webp", alt: "Monaco SQL query console", caption: "Query console with audit log", width: 1440, height: 900 },
     ],
-    accent: "#6E9BFF",
+    accent: "#4C8DFF",
     runNote: "Runs locally with Ollama. No authentication; not publicly deployed.",
   },
   {
@@ -560,7 +561,7 @@ export const projects: Project[] = [
       { src: "/projects/reviewpilot/14-review-dark.webp", alt: "Review page in dark theme", caption: "Dark theme", width: 1440, height: 900 },
       { src: "/projects/reviewpilot/08-live-progress.webp", alt: "Live review progress streamed over SSE", caption: "Live progress over SSE", width: 1200, height: 420 },
     ],
-    accent: "#9DB9FF",
+    accent: "#FF6FA8",
     runNote: "Runs locally with Docker Compose. Billing is a mock; not publicly deployed.",
   },
   {
@@ -642,7 +643,7 @@ export const projects: Project[] = [
       { src: "/projects/workmesh/24-dependency-impact-mode.webp", alt: "Dependency graph in impact mode", caption: "Dependency impact analysis", width: 1600, height: 1000 },
       { src: "/projects/workmesh/08-roadmap-timeline.webp", alt: "Roadmap timeline view", caption: "Roadmap timeline", width: 1600, height: 1000 },
     ],
-    accent: "#A7C4FF",
+    accent: "#58C27D",
     runNote: "Runs locally with Docker Compose. Not publicly deployed.",
   },
 ];
