@@ -51,8 +51,8 @@ const CASES: Case[] = [
   { q: "Where did he do his undergrad?", top: "edu-Anna University", not: NOISE },
   { q: "What was his GPA?", top: "edu-", not: NOISE },
   // skills and fit
-  { q: "What are his strongest technical skills?", top: "skills-", has: ["skills-ai", "skills-data"], not: NOISE, intent: "skills" },
-  { q: "Does he know Python and SQL?", top: "skills-", not: ["resume-event-processing", "site-map"] },
+  { q: "What are his strongest technical skills?", top: "tech-usage", has: ["skills-ai", "skills-data"], not: NOISE, intent: "skills" },
+  { q: "Does he know Python and SQL?", top: "tech-usage", not: ["resume-event-processing", "site-map"] },
   { q: "Why should we hire him for a data engineering role?", top: "profile", has: ["exp-rightrev"], not: ["resume-event-processing", "site-map"] },
   // contact
   { q: "How can I contact him?", top: "contact", not: ["resume-event-processing", "site-map"], intent: "contact" },

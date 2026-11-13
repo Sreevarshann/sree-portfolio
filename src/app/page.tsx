@@ -38,7 +38,7 @@ export default function Home() {
         <Capabilities />
       </section>
 
-      <section className="tools-section" aria-label="Tools and technologies">
+      <section id="tools" className="tools-section" aria-label="Tools and technologies">
         <div className="container-x">
           <SectionHead index="01" eyebrow="Toolkit" title="Tools &" accent="technologies." />
           <p className="mt-6 max-w-xl text-fg-soft" data-reveal>

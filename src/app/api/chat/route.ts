@@ -2,8 +2,11 @@ import type { FallbackReason, StreamEvent } from "@/lib/ai/protocol";
 import { chatRequestSchema, checkRate, clientKey, createStreamRedactor, normalizeHistory, sameOrigin } from "@/lib/ai/guard";
 import { retrieveConversation } from "@/lib/ai/retrieve";
 import { suggestFollowUps } from "@/lib/ai/intent";
-import { SYSTEM_PROMPT, buildUserTurn } from "@/lib/ai/prompt";
-import { citedSources, fallbackLinks } from "@/lib/ai/sources";
+import { SYSTEM_PROMPT, buildUserTurn, sourceId } from "@/lib/ai/prompt";
+import { isAllowedHref } from "@/lib/ai/allowlist";
+import { resolveCitations, type SourceRef } from "@/lib/ai/citations";
+import { groundingText, unsupportedClaims } from "@/lib/ai/validate";
+import { fallbackLinks } from "@/lib/ai/sources";
 import { getProvider, providerKeyName, ProviderError, selectedProvider, type Turn } from "@/lib/ai/providers";
 
 export const maxDuration = 60;
@@ -69,6 +72,9 @@ export async function POST(req: Request) {
       : { role: m.role, content: m.content },
   );
 
+  // The answer cites sources by id; only allowlisted pages are offered.
+  const sourceMap: SourceRef[] = chunks.map((c, i) => ({ id: sourceId(i), label: c.label, href: c.href })).filter((r) => isAllowedHref(r.href));
+
   const abort = new AbortController();
   req.signal.addEventListener("abort", () => abort.abort());
 
@@ -78,6 +84,7 @@ export async function POST(req: Request) {
       const redactor = createStreamRedactor();
       let emitted = false;
       let answer = "";
+      send({ type: "sourceMap", items: sourceMap });
       try {
         const stop = await provider.stream({
           system: SYSTEM_PROMPT,
@@ -104,8 +111,11 @@ export async function POST(req: Request) {
         } else if (stop === "length") {
           send({ type: "delta", text: "\n\n_(Answer trimmed for length — ask a follow-up for more detail.)_" });
         }
-        const sources = citedSources(answer, chunks);
-        if (sources.length) send({ type: "sources", sources });
+        const cited = resolveCitations(answer, sourceMap);
+        if (cited.length) send({ type: "sources", sources: cited.map((c) => ({ id: c.id, title: c.label, href: c.href, section: chunks[Number(c.id.slice(1)) - 1]?.section ?? "" })) });
+        // Claim check against the facts this answer was grounded on: logged, never rewritten.
+        const findings = unsupportedClaims(answer, groundingText(chunks));
+        if (findings.length) console.warn(`[ask-sree] unsupported in answer: ${findings.map((f) => `${f.kind}:${f.value}`).join(", ")}`);
         send({ type: "suggestions", items: suggestions });
         send({ type: "done" });
       } catch (err) {
