@@ -115,8 +115,19 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-12 md:mt-12 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
-          <div className="min-w-0">
+        {/* Portrait first in the markup: phones and tablets show it above the
+            introduction (same visual, reading and focus order); on desktop it
+            is placed in the right column. */}
+        <div className="mt-8 grid gap-10 md:mt-12 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
+          <div
+            className="hero-portrait hero-fade mx-auto mb-10 w-[min(70vw,300px)] lg:col-start-2 lg:row-start-1 lg:mx-0 lg:mb-0 lg:w-full"
+            data-parallax="0.12"
+            data-parallax-min="1024"
+            style={{ ["--enter-delay" as string]: "0.2s" }}
+          >
+            <PortraitSwap pair={portraits} priority />
+          </div>
+          <div className="min-w-0 lg:col-start-1 lg:row-start-1">
             <h1 className="hero-fade hero-name" style={{ ["--enter-delay" as string]: "0.08s" }}>
               Sreevarshan Sathiyamurthy
             </h1>
@@ -141,9 +152,6 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
                 Resume
               </a>
             </div>
-          </div>
-          <div className="hero-fade mx-auto mb-6 w-[min(76vw,320px)] lg:mx-0 lg:mb-0 lg:w-full" data-parallax="0.12" style={{ ["--enter-delay" as string]: "0.35s" }}>
-            <PortraitSwap pair={portraits} priority />
           </div>
         </div>
 
