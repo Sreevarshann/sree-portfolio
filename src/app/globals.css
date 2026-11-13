@@ -1301,3 +1301,6 @@ a:focus-visible > .ss-mark .ss-rule {
   .signal-node:nth-child(even):nth-last-child(-n + 2) .signal-label { left: auto; right: 0; text-align: right; }
   .signal-node:last-child .signal-label { max-width: none; overflow: visible; }
 }
+.rank-counter .rank-run { visibility: hidden; }
+.rank-counter[data-counting] .rank-run { visibility: visible; }
+.rank-counter[data-counting] .rank-final { visibility: hidden; }
