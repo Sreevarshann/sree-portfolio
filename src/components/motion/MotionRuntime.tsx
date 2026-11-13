@@ -37,8 +37,11 @@ export function MotionRuntime() {
             { yPercent: amt * 50, ease: "none", scrollTrigger: { trigger: el.parentElement ?? el, start: "top bottom", end: "bottom top", scrub: true } },
           );
         });
-        // The hero recedes as the page scrolls away from it.
-        gsap.utils.toArray<HTMLElement>("[data-scroll-out]").forEach((el) => {
+        // The hero recedes as the page scrolls away from it — on wide screens
+        // only, where it fits one view; on phones its lower half (portrait,
+        // facts) is still being read while scrolling.
+        const wide = window.matchMedia("(min-width: 1024px)").matches;
+        gsap.utils.toArray<HTMLElement>("[data-scroll-out]").filter(() => wide).forEach((el) => {
           gsap.to(el, {
             yPercent: -8,
             opacity: 0.25,
