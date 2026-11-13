@@ -35,10 +35,9 @@ function Logo({ tech }: { tech: Tech }) {
 
 function Tile({ tech }: { tech: Tech }) {
   return (
-    <li className="tech-tile" data-level={tech.level}>
+    <li className="tech-tile">
       <Logo tech={tech} />
       <span className="tech-name">{tech.name}</span>
-      {tech.level === "exploring" && <span className="sr-only"> (exploring)</span>}
     </li>
   );
 }
@@ -81,48 +80,47 @@ export function TechMarquee() {
   );
 }
 
-/** The same catalog as a static, linked list: where each tool was used. */
+/**
+ * "Where I've Used These Technologies": a compact technical index under the
+ * marquee. Native <details> (works without JS); the panel's height animates
+ * to its exact content size via ::details-content where supported, and
+ * toggles instantly elsewhere. Balanced CSS columns keep short categories from
+ * leaving blank space. Tools without a verified usage context are omitted here.
+ */
 export function TechCatalog() {
+  const groups = TECH_CATEGORIES.map((cat) => ({ cat, items: technologies.filter((t) => t.category === cat && t.usedIn.length > 0) })).filter((g) => g.items.length);
   return (
-    <details className="tech-catalog group">
-      <summary className="tech-catalog-summary">
-        <span>Where I&apos;ve used each one</span>
-        <span className="tech-catalog-chevron" aria-hidden="true">↓</span>
+    <details className="tech-index">
+      <summary className="tech-index-summary">
+        <span>Where I&apos;ve Used These Technologies</span>
+        <svg className="tech-index-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </summary>
-      <div className="mt-8 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-        {TECH_CATEGORIES.map((cat) => (
-          <section key={cat} aria-label={cat}>
-            <h3 className="eyebrow">{cat}</h3>
-            <ul className="mt-4 space-y-3">
-              {technologies
-                .filter((t) => t.category === cat)
-                .map((t) => (
-                  <li key={t.id} className="text-sm leading-relaxed">
-                    <span className="font-medium text-fg">{t.name}</span>
-                    {t.level === "exploring" ? (
-                      <span className="text-fg-muted"> — exploring{t.note ? `; ${t.note.charAt(0).toLowerCase()}${t.note.slice(1)}` : ""}</span>
-                    ) : (
-                      <span className="text-fg-muted">
-                        {" — "}
-                        {t.usedIn.map((id, i) => {
-                          const ev = evidence[id];
-                          if (!ev) return null;
-                          const sep = i === 0 ? "" : ", ";
-                          return (
-                            <span key={id}>
-                              {sep}
-                              {ev.href.endsWith(".pdf") ? (
-                                <a href={ev.href} target="_blank" rel="noopener" className="link-u text-fg-soft hover:text-fg">{ev.label}</a>
-                              ) : (
-                                <Link href={ev.href} className="link-u text-fg-soft hover:text-fg">{ev.label}</Link>
-                              )}
-                            </span>
-                          );
-                        })}
-                      </span>
-                    )}
-                  </li>
-                ))}
+      <div className="tech-index-body">
+        {groups.map(({ cat, items }) => (
+          <section key={cat} className="tech-index-group" aria-label={cat}>
+            <h3 className="tech-index-heading">{cat}</h3>
+            <ul>
+              {items.map((t) => (
+                <li key={t.id} className="tech-index-row">
+                  <span className="tech-index-name">{t.name}</span>
+                  <span className="tech-index-where">
+                    {/* At most three contexts per row, strongest first, so rows stay one line. */}
+                    {t.usedIn.slice(0, 3).map((id, i) => {
+                      const ev = evidence[id];
+                      if (!ev) return null;
+                      return (
+                        <span key={id}>
+                          {i > 0 && <span className="tech-index-sep" aria-hidden="true"> · </span>}
+                          {i > 0 && <span className="sr-only">, </span>}
+                          <Link href={ev.href} className="tech-index-link">{ev.label}</Link>
+                        </span>
+                      );
+                    })}
+                  </span>
+                </li>
+              ))}
             </ul>
           </section>
         ))}

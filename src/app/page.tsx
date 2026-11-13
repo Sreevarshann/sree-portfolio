@@ -38,7 +38,7 @@ export default function Home() {
         <Capabilities />
       </section>
 
-      <section className="section tools-section" aria-label="Tools and technologies">
+      <section className="tools-section" aria-label="Tools and technologies">
         <div className="container-x">
           <SectionHead index="01" eyebrow="Toolkit" title="Tools &" accent="technologies." />
           <p className="mt-6 max-w-xl text-fg-soft" data-reveal>
@@ -49,13 +49,7 @@ export default function Home() {
           <TechMarquee />
         </div>
         <div className="container-x mt-8">
-          <p className="tech-legend">
-            <span><span className="tech-legend-swatch" aria-hidden="true" /> Used in work or projects</span>
-            <span><span className="tech-legend-swatch tech-legend-swatch-dashed" aria-hidden="true" /> Exploring</span>
-          </p>
-          <div className="mt-8">
-            <TechCatalog />
-          </div>
+          <TechCatalog />
         </div>
       </section>
 

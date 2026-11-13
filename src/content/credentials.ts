@@ -149,7 +149,7 @@ export const achievements: Achievement[] = [
     ],
     proof: {
       href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_sauvc2022-throwback-teamvaruna-ugcPost-7244625106197512192-ilNL/",
-      label: "SAUVC result post on LinkedIn",
+      label: "SAUVC result post",
     },
     project: "Autonomous underwater vehicle",
     summary:
@@ -174,7 +174,7 @@ export const achievements: Achievement[] = [
     rank: { place: 3, suffix: "rd" },
     proof: {
       href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_mlops-machinelearning-dataengineering-ugcPost-7408534309613031425-L_Bj/",
-      label: "Google MLOps Expo result post on LinkedIn",
+      label: "Google MLOps Expo result post",
     },
     project: "Charlie — MBTA Real-Time Chatbot",
     summary:
