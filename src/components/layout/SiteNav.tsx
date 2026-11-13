@@ -7,6 +7,7 @@ import { navLinks } from "./navLinks";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAskSree } from "@/components/ask/AskSreeProvider";
 import { SreeMark } from "@/components/ui/SreeMark";
+import { Monogram } from "@/components/ui/Monogram";
 import { profile } from "@/content/profile";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 
@@ -122,11 +123,9 @@ export function SiteNav() {
           compact ? "h-[52px] max-w-[1080px] px-2" : "h-[60px] max-w-[1240px] px-3"
         }`}
       >
-        <Link href="/" className="group flex shrink-0 items-center gap-2.5 rounded-full py-1 pl-2 pr-3" aria-label="Sree — home">
-          <span className={`font-semibold tracking-[-0.04em] transition-[font-size] duration-500 ${compact ? "text-[1.15rem]" : "text-[1.3rem]"}`}>
-            Sree<span className="text-accent transition-colors group-hover:text-accent-fg">.</span>
-          </span>
-          <span className={`eyebrow hidden transition-opacity duration-500 2xl:inline ${compact ? "opacity-0" : "opacity-100"}`}>AI · Data · Software</span>
+        <Link href="/" className="group flex shrink-0 items-center gap-3 rounded-full p-1 pr-2" aria-label="Sreevarshan Sathiyamurthy — Home">
+          <Monogram size={compact ? 38 : 42} className="transition-[width,height,font-size] duration-500" />
+          <span className={`eyebrow hidden text-fg-soft transition-opacity duration-500 2xl:inline ${compact ? "opacity-0" : "opacity-100"}`}>Sreevarshan Sathiyamurthy</span>
         </Link>
 
         <nav aria-label="Primary" className="relative hidden xl:block">

@@ -80,7 +80,7 @@ export function Portrait({
       </div>
       {!small && (
         <figcaption className="mono mt-5 flex items-center justify-between text-[0.66rem] uppercase tracking-[0.14em] text-fg-muted">
-          <span>Sree · Boston</span>
+          <span>Sreevarshan · Boston</span>
           <span>42.36° N</span>
         </figcaption>
       )}
@@ -126,7 +126,7 @@ function PortraitPlaceholder({ small }: { small: boolean }) {
         ))}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={`serif-accent leading-none text-accent-fg ${small ? "text-3xl" : "text-[6.5rem]"}`}>S</span>
+        <span className={`font-medium leading-none tracking-[0.04em] text-accent-fg ${small ? "text-2xl" : "text-[5rem]"}`}>SS</span>
         {!small && <span className="mono mt-4 text-[0.62rem] uppercase tracking-[0.2em] text-fg-muted">Photo coming soon</span>}
       </div>
     </div>
