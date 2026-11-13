@@ -1606,14 +1606,6 @@ a:focus-visible > .ss-mark .ss-rule {
   border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
   background: var(--accent-soft);
 }
-.tech-tile[data-level="exploring"] {
-  border-style: dashed;
-  border-color: var(--line-strong);
-  background: transparent;
-}
-.tech-tile[data-level="exploring"] .tech-name {
-  color: var(--fg-muted);
-}
 .tech-logo {
   width: 24px;
   height: 24px;
@@ -1639,51 +1631,107 @@ a:focus-visible > .ss-mark .ss-rule {
   letter-spacing: -0.01em;
   color: var(--fg-soft);
 }
-.tech-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  font-size: 0.78rem;
-  color: var(--fg-muted);
+/* The toolkit is a strip between two full sections: it carries a lighter
+   rhythm than .section so the space around it reads as one gap, not two. */
+.tools-section {
+  padding-top: clamp(56px, 7vw, 104px);
+  padding-bottom: clamp(24px, 3vw, 40px);
 }
-.tech-legend > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.tech-legend-swatch {
-  width: 22px;
-  height: 12px;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
-  background: var(--bg-elev);
-}
-.tech-legend-swatch-dashed {
-  border-style: dashed;
-  background: transparent;
-}
-.tech-catalog {
+
+/* "Where I've Used These Technologies" */
+.tech-index {
   border-top: 1px solid var(--line);
-  padding-top: 1.25rem;
+  interpolate-size: allow-keywords;
 }
-.tech-catalog-summary {
-  display: inline-flex;
+.tech-index-summary {
+  display: flex;
   align-items: center;
   gap: 0.6rem;
-  min-height: 44px;
+  min-height: 52px;
   cursor: pointer;
   list-style: none;
   font-size: 0.95rem;
   color: var(--fg-soft);
+  transition: color var(--dur-s) var(--ease-out);
 }
-.tech-catalog-summary::-webkit-details-marker { display: none; }
-.tech-catalog-summary:hover { color: var(--fg); }
-.tech-catalog-chevron {
-  display: inline-block;
+.tech-index-summary::-webkit-details-marker { display: none; }
+.tech-index-summary:hover { color: var(--fg); }
+.tech-index-summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.tech-index-chevron {
   color: var(--accent-fg);
   transition: transform var(--dur-m) var(--ease-spring-soft);
 }
-.tech-catalog[open] .tech-catalog-chevron { transform: rotate(180deg); }
+.tech-index[open] .tech-index-chevron { transform: rotate(180deg); }
+/* Content-sized height animation: block-size 0 → auto, then it rests at auto. */
+@media (prefers-reduced-motion: no-preference) {
+  .tech-index::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size var(--dur-l) var(--ease-emph), content-visibility var(--dur-l) allow-discrete;
+  }
+  .tech-index[open]::details-content {
+    block-size: auto;
+  }
+}
+.tech-index-body {
+  columns: 1;
+  column-gap: clamp(28px, 4vw, 56px);
+  padding: 0.5rem 0 1.25rem;
+}
+@media (min-width: 640px) { .tech-index-body { columns: 2; } }
+@media (min-width: 1024px) { .tech-index-body { columns: 3; } }
+.tech-index-group {
+  break-inside: avoid;
+  padding-block: 0.9rem 0.6rem;
+}
+.tech-index-heading {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-fg);
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--line);
+}
+.tech-index-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.15rem 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 60%, transparent);
+}
+.tech-index-row:last-child { border-bottom: 0; }
+.tech-index-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+}
+.tech-index-where {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--fg-muted);
+  text-align: right;
+}
+.tech-index-sep { color: var(--fg-muted); opacity: 0.55; }
+.tech-index-link {
+  color: var(--fg-muted);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: color var(--dur-s) var(--ease-out), background-size var(--dur-m) var(--ease-out);
+}
+.tech-index-link:hover,
+.tech-index-link:focus-visible {
+  color: var(--fg);
+  background-size: 100% 1px;
+}
+.tech-index-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
 /* Reduced motion: a still, wrapped list; the duplicate copy is removed. */
 @media (prefers-reduced-motion: reduce) {
   .marquee {
