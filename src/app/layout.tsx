@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { MotionRuntime } from "@/components/motion/MotionRuntime";
 import { AskSreeProvider } from "@/components/ask/AskSreeProvider";
 import { AskSreeLauncher } from "@/components/ask/AskSreeLauncher";
-import { themeScript } from "@/components/layout/themeScript";
+import { themeScript, viewScript } from "@/components/layout/themeScript";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -83,11 +83,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-theme="dark"
+      data-view="quick"
       suppressHydrationWarning
       className={`${sans.variable} ${mono.variable} ${serif.variable} antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: viewScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
