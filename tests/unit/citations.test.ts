@@ -34,6 +34,15 @@ describe("citations", () => {
     expect(renderCitationMarkers("He built agents [S2]", map, true)).toBe("He built agents[1](#cite-1)");
   });
 
+  it("accepts full-width citation brackets (seen in a live Groq answer)", () => {
+    const live = "Salesforce APIs and REST APIs 【S1】.";
+    const m = [{ id: "S1", label: "RightRev", href: "/experience#rightrev" }];
+    expect(resolveCitations(live, m).map((c) => c.label)).toEqual(["RightRev"]);
+    expect(renderCitationMarkers(live, m)).toBe("Salesforce APIs and REST APIs[1](#cite-1).");
+    expect(stripCitationMarkers(live)).toBe("Salesforce APIs and REST APIs.");
+    expect(renderCitationMarkers("REST APIs 【S", m, true)).toBe("REST APIs ");
+  });
+
   it("copies clean text without markers", () => {
     expect(stripCitationMarkers("Engineer [S1]. Agents [S2, S3].")).toBe("Engineer. Agents.");
   });

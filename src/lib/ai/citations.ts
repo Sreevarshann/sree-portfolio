@@ -7,8 +7,16 @@
 export type SourceRef = { id: string; label: string; href: string };
 export type Citation = SourceRef & { n: number };
 
-/** One marker or a group: [S1] · [S1][S3] · [S1, S3] · [S1; S3]. */
-const GROUP = /\[\s*(S\d{1,2}(?:\s*[,;]\s*S\d{1,2})*)\s*\]/g;
+/**
+ * One marker or a group: [S1] · [S1][S3] · [S1, S3] · [S1; S3]. Full-width
+ * brackets (【S1】), which some models emit for citations, are accepted too.
+ */
+const OPEN = "[\\[【]";
+const CLOSE = "[\\]】]";
+const IDS = "(S\\d{1,2}(?:\\s*[,;，]\\s*S\\d{1,2})*)";
+const GROUP = new RegExp(`${OPEN}\\s*${IDS}\\s*${CLOSE}`, "g");
+const GROUP_WITH_SPACE = new RegExp(`[ \\t]*${OPEN}\\s*${IDS}\\s*${CLOSE}`, "g");
+const splitIds = (ids: string) => ids.split(/[,;，]/).map((x) => x.trim());
 
 /** Experience/achievement anchors are distinct pages; other hashes are not. */
 const pageKey = (href: string) => (/^\/(experience|achievements)#/.test(href) ? href : href.replace(/#.*$/, ""));
@@ -19,7 +27,7 @@ export function resolveCitations(text: string, map: SourceRef[]): Citation[] {
   const out: Citation[] = [];
   const seen = new Map<string, number>();
   for (const m of text.matchAll(GROUP)) {
-    for (const id of m[1].split(/[,;]/).map((x) => x.trim())) {
+    for (const id of splitIds(m[1])) {
       const ref = byId.get(id);
       if (!ref) continue;
       const key = pageKey(ref.href);
@@ -43,15 +51,15 @@ export function renderCitationMarkers(text: string, map: SourceRef[], streaming 
     const ref = byId.get(id);
     return ref ? cited.find((c) => pageKey(c.href) === pageKey(ref.href))?.n : undefined;
   };
-  let out = text.replace(/[ \t]*\[\s*(S\d{1,2}(?:\s*[,;]\s*S\d{1,2})*)\s*\]/g, (_, ids: string) => {
-    const ns = [...new Set(ids.split(/[,;]/).map((x) => numberFor(x.trim())).filter((n): n is number => n !== undefined))];
+  let out = text.replace(GROUP_WITH_SPACE, (_, ids: string) => {
+    const ns = [...new Set(splitIds(ids).map((x) => numberFor(x)).filter((n): n is number => n !== undefined))];
     return ns.map((n) => `[${n}](#cite-${n})`).join("");
   });
-  if (streaming) out = out.replace(/\[\s*S?\d{0,2}(\s*[,;]\s*S?\d{0,2})*$/, "");
+  if (streaming) out = out.replace(/[[【]\s*S?\d{0,2}(\s*[,;，]\s*S?\d{0,2})*$/, "");
   return out;
 }
 
 /** The answer without citation markers (for copying and validation). */
 export function stripCitationMarkers(text: string) {
-  return text.replace(/[ \t]*\[\s*S\d{1,2}(?:\s*[,;]\s*S\d{1,2})*\s*\]/g, "");
+  return text.replace(GROUP_WITH_SPACE, "");
 }
