@@ -33,8 +33,15 @@ test("every case study links to its own GitHub repository", async ({ page }) => 
 test("GitHub repository links resolve", async ({ request }) => {
   test.skip(!!process.env.CI, "Live network check runs locally; CI checks the URL format above.");
   for (const p of projects) {
-    const res = await request.get(p.repoUrl, { maxRedirects: 2 });
-    expect(res.status(), p.repoUrl).toBe(200);
+    let status = 0;
+    for (let attempt = 0; attempt < 3 && status !== 200; attempt++) {
+      try {
+        status = (await request.get(p.repoUrl, { maxRedirects: 2 })).status();
+      } catch {
+        status = -1; // connection reset: retry
+      }
+    }
+    expect(status, p.repoUrl).toBe(200);
   }
 });
 

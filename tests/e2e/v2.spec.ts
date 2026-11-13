@@ -77,9 +77,14 @@ test("floating nav condenses on scroll and the indicator follows the page", asyn
   await expect.poll(async () => (await capsule.boundingBox())!.height).toBeLessThan(tall);
   const active = page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Projects" });
   await expect(active).toHaveAttribute("aria-current", "page");
-  const ind = await page.locator(".nav-indicator").boundingBox();
-  const link = await active.boundingBox();
-  expect(Math.abs(ind!.x - link!.x)).toBeLessThan(3);
+  // The indicator glides (560ms spring) to its target; wait for it to settle.
+  await expect
+    .poll(async () => {
+      const ind = await page.locator(".nav-indicator").boundingBox();
+      const link = await active.boundingBox();
+      return Math.abs(ind!.x - link!.x);
+    })
+    .toBeLessThan(3);
 });
 
 test("mobile menu closes by tapping outside", async ({ page, isMobile }) => {
