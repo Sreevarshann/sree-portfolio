@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { profile } from "@/content/profile";
-import { navLinks } from "./navLinks";
+import { MORE_NAV, PRIMARY_NAV } from "@/lib/nav";
 import { BostonLine } from "@/components/ui/BostonLine";
 import { ContourEcho } from "@/components/ui/ContourEcho";
 import { BostonClock } from "./BostonClock";
@@ -25,7 +25,7 @@ export function SiteFooter() {
           <nav aria-label="Footer">
             <p className="eyebrow">Index</p>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              {[{ href: "/", label: "Home" }, ...navLinks, { href: "/ask", label: "Sree AI" }].map((l) => (
+              {[{ href: "/", label: "Home" }, ...PRIMARY_NAV, ...MORE_NAV.filter((l) => !("external" in l)), { href: "/ask", label: "Sree AI" }].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="link-u text-fg-soft hover:text-fg">
                     {l.label}
@@ -40,6 +40,8 @@ export function SiteFooter() {
               <li><a className="group inline-flex items-center gap-2 text-fg-soft hover:text-fg" href={profile.links.github} target="_blank" rel="noopener noreferrer"><BrandIcon name="github" size={14} /><span className="link-u">GitHub ↗</span></a></li>
               <li><a className="group inline-flex items-center gap-2 text-fg-soft hover:text-fg" href={profile.links.linkedin} target="_blank" rel="noopener noreferrer"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="8" cy="5.5" r="2.6" /><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3" strokeLinecap="round" /></svg><span className="link-u">LinkedIn ↗</span></a></li>
               <li><a className="group inline-flex items-center gap-2 text-fg-soft hover:text-fg" href={profile.links.scholar} target="_blank" rel="noopener noreferrer"><BrandIcon name="googlescholar" size={14} /><span className="link-u">Google Scholar ↗</span></a></li>
+              {/* eslint-disable-next-line @next/next/no-img-element -- 1 KB static brand SVG */}
+              <li><a className="group inline-flex items-center gap-2 text-fg-soft hover:text-fg" href={profile.links.tableau} target="_blank" rel="noopener noreferrer"><img src="/tech/tableau.svg" alt="" width={14} height={14} className="h-3.5 w-3.5" /><span className="link-u">Tableau Public ↗</span></a></li>
               <li><a className="link-u text-fg-soft hover:text-fg" href={profile.resumePath} target="_blank" rel="noopener">Resume (PDF) ↗</a></li>
             </ul>
           </div>

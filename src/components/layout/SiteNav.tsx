@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { navLinks } from "./navLinks";
 import { ThemeToggle } from "./ThemeToggle";
+import { ViewSwitch } from "./ViewSwitch";
+import { COACH_BODY_ID, ViewCoachMark } from "./ViewCoachMark";
+import { MORE_KEYS, MORE_NAV, PRIMARY_NAV, type NavKey } from "@/lib/nav";
+import { useActiveNav } from "@/lib/useActiveNav";
+import { computePosition, autoUpdate, offset, flip, shift } from "@floating-ui/dom";
 import { useAskSree } from "@/components/ask/AskSreeProvider";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { Monogram } from "@/components/ui/Monogram";
@@ -41,7 +45,16 @@ export function SiteNav() {
   const [indicator, setIndicator] = useState<{ x: number; w: number; visible: boolean }>({ x: 0, w: 0, visible: false });
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const isActive = useCallback((href: string) => pathname === href || pathname.startsWith(href + "/"), [pathname]);
+  // One registry decides what is active: the route's owner, or on the homepage
+  // the owner of the section being read.
+  const activeKey = useActiveNav(pathname);
+  const isHome = pathname === "/";
+  const isActive = useCallback((key: NavKey) => key === activeKey, [activeKey]);
+  const moreActive = activeKey !== null && MORE_KEYS.has(activeKey);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [coachOpen, setCoachOpen] = useState(false);
+  const moreBtnRef = useRef<HTMLButtonElement>(null);
+  const morePanelRef = useRef<HTMLDivElement>(null);
 
   // State machine: expanded at the top, compact once scrolled (with hysteresis so
   // small scroll jitter or rapid direction changes never flicker between states).
@@ -92,10 +105,12 @@ export function SiteNav() {
       const mono = brand.querySelector<HTMLElement>(".ss-mark")!;
       const ai = actions.querySelector<HTMLElement>(".ai-pill")!;
       const toggle = actions.querySelector<HTMLElement>("[aria-label^='Switch to']")!;
+      const view = actions.querySelector<HTMLElement>("[data-island-part='view']");
       const actionGap = parseFloat(getComputedStyle(actions).columnGap || "0");
       const compactParts =
         mono.getBoundingClientRect().width + pad(brand) +
         list.getBoundingClientRect().width +
+        (view ? view.getBoundingClientRect().width + actionGap : 0) +
         ai.getBoundingClientRect().height + actionGap + toggle.getBoundingClientRect().width;
       // Compact gap is 4px between the three parts.
       const gaps = 4 * 2;
@@ -141,11 +156,11 @@ export function SiteNav() {
     const list = listRef.current;
     if (!list) return;
     const target =
-      (hovered && list.querySelector<HTMLElement>(`[data-href="${hovered}"]`)) ||
-      Array.from(list.querySelectorAll<HTMLElement>("[data-href]")).find((a) => isActive(a.dataset.href!));
+      (hovered && list.querySelector<HTMLElement>(`[data-key="${hovered}"]`)) ||
+      Array.from(list.querySelectorAll<HTMLElement>("[data-key]")).find((a) => (a.dataset.key === "more" ? moreActive : isActive(a.dataset.key as NavKey)));
     if (!target) return setIndicator((s) => ({ ...s, visible: false }));
     setIndicator({ x: target.offsetLeft, w: target.offsetWidth, visible: true });
-  }, [hovered, isActive]);
+  }, [hovered, isActive, moreActive]);
   useIsoLayoutEffect(() => {
     measureIndicator();
   }, [measureIndicator, state]);
@@ -167,7 +182,39 @@ export function SiteNav() {
   if (pathname !== lastPath) {
     setLastPath(pathname);
     if (open) setOpen(false);
+    if (moreOpen) setMoreOpen(false);
   }
+
+  // "More" dropdown: anchored to its button with Floating UI, closes on Escape,
+  // outside press or navigation; focus returns to the button on Escape.
+  useEffect(() => {
+    if (!moreOpen) return;
+    const btn = moreBtnRef.current;
+    const panel = morePanelRef.current;
+    if (!btn || !panel) return;
+    const stop = autoUpdate(btn, panel, () => {
+      computePosition(btn, panel, { placement: "bottom-end", strategy: "fixed", middleware: [offset(14), flip(), shift({ padding: 12 })] }).then(({ x, y }) => {
+        Object.assign(panel.style, { left: `${x}px`, top: `${y}px` });
+      });
+    });
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMoreOpen(false);
+        btn.focus();
+      }
+    };
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!panel.contains(t) && !btn.contains(t)) setMoreOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => {
+      stop();
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+    };
+  }, [moreOpen]);
 
   useEffect(() => {
     if (!open) return;
@@ -197,7 +244,14 @@ export function SiteNav() {
         data-dense={compact || open}
         className="island glass pointer-events-auto relative flex items-center"
       >
-        <Link href="/" data-island-part="brand" className="island-brand group flex shrink-0 items-center rounded-full" aria-label="Sreevarshan Sathiyamurthy — Home">
+        <Link
+          href="/"
+          data-island-part="brand"
+          data-active={activeKey === "home" || undefined}
+          aria-current={isHome && activeKey === "home" ? "page" : undefined}
+          className="island-brand group flex shrink-0 items-center rounded-full"
+          aria-label="Sreevarshan Sathiyamurthy — Home"
+        >
           <Monogram size={40} className="island-mono" />
           <span className="collapse-x island-name" aria-hidden="true">
             <span><span className="eyebrow block whitespace-nowrap pl-3 pr-2 text-fg-soft">Sreevarshan Sathiyamurthy</span></span>
@@ -215,16 +269,17 @@ export function SiteNav() {
                 opacity: indicator.visible ? 1 : 0,
               }}
             />
-            {navLinks.map((l) => {
-              const active = isActive(l.href);
+            {PRIMARY_NAV.map((l) => {
+              const active = isActive(l.key);
               return (
-                <li key={l.href}>
+                <li key={l.key}>
                   <Link
                     href={l.href}
-                    data-href={l.href}
-                    aria-current={active ? "page" : undefined}
-                    onMouseEnter={() => setHovered(l.href)}
-                    onFocus={() => setHovered(l.href)}
+                    data-key={l.key}
+                    // A route match is the current page; a homepage section match is the current location.
+                    aria-current={active ? (isHome ? "location" : "page") : undefined}
+                    onMouseEnter={() => setHovered(l.key)}
+                    onFocus={() => setHovered(l.key)}
                     onBlur={() => setHovered(null)}
                     className={`relative z-[1] block whitespace-nowrap rounded-full px-3.5 py-2 text-[0.86rem] transition-colors duration-300 ${
                       active ? "text-fg" : "text-fg-muted hover:text-fg"
@@ -235,10 +290,33 @@ export function SiteNav() {
                 </li>
               );
             })}
+            <li>
+              <button
+                ref={moreBtnRef}
+                type="button"
+                data-key="more"
+                aria-expanded={moreOpen}
+                aria-controls="more-menu"
+                aria-current={moreActive ? "true" : undefined}
+                onClick={() => setMoreOpen((o) => !o)}
+                onMouseEnter={() => setHovered("more" as NavKey)}
+                onFocus={() => setHovered("more" as NavKey)}
+                onBlur={() => setHovered(null)}
+                className={`relative z-[1] flex items-center gap-1 whitespace-nowrap rounded-full px-3.5 py-2 text-[0.86rem] transition-colors duration-300 ${
+                  moreActive || moreOpen ? "text-fg" : "text-fg-muted hover:text-fg"
+                }`}
+              >
+                More
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true" className={`transition-transform duration-300 ${moreOpen ? "rotate-180" : ""}`}>
+                  <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </li>
           </ul>
         </nav>
 
         <div data-island-part="actions" className="island-actions flex shrink-0 items-center gap-1.5">
+          {isHome && <ViewSwitch describedBy={coachOpen ? COACH_BODY_ID : undefined} />}
           <button
             type="button"
             onClick={() => openChat()}
@@ -268,6 +346,45 @@ export function SiteNav() {
         </div>
       </div>
 
+      {isHome && <ViewCoachMark suspended={open || moreOpen} onOpenChange={setCoachOpen} />}
+
+      {/* Desktop "More" dropdown. */}
+      <div
+        id="more-menu"
+        ref={morePanelRef}
+        hidden={!moreOpen}
+        className="more-panel glass pointer-events-auto fixed z-50 w-[248px] rounded-[22px] p-2"
+        data-dense="true"
+      >
+        <nav aria-label="More">
+          <ul className="grid gap-0.5">
+            {MORE_NAV.map((l) => {
+              const external = "external" in l;
+              const active = !external && isActive(l.key as NavKey);
+              return (
+                <li key={l.key}>
+                  {external ? (
+                    <a href={l.href} target="_blank" rel="noopener noreferrer" className="more-item" onClick={() => setMoreOpen(false)}>
+                      <span className="flex items-center gap-2.5">
+                        {/* eslint-disable-next-line @next/next/no-img-element -- 1 KB static brand SVG */}
+                        <img src="/tech/tableau.svg" alt="" width={16} height={16} className="h-4 w-4" />
+                        {l.label}
+                      </span>
+                      <span aria-hidden="true" className="text-fg-muted">↗</span>
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  ) : (
+                    <Link href={l.href} className="more-item" data-active={active || undefined} aria-current={active ? (isHome ? "location" : "page") : undefined} onClick={() => setMoreOpen(false)}>
+                      {l.label}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </div>
+
       {/* Compact menu: unfolds from the capsule. */}
       <div
         id="site-menu"
@@ -282,20 +399,25 @@ export function SiteNav() {
       >
         <nav aria-label="Site">
           <ul className="grid grid-cols-2 gap-1">
-            {[{ href: "/", label: "Home" }, ...navLinks].map((l, i) => {
-              const active = l.href === "/" ? pathname === "/" : isActive(l.href);
+            {[{ key: "home" as NavKey, href: "/", label: "Home" }, ...PRIMARY_NAV, ...MORE_NAV].map((l, i) => {
+              const external = "external" in l;
+              const active = !external && isActive(l.key as NavKey);
+              const cls = `flex min-h-12 items-center justify-between rounded-2xl px-4 text-[1.02rem] transition-colors ${
+                active ? "bg-accent-soft text-fg" : "text-fg-soft hover:bg-[var(--glass-lo)] hover:text-fg"
+              }`;
               return (
-                <li key={l.href} style={{ animation: open ? `menu-item 520ms ${60 + i * 28}ms var(--ease-out) both` : undefined }}>
-                  <Link
-                    href={l.href}
-                    onClick={() => setOpen(false)}
-                    aria-current={active ? "page" : undefined}
-                    className={`flex min-h-12 items-center rounded-2xl px-4 text-[1.02rem] transition-colors ${
-                      active ? "bg-accent-soft text-fg" : "text-fg-soft hover:bg-[var(--glass-lo)] hover:text-fg"
-                    }`}
-                  >
-                    {l.label}
-                  </Link>
+                <li key={l.key} style={{ animation: open ? `menu-item 520ms ${60 + i * 28}ms var(--ease-out) both` : undefined }}>
+                  {external ? (
+                    <a href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className={cls}>
+                      {l.label}
+                      <span aria-hidden="true" className="text-fg-muted">↗</span>
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  ) : (
+                    <Link href={l.href} onClick={() => setOpen(false)} aria-current={active ? (isHome ? "location" : "page") : undefined} className={cls}>
+                      {l.label}
+                    </Link>
+                  )}
                 </li>
               );
             })}
