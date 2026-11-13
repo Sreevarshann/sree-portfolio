@@ -65,7 +65,8 @@ export const education: Education[] = [
     location: "West Tambaram, Chennai, India",
     url: "https://www.annauniv.edu",
     logos: [
-      { light: "/logos/anna-university.png", dark: "/logos/anna-university.png", width: 631, height: 78, alt: "Anna University, Chennai logo", url: "https://www.annauniv.edu", h: 36, plate: true, show: "all" },
+      { light: "/logos/anna-emblem-wide-light-bg.png", dark: "/logos/anna-emblem-wide-dark-bg.png", width: 232, height: 232, alt: "Anna University emblem", url: "https://www.annauniv.edu", h: 112, show: "wide" },
+      { light: "/logos/anna-emblem-compact-light-bg.png", dark: "/logos/anna-emblem-compact-dark-bg.png", width: 480, height: 476, alt: "Anna University emblem", url: "https://www.annauniv.edu", h: 104, show: "compact" },
       { light: "/logos/sairam-college-wide.png", dark: "/logos/sairam-college-wide.png", width: 1000, height: 317, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 64, plate: true, show: "wide", label: "Affiliated college" },
       { light: "/logos/sairam-college-stacked.png", dark: "/logos/sairam-college-stacked.png", width: 383, height: 359, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 112, plate: true, show: "compact", label: "Affiliated college" },
     ],

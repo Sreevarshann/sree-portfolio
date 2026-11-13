@@ -9,8 +9,8 @@ Evidence for every factual claim on the site. Audited November 2026.
 | Resume (private original, not in this repo) | Name, location, email, links, education, experience, achievements, certifications |
 | Resume PDF hyperlinks | Google Scholar URL, certificate document links |
 | Public GitHub repositories (README, docs/, CI) | Projects, features, architecture, tests, metrics, screenshots |
-| Official websites | RightRev logo (rightrev.com), Anna University logo (annauniv.edu), SAUVC site (sauvc.org) |
-| Supplied by Sree | Northeastern University (logo and seal), Sri Sairam Engineering College (wide and stacked), Flare Innovations and Sri Sairam Techno Incubator Foundation logos (backgrounds removed; dark-theme variants recolour only the neutral ink, brand colours unchanged) |
+| Official websites | RightRev logo (rightrev.com), SAUVC site (sauvc.org) |
+| Supplied by Sree | Anna University emblem (two versions), Northeastern University (logo and seal), Sri Sairam Engineering College (wide and stacked), Flare Innovations and Sri Sairam Techno Incubator Foundation logos (backgrounds removed; dark-theme variants recolour only the neutral ink, brand colours unchanged) |
 
 ## Achievement proof
 
