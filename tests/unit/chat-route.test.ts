@@ -85,10 +85,11 @@ describe("/api/chat", () => {
     streamImpl.mockReturnValue(fakeStream(["Sreevarshan is a Boston-based engineer. See [his story](/about)."]));
     const { events } = await call(ask("Who is Sree?"));
     const ctx = streamImpl.mock.calls[0][0].messages.at(-1).content as string;
-    expect(ctx.indexOf('id="profile"') === -1 ? ctx.indexOf("Who Sreevarshan") : 0).toBeGreaterThanOrEqual(0);
-    expect(ctx).toMatch(/<source index="1" title="Who Sreevarshan/);
+    expect(ctx).toMatch(/<source index="1" name="About Sree" page="\/about">/);
+    // Internal chunk titles are not offered to the model as link text.
+    expect(ctx).not.toContain("Who Sreevarshan (Sree, SS) is");
     expect(ctx).not.toMatch(/Event Processing/);
-    expect(ctx).not.toMatch(/title="Contact"/);
+    expect(ctx).not.toMatch(/name="Contact"/);
     const src = events.find((e) => e.type === "sources");
     expect(src?.type === "sources" && src.sources).toEqual([{ title: "About Sree", href: "/about", section: "About" }]);
   });
@@ -106,7 +107,7 @@ describe("/api/chat", () => {
     const msgs = streamImpl.mock.calls[0][0].messages;
     expect(msgs).toHaveLength(3);
     expect(msgs[0].content).toBe("What did he build at RightRev?");
-    expect(msgs[2].content).toMatch(/<source index="1" title="Software & Data Engineer Intern at RightRev|<source index="1" title="[^"]*RightRev/);
+    expect(msgs[2].content).toMatch(/<source index="1" name="RightRev" page="\/experience#rightrev">/);
     expect(msgs[2].content).toMatch(/Retrieval matched this question to: RightRev/);
   });
 
@@ -183,5 +184,17 @@ describe("/api/chat", () => {
     for (let i = 0; i < 12; i++) last = (await call(ask("hi"), { "x-forwarded-for": "10.9.9.9" })).res;
     expect(last?.status).toBe(429);
     expect(last?.headers.get("retry-after")).toBeTruthy();
+  });
+});
+
+describe("prompt grounding", () => {
+  it("forbids padding and source-name link text, and labels project parts", async () => {
+    const { SYSTEM_PROMPT, formatContext } = await import("@/lib/ai/prompt");
+    const { knowledge } = await import("@/lib/ai/knowledge");
+    expect(SYSTEM_PROMPT).toMatch(/Do not generalise or pad/);
+    expect(SYSTEM_PROMPT).toMatch(/include only items the context names/);
+    expect(SYSTEM_PROMPT).toMatch(/Never use a source's name attribute/);
+    const ctx = formatContext(knowledge.filter((c) => c.id.startsWith("proj-aegis-ai")));
+    expect(ctx).toContain('name="AEGIS AI" part="tests, results and stack" page="/projects/aegis-ai"');
   });
 });

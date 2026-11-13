@@ -45,7 +45,7 @@ test("streams a real Groq-format answer with Markdown, one email link, sources a
   expect(sent.model).toBe("openai/gpt-oss-120b");
   expect(sent.stream).toBe(true);
   expect(sent.messages[0].role).toBe("system");
-  expect(sent.messages.at(-1).content).toMatch(/<portfolio_context>[\s\S]*Who Sreevarshan/);
+  expect(sent.messages.at(-1).content).toMatch(/<portfolio_context>[\s\S]*name="About Sree"/);
 });
 
 test("keeps conversation history so follow-ups resolve", async ({ page, request }) => {
