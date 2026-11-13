@@ -5,6 +5,11 @@ import { TeamField, Podium } from "@/components/achievements/FieldViz";
 import { achievements } from "@/content/credentials";
 import { TechChip } from "@/components/ui/TechChip";
 import { LinkedInProof } from "@/components/ui/LinkedInProof";
+import { RankCounter } from "@/components/achievements/RankCounter";
+import { InView } from "@/components/motion/InView";
+
+/** Bar width for a funnel stage: square-root scale so 6 of 320 stays visible. */
+const barWidth = (value: string, top: number) => `${Math.max(6, Math.sqrt(parseInt(value, 10) / top) * 100)}%`;
 
 export const metadata: Metadata = {
   title: "Achievements",
@@ -23,21 +28,41 @@ export default function AchievementsPage() {
               <div className="flex flex-col justify-between gap-10 border-b border-line p-8 md:p-12 lg:border-b-0 lg:border-r" data-reveal>
                 <div>
                   <p className="eyebrow">{a.event}</p>
-                  <p className="rank-reveal mt-6 text-[clamp(6rem,16vw,12rem)] font-medium leading-[0.78] tracking-[-0.07em]">
-                    {a.rank.place}
-                    <span className="serif-accent align-top text-[0.32em] text-accent-fg">{a.rank.suffix}</span>
-                  </p>
+                  {a.stages ? (
+                    <RankCounter
+                      from={parseInt(a.stages[0].value, 10)}
+                      to={a.rank.place}
+                      suffix={a.rank.suffix}
+                      className="rank-reveal mt-6 text-[clamp(6rem,16vw,12rem)] font-medium leading-[0.78] tracking-[-0.07em]"
+                    />
+                  ) : (
+                    <p className="rank-reveal mt-6 text-[clamp(6rem,16vw,12rem)] font-medium leading-[0.78] tracking-[-0.07em]">
+                      {a.rank.place}
+                      <span className="serif-accent align-top text-[0.32em] text-accent-fg">{a.rank.suffix}</span>
+                    </p>
+                  )}
                   <p className="mt-6 text-xl">{a.result}{a.rank.field ? ` · ${a.rank.field}` : ""}</p>
                   {a.stages && (
-                    <dl className="mt-6 grid grid-cols-4 gap-2">
-                      {a.stages.map((st, k) => (
-                        <div key={st.label} className={`rounded-xl border px-3 py-2.5 ${k === a.stages!.length - 1 ? "border-accent bg-accent-soft" : "border-line"}`}>
-                          <dt className="sr-only">{st.label}</dt>
-                          <dd className="text-lg font-medium tracking-[-0.02em]">{st.value}</dd>
-                          <dd className="text-[0.68rem] leading-tight text-fg-muted">{st.label}</dd>
-                        </div>
-                      ))}
-                    </dl>
+                    <InView as="dl" className="funnel mt-8 space-y-2.5">
+                      {a.stages.map((st, k) => {
+                        const last = k === a.stages!.length - 1;
+                        const top = parseInt(a.stages![0].value, 10);
+                        return (
+                          <div key={st.label} className="funnel-row" style={{ ["--k" as string]: k } as React.CSSProperties}>
+                            <div className="flex items-baseline justify-between gap-3 text-sm">
+                              <dt className="text-fg-muted">{st.label}</dt>
+                              <dd className={`font-medium tabular-nums tracking-[-0.01em] ${last ? "text-accent-fg" : ""}`}>{st.value}</dd>
+                            </div>
+                            <div className="mt-1.5 h-1.5 rounded-full bg-[var(--line)]" aria-hidden="true">
+                              <div
+                                className={`funnel-bar h-full rounded-full ${last ? "bg-accent" : "bg-[color-mix(in_oklab,var(--accent)_45%,var(--line-strong))]"}`}
+                                style={{ width: last ? "6%" : barWidth(st.value, top) }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </InView>
                   )}
                   {a.proof && (
                     <div className="mt-6">
@@ -48,7 +73,7 @@ export default function AchievementsPage() {
                 <div className="max-w-md">
                   {i === 0 ? <TeamField total={320} qualified={130} shortlisted={20} place={6} /> : <Podium place={3} />}
                   <p className="mt-3 text-xs text-fg-muted">
-                    {i === 0 ? "Each dot is one team in a field of 320+: tinted dots mark the 130+ that qualified, bright dots the 20 shortlisted, and the large dot 6th place. Illustrative." : "Podium graphic, illustrative."}
+                    {i === 0 ? "Each dot is one team in a field of 320+: tinted dots mark the 130+ that qualified, bright dots the 20 shortlisted, and the large dot 6th place. Funnel bars use a square-root scale. Illustrative." : "Podium graphic, illustrative."}
                   </p>
                 </div>
               </div>

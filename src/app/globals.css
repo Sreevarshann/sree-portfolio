@@ -35,8 +35,16 @@
   --mark-glow: #3d7dff;
   --radius: 14px;
   --radius-lg: 22px;
+  /* Motion tokens — every transition in the site draws from these. */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-emph: cubic-bezier(0.2, 0, 0, 1);
+  --ease-spring-soft: cubic-bezier(0.3, 1.16, 0.55, 1);
+  --dur-xs: 160ms;
+  --dur-s: 260ms;
+  --dur-m: 420ms;
+  --dur-l: 640ms;
+  --dur-xl: 900ms;
   --gutter: clamp(16px, 4vw, 56px);
   --maxw: 1360px;
 }
@@ -960,4 +968,336 @@ a:focus-visible > .ss-mark .ss-rule {
   background: linear-gradient(transparent 62%, color-mix(in oklab, var(--accent) 22%, transparent) 62%, color-mix(in oklab, var(--accent) 22%, transparent) 92%, transparent 92%);
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
+}
+
+/* ------------------------------------------------------------------ dynamic island
+   A content-sized capsule with two states. Its min-width springs between the
+   full bar and the measured compact width (--island-compact, set by SiteNav),
+   so it never clips or overflows its controls. Labels collapse with a 0fr grid
+   track, which removes their width from layout instead of only fading them. */
+.island {
+  width: max-content;
+  max-width: 100%;
+  min-width: min(100%, 1240px);
+  height: 60px;
+  padding: 0 10px 0 9px;
+  gap: 8px;
+  border-radius: 999px;
+  transition:
+    min-width var(--dur-l) var(--ease-spring-soft),
+    height var(--dur-m) var(--ease-out),
+    padding var(--dur-m) var(--ease-out),
+    gap var(--dur-m) var(--ease-out),
+    background-color var(--dur-m) var(--ease-out),
+    box-shadow var(--dur-m) var(--ease-out),
+    border-color var(--dur-m) var(--ease-out);
+}
+.island[data-island="compact"] {
+  min-width: min(100%, var(--island-compact, 880px));
+  height: 52px;
+  padding: 0 6px;
+  gap: 4px;
+}
+.island-links { display: flex; }
+.island-actions { margin-left: auto; }
+.island-menu-btn { display: none; }
+.island[data-menu-mode] { min-width: min(100%, 1240px); }
+.island[data-menu-mode] .island-links { display: none; }
+.island[data-menu-mode] .island-menu-btn { display: inline-flex; }
+@media (max-width: 1279.98px) {
+  .island,
+  .island[data-island="compact"] { min-width: 100%; }
+  .island-links { display: none; }
+  .island-menu-btn { display: inline-flex; }
+}
+
+.collapse-x {
+  display: grid;
+  grid-template-columns: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-columns var(--dur-l) var(--ease-spring-soft),
+    opacity var(--dur-m) var(--ease-out);
+}
+.collapse-x > * { min-width: 0; overflow: hidden; }
+.island-name { grid-template-columns: 0fr; opacity: 0; }
+@media (min-width: 1536px) {
+  .island[data-island="expanded"]:not([data-menu-mode]) .island-name { grid-template-columns: 1fr; opacity: 1; }
+}
+.ai-pill { padding-right: 14px; transition: padding var(--dur-l) var(--ease-spring-soft), box-shadow var(--dur-m) var(--ease-out), transform var(--dur-m) var(--ease-spring); }
+.island[data-island="compact"] .ai-label { grid-template-columns: 0fr; opacity: 0; transition-duration: var(--dur-m), var(--dur-s); }
+.island[data-island="compact"] .ai-pill { padding-right: 6px; }
+@media (max-width: 639.98px) {
+  .ai-label { grid-template-columns: 0fr; opacity: 0; }
+  .ai-pill { padding-right: 6px; }
+}
+
+/* Light that catches the island's edge, plus a faint blue refraction line. */
+.island::after {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.42), rgb(255 255 255 / 0) 38%, rgb(255 255 255 / 0) 70%, rgb(130 175 255 / 0.32)),
+    linear-gradient(90deg, rgb(120 170 255 / 0.22), transparent 18%, transparent 82%, rgb(120 170 255 / 0.22));
+}
+:root[data-theme="light"] .island::after {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 1), rgb(255 255 255 / 0) 45%, rgb(31 95 224 / 0.14)),
+    linear-gradient(90deg, rgb(31 95 224 / 0.12), transparent 20%, transparent 80%, rgb(31 95 224 / 0.12));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .island, .collapse-x, .ai-pill { transition: none; }
+}
+/* Very narrow viewports (small phones at high zoom): tighten, never overflow. */
+@media (max-width: 359.98px) {
+  .island { padding: 0 4px; gap: 2px; }
+  .island .island-brand { padding: 2px; }
+  .island .island-mono { width: 34px !important; height: 34px !important; font-size: 13.5px !important; }
+  .island .island-btn, .island .ai-pill { width: 34px; height: 34px; min-width: 34px; }
+  .island .ai-pill { padding: 0; justify-content: center; }
+  .island .island-actions { gap: 2px; }
+}
+
+/* ------------------------------------------------------------------ project stages
+   Each featured project is staged like a launch: an ambient glow in its
+   signature hue, a masked cinematic reveal, a restrained tilt, an outlined
+   index numeral and its documented data path with a travelling pulse. */
+.project-stage { isolation: isolate; }
+.stage-glow {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 50%;
+  width: 62%;
+  aspect-ratio: 1.6;
+  translate: 0 -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--p) 34%, transparent), transparent);
+  filter: blur(40px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.stage-glow-right { left: auto; right: 0; }
+:root[data-theme="light"] .stage-glow { opacity: 0.32; }
+.stage-index {
+  position: absolute;
+  left: 0;
+  top: -0.66em;
+  z-index: -1;
+  font-size: clamp(5rem, 11vw, 10rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--p) 45%, var(--line-strong));
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+}
+.stage-index-right { left: auto; right: 0; }
+.stage-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--p);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--p) 20%, transparent);
+}
+
+.tilt-stage { perspective: 1400px; }
+.tilt-inner {
+  transform: rotateX(calc(var(--ty, 0) * -5deg)) rotateY(calc(var(--tx, 0) * 6deg));
+  transform-style: preserve-3d;
+  transition: transform var(--dur-xl) var(--ease-out), box-shadow var(--dur-l) var(--ease-out);
+  border-radius: 18px;
+  will-change: transform;
+}
+.tilt-stage[data-tilting] .tilt-inner {
+  transition: transform var(--dur-s) var(--ease-out), box-shadow var(--dur-l) var(--ease-out);
+  box-shadow: 0 40px 80px -40px color-mix(in oklab, var(--p, var(--accent)) 55%, transparent);
+}
+.tilt-inner::after {
+  /* specular light that follows the tilt */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at calc(50% + var(--tx, 0) * 100%) calc(50% + var(--ty, 0) * 100%), rgb(255 255 255 / 0.14), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--dur-m) var(--ease-out);
+}
+.tilt-stage[data-tilting] .tilt-inner::after { opacity: 1; }
+.tilt-inner { position: relative; }
+
+.signal-path { position: relative; padding-top: 2px; }
+.signal-line {
+  position: absolute; left: 4px; right: 4px; top: 6px; height: 1px;
+  background: linear-gradient(90deg, color-mix(in oklab, var(--p) 60%, var(--line-strong)), var(--line-strong));
+  overflow: hidden;
+}
+.signal-pulse {
+  position: absolute; top: -1px; left: 0; width: 18%; height: 3px; border-radius: 3px;
+  background: linear-gradient(90deg, transparent, var(--p), transparent);
+  transform: translateX(-100%);
+}
+.signal-node { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
+.signal-node:last-child { align-items: flex-end; text-align: right; }
+.signal-tick {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--bg); border: 1.5px solid color-mix(in oklab, var(--p) 70%, var(--fg-muted));
+}
+.signal-label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em; color: var(--fg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.project-stage:hover .signal-tick { background: var(--p); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .signal-pulse { animation: signal-travel 3.6s var(--ease-in-out) infinite; }
+  .project-stage:hover .signal-pulse { animation-duration: 1.8s; }
+  .signal-tick { transition: background-color var(--dur-m) var(--ease-out); }
+  .project-stage:hover .signal-node .signal-tick { transition-delay: calc(var(--n) * 70ms); }
+}
+@keyframes signal-travel { to { transform: translateX(560%); } }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Media uncovers from a soft window while the image settles from a slight zoom. */
+    .stage-media {
+      animation: stage-window linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+    .stage-glow {
+      animation: stage-glow linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 50%;
+    }
+    .stage-index {
+      animation: stage-index linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    .chip-rise {
+      animation: chip-rise linear both;
+      animation-timeline: view();
+      animation-range: entry calc(10% + var(--i) * 5%) entry calc(60% + var(--i) * 5%);
+    }
+    .signal-node {
+      animation: node-rise linear both;
+      animation-timeline: view();
+      animation-range: entry calc(10% + var(--n) * 6%) entry calc(55% + var(--n) * 6%);
+    }
+    /* The stage replaces the generic media reveal. */
+    .project-stage [data-reveal="media"] { animation: none; }
+  }
+}
+@keyframes stage-window {
+  from { clip-path: inset(12% 10% 12% 10% round 28px); transform: translateY(48px) scale(1.04); opacity: 0.4; }
+  to { clip-path: inset(-60px -60px -60px -60px round 18px); transform: none; opacity: 1; }
+}
+@keyframes stage-glow { from { opacity: 0; scale: 0.7; } }
+@keyframes stage-index { from { transform: translateY(40%); } to { transform: translateY(-30%); } }
+@keyframes node-rise {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(10px); }
+  to { clip-path: inset(-48px -120px); }
+}
+@keyframes chip-rise {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(10px); }
+  to { clip-path: inset(-12px); }
+}
+
+/* ------------------------------------------------------------------ achievements choreography
+   Static markup is the final state. When [data-in] lands (InView), the field
+   plays out the competition: every team appears, the field narrows to the
+   qualifiers, then the shortlist, then the final placing — in step with the
+   funnel bars and the rank counter. */
+@media (prefers-reduced-motion: no-preference) {
+  .team-field[data-armed]:not([data-in]) circle { opacity: 0; }
+  .team-field[data-in] .tf-dot { animation: tf-in 600ms var(--ease-out) var(--d) both; }
+  .team-field[data-in] .tf-out { animation: tf-in-full 600ms var(--ease-out) var(--d) both, tf-dim 700ms var(--ease-out) 1300ms forwards; }
+  .team-field[data-in] .tf-short { animation: tf-in 600ms var(--ease-out) var(--d) both, tf-lift 700ms var(--ease-spring) 1900ms; transform-box: fill-box; transform-origin: center; }
+  .team-field[data-in] .tf-me { animation: tf-in 500ms var(--ease-out) 600ms both, tf-pulse 2.4s var(--ease-in-out) 2500ms infinite; transform-box: fill-box; transform-origin: center; }
+  .funnel[data-armed]:not([data-in]) .funnel-bar { transform: scaleX(0); }
+  .funnel[data-in] .funnel-bar { animation: funnel-draw 900ms var(--ease-emph) calc(var(--k) * 420ms + 300ms) both; transform-origin: left; }
+  .podium[data-armed]:not([data-in]) .pd-bar { transform: scaleY(0); }
+  .podium[data-in] .pd-bar { animation: pd-up 1100ms var(--ease-spring-soft) var(--d) both; }
+  .podium[data-in] .pd-me { animation: pd-up 1100ms var(--ease-spring-soft) var(--d) both, pd-glow 2.4s var(--ease-in-out) 1400ms infinite; }
+  .rank-counter[data-landed] { animation: rank-land 700ms var(--ease-spring) both; }
+}
+@keyframes tf-in { from { opacity: 0; } }
+@keyframes tf-in-full { from { opacity: 0; } to { opacity: 0.9; } }
+@keyframes tf-dim { from { opacity: 0.9; } to { opacity: 0.5; } }
+@keyframes tf-lift { 50% { transform: scale(1.5); } }
+@keyframes tf-pulse { 50% { transform: scale(1.45); } }
+@keyframes funnel-draw { from { transform: scaleX(0); } }
+@keyframes pd-up { from { transform: scaleY(0); } }
+@keyframes pd-glow { 50% { filter: drop-shadow(0 0 10px color-mix(in oklab, var(--accent) 70%, transparent)); } }
+@keyframes rank-land { 40% { transform: translateY(-4px); } }
+
+/* ------------------------------------------------------------------ closing + credentials */
+.contact-close { isolation: isolate; overflow: clip; }
+.contact-glow {
+  position: absolute; inset: auto -10% -40% -10%; height: 90%; z-index: -1; pointer-events: none;
+  background: radial-gradient(50% 60% at 50% 100%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%);
+}
+.cert-ring { transition: transform var(--dur-l) var(--ease-spring-soft), border-color var(--dur-m) var(--ease-out); }
+.cert:hover .cert-ring { transform: scale(1.08); border-color: color-mix(in oklab, var(--accent) 45%, var(--line)); }
+.cert:hover .cert-ring-2 { transform: scale(1.14); transition-delay: 60ms; }
+.logo-sheen::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.35) 50%, transparent 65%);
+  transform: translateX(-120%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .logo-sheen:hover::after { transition: transform 900ms var(--ease-out); transform: translateX(120%); }
+}
+.edu-path::before {
+  content: ""; position: absolute; left: 50%; top: -1.5rem; bottom: -1.5rem; width: 1px; z-index: -1;
+  background: linear-gradient(var(--accent), var(--line-strong) 40%, transparent);
+  transform-origin: top;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .contact-glow { animation: contact-rise linear both; animation-timeline: view(); animation-range: entry 0% cover 60%; }
+    .edu-path::before { animation: rule-draw-y linear both; animation-timeline: view(); animation-range: entry 0% cover 70%; }
+  }
+}
+@keyframes contact-rise { from { opacity: 0; transform: translateY(30%); } }
+@keyframes rule-draw-y { from { transform: scaleY(0); } }
+
+/* Lab: a brief accent sweep confirms each change of data state. */
+.chart-sweep {
+  position: absolute; left: 0; right: 0; top: 0; height: 2px; pointer-events: none; overflow: hidden; border-radius: 2px;
+}
+.chart-sweep::after {
+  content: ""; position: absolute; inset: 0; width: 40%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  transform: translateX(-100%); opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chart-sweep::after { animation: chart-sweep 900ms var(--ease-emph) both; }
+}
+@keyframes chart-sweep { 10% { opacity: 1; } 90% { opacity: 1; } to { transform: translateX(260%); opacity: 0; } }
+
+/* ------------------------------------------------------------------ hero atmosphere + global press states */
+.hero-atmos {
+  background:
+    radial-gradient(40% 35% at 20% 30%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 70%),
+    radial-gradient(30% 30% at 85% 75%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 70%);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-atmos { animation: atmos-drift 22s var(--ease-in-out) infinite alternate; }
+}
+@keyframes atmos-drift { to { transform: translate3d(3%, -2%, 0) scale(1.06); } }
+
+/* Every pressable control gives the same tactile feedback. */
+.btn:active, .chip:is(a, button):active, .ai-pill:active, .island-btn:active { transform: scale(0.97); transition-duration: var(--dur-xs); }
+.btn-ghost:focus-visible, .btn-primary:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent); }
+/* Narrow screens: alternate data-path labels above and below the line. */
+@media (max-width: 559.98px) {
+  .signal-path { padding-top: 22px; }
+  .signal-line { top: 28px; }
+  .signal-node { position: relative; }
+  .signal-node:nth-child(even) .signal-label { position: absolute; bottom: calc(100% + 6px); left: 0; max-width: none; overflow: visible; }
+  .signal-node:nth-child(odd):not(:first-child):not(:last-child) .signal-label { max-width: none; overflow: visible; }
+}
+@media (max-width: 559.98px) {
+  .signal-node:nth-child(even):nth-last-child(-n + 2) .signal-label { left: auto; right: 0; text-align: right; }
+  .signal-node:last-child .signal-label { max-width: none; overflow: visible; }
 }

@@ -9,6 +9,8 @@ import { useAskSree } from "@/components/ask/AskSreeProvider";
 import { profile } from "@/content/profile";
 import { Portrait } from "@/components/ui/Portrait";
 import type { PortraitAsset } from "@/lib/portrait";
+import { ContourEcho } from "@/components/ui/ContourEcho";
+import { TiltStage } from "@/components/projects/TiltStage";
 
 const ContourField = dynamic(() => import("./ContourField").then((m) => m.ContourField), { ssr: false });
 
@@ -61,8 +63,17 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
   const { openChat } = useAskSree();
   const [field, setField] = useState(false);
 
-  // Start the WebGL field once the main thread is idle, after first paint.
+  // Start the WebGL field once the main thread is idle, after first paint —
+  // and only on devices that can run it comfortably. Others keep the static
+  // contour layer, which is always painted underneath.
   useEffect(() => {
+    const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const lowPower =
+      nav.connection?.saveData === true ||
+      (nav.deviceMemory !== undefined && nav.deviceMemory < 4) ||
+      (coarse && (nav.hardwareConcurrency ?? 8) <= 4);
+    if (lowPower) return;
     const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 300));
     const cic = window.cancelIdleCallback ?? window.clearTimeout;
     const id = ric(() => setField(true), { timeout: 2500 } as IdleRequestOptions);
@@ -73,6 +84,8 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
     <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-28" aria-label="Introduction">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_70%_40%,var(--accent-soft),transparent_70%)]" />
+        <div className="hero-atmos absolute inset-0" />
+        <ContourEcho id="echo-fade-hero" className={`absolute inset-x-0 bottom-[12%] h-[60%] w-full text-accent transition-opacity duration-1000 ${field ? "opacity-0" : "opacity-[0.18]"}`} />
         {field && <ContourField className="absolute inset-0 h-full w-full" />}
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-bg" />
       </div>
@@ -110,7 +123,9 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
             />
           </div>
           <div className="hidden lg:block" data-parallax="0.18">
-            <Portrait asset={portrait} priority />
+            <TiltStage>
+              <Portrait asset={portrait} priority />
+            </TiltStage>
           </div>
         </div>
 

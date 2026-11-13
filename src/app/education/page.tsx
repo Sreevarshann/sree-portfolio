@@ -17,7 +17,7 @@ function InstitutionMark({ logo, fallback }: { logo: InstitutionLogo; fallback: 
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${logo.alt.replace(/ (logo|seal)$/i, "")} website`}
-        className={`inline-block max-w-full transition-transform duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 ${logo.plate ? "rounded-xl bg-white p-2.5 ring-1 ring-line shadow-[var(--shadow)]" : ""}`}
+        className={`logo-sheen relative inline-block max-w-full overflow-hidden transition-transform duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 ${logo.plate ? "rounded-xl bg-white p-2.5 ring-1 ring-line shadow-[var(--shadow)]" : ""}`}
       >
         {logo.light === logo.dark ? img(logo.light, "both") : <>{img(logo.light, "light")}{img(logo.dark, "dark")}</>}
       </a>
@@ -36,7 +36,7 @@ export default function EducationPage() {
     <>
       <PageHeader index="E" eyebrow="Education" title="Foundations in" accent="signals & data." lede="From electronics and communication engineering in Chennai to data analytics engineering in Boston." />
       <section className="container-x pb-16" aria-label="Degrees">
-        <ol className="relative space-y-8">
+        <ol className="edu-path relative space-y-8">
           {education.map((e, i) => (
             <li key={e.institution} className="panel overflow-hidden" data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
               <div className="grid md:grid-cols-[1fr_1.3fr]">

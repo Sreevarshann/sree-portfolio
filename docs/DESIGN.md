@@ -92,3 +92,29 @@ A 4:5 editorial frame with an offset back plate, mask reveal, slow zoom-out and 
 - **SS monogram.** Two capitals in the site sans with slight positive tracking, set in a hairline ring that matches the glass navbar. On hover or focus the letters open up and a short accent rule draws in underneath. It links home with the label "Sreevarshan Sathiyamurthy — Home" and is also the favicon (`src/app/icon.tsx`) and portrait placeholder.
 - **About.** First person, about 70 words: one statement with highlighted phrases, a "Now" line, two short cards (what I do, what I'm working toward), then focus-area chips. On phones the statement comes first, then the portrait and facts.
 - **Cursor.** No custom cursor or cursor-following effect; the browser's own pointer is used everywhere.
+
+## V4 — motion system and dynamic island
+
+### Dynamic island
+- Two states, `expanded` (top of page) and `compact` (scrolled), with hysteresis (condense past 64px, re-expand under 24px) so scroll jitter and rapid reversals never flicker.
+- The capsule is content-sized (`width: max-content`, capped at the viewport). Its `min-width` springs between the full bar (1240px) and a **measured** compact width (`--island-compact`: monogram + link list + icon-only actions), so it lands exactly on its content.
+- Labels ("Ask My AI", the full name beside SS) collapse with a `0fr` grid track, which removes their width from layout instead of only fading them. That was the root cause of the old overflow: the faded-out name kept ~80px, pushing the AI launcher and theme toggle outside the fixed 1080px capsule from 1536px up.
+- If the links ever stop fitting (long labels, browser zoom), the island switches to its menu layout instead of overflowing. Below 1280px it is always the menu layout; below 360px controls tighten to 34px.
+- `tests/e2e/island.spec.ts` asserts every control's bounding box sits inside the capsule at 14 widths, in both states, after rapid scroll reversals, mid-transition resizes, theme switches and reduced motion.
+
+### Motion tokens
+`--dur-xs/s/m/l/xl` (160–900ms) and `--ease-out`, `--ease-in-out`, `--ease-emph`, `--ease-spring`, `--ease-spring-soft` in `globals.css`, mirrored for JS in `src/lib/motion.ts`.
+
+### Motion patterns
+| Pattern | Where | Mechanism |
+| --- | --- | --- |
+| Masked rise | Text reveals site-wide | CSS scroll timeline, clip-path (text never at reduced opacity) |
+| Stage window | Featured project media | Clip-path window + settle from slight zoom |
+| Signature glow | Each project (own hue) and the contact close | Scroll-linked radial light |
+| Restrained tilt | Project media, hero portrait | Pointer over the element only, fine pointers, rAF |
+| Data path | Featured projects | Documented first-row architecture nodes, travelling pulse |
+| Story sequence | Achievements | `InView` once → CSS choreography; static markup is the final state |
+| Confirmation sweep | Lab chart updates | Brief accent sweep after each re-render |
+| Harbor light | Footer contour line | Single dash travelling a path |
+
+All motion respects `prefers-reduced-motion`. The WebGL hero field only starts on capable devices (no Save-Data, ≥4 GB device memory, and not a ≤4-core touch device); others keep static contours.

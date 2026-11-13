@@ -19,13 +19,23 @@ const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayout
  * (following hover, resting on the current page). Below xl it becomes a
  * compact capsule whose menu unfolds from the capsule itself.
  */
+type IslandState = "expanded" | "compact";
+
+/** Pixels of scroll before the island condenses (and the hysteresis band before it re-expands). */
+const COMPACT_AT = 64;
+const EXPAND_AT = 24;
+
 export function SiteNav() {
   const pathname = usePathname();
-  const [compact, setCompact] = useState(false);
+  const [state, setState] = useState<IslandState>("expanded");
+  const compact = state === "compact";
   const [open, setOpen] = useState(false);
+  // Width (px) at which the links stopped fitting; null while they fit.
+  const [overflowAt, setOverflowAt] = useState<number | null>(null);
   const { openChat } = useAskSree();
   const glassRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [indicator, setIndicator] = useState<{ x: number; w: number; visible: boolean }>({ x: 0, w: 0, visible: false });
@@ -33,14 +43,16 @@ export function SiteNav() {
 
   const isActive = useCallback((href: string) => pathname === href || pathname.startsWith(href + "/"), [pathname]);
 
-  // Condense on scroll (rAF-throttled, passive).
+  // State machine: expanded at the top, compact once scrolled (with hysteresis so
+  // small scroll jitter or rapid direction changes never flicker between states).
   useEffect(() => {
     let raf = 0;
     const on = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        setCompact(window.scrollY > 64);
+        const y = window.scrollY;
+        setState((s) => (s === "expanded" && y > COMPACT_AT ? "compact" : s === "compact" && y < EXPAND_AT ? "expanded" : s));
       });
     };
     on();
@@ -50,6 +62,66 @@ export function SiteNav() {
       cancelAnimationFrame(raf);
     };
   }, []);
+
+  /*
+   * Island geometry. The capsule is sized by its content (width: max-content)
+   * and capped at the viewport. Its min-width animates between two measured
+   * targets — the full bar and the exact compact content width — so it lands
+   * precisely without overflowing. If the links ever need more room than the
+   * viewport allows (long translations, browser zoom), the island switches to
+   * its menu layout instead of overflowing.
+   */
+  const measure = useCallback(() => {
+    const glass = glassRef.current;
+    const list = listRef.current;
+    const nav = navRef.current;
+    if (!glass || !list || !nav) return;
+    const linksShown = getComputedStyle(nav).display !== "none";
+    if (linksShown) {
+      const cs = getComputedStyle(glass);
+      // Compact chrome: 6px side padding (see .island[data-island="compact"]) plus borders.
+      const chrome = 12 + parseFloat(cs.borderLeftWidth) * 2;
+      // Compact = monogram + link list + icon-only actions, measured from the DOM.
+      const part = (name: string) => glass.querySelector<HTMLElement>(`[data-island-part="${name}"]`)!;
+      const pad = (el: HTMLElement) => {
+        const c = getComputedStyle(el);
+        return parseFloat(c.paddingLeft) + parseFloat(c.paddingRight);
+      };
+      const brand = part("brand");
+      const actions = part("actions");
+      const mono = brand.querySelector<HTMLElement>(".ss-mark")!;
+      const ai = actions.querySelector<HTMLElement>(".ai-pill")!;
+      const toggle = actions.querySelector<HTMLElement>("[aria-label^='Switch to']")!;
+      const actionGap = parseFloat(getComputedStyle(actions).columnGap || "0");
+      const compactParts =
+        mono.getBoundingClientRect().width + pad(brand) +
+        list.getBoundingClientRect().width +
+        ai.getBoundingClientRect().height + actionGap + toggle.getBoundingClientRect().width;
+      // Compact gap is 4px between the three parts.
+      const gaps = 4 * 2;
+      glass.style.setProperty("--island-compact", `${Math.ceil(compactParts + gaps + chrome + 2)}px`);
+      if (glass.scrollWidth > glass.clientWidth + 1) setOverflowAt(window.innerWidth);
+    } else if (overflowAt !== null && window.innerWidth > overflowAt + 48) {
+      setOverflowAt(null);
+    }
+  }, [overflowAt]);
+
+  useIsoLayoutEffect(() => {
+    measure();
+  }, [measure, state]);
+  useEffect(() => {
+    const glass = glassRef.current;
+    if (!glass) return;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(glass);
+    if (listRef.current) ro.observe(listRef.current);
+    window.addEventListener("resize", measure);
+    document.fonts?.ready.then(measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [measure]);
 
   // Pointer-following specular highlight on the glass.
   useEffect(() => {
@@ -65,7 +137,7 @@ export function SiteNav() {
   }, []);
 
   // Measure the indicator target: hovered link, else the active one.
-  const measure = useCallback(() => {
+  const measureIndicator = useCallback(() => {
     const list = listRef.current;
     if (!list) return;
     const target =
@@ -75,15 +147,15 @@ export function SiteNav() {
     setIndicator({ x: target.offsetLeft, w: target.offsetWidth, visible: true });
   }, [hovered, isActive]);
   useIsoLayoutEffect(() => {
-    measure();
-  }, [measure, compact]);
+    measureIndicator();
+  }, [measureIndicator, state]);
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
-    const ro = new ResizeObserver(() => measure());
+    const ro = new ResizeObserver(() => measureIndicator());
     ro.observe(list);
     return () => ro.disconnect();
-  }, [measure]);
+  }, [measureIndicator]);
 
   const close = useCallback((restoreFocus = true) => {
     setOpen(false);
@@ -114,22 +186,26 @@ export function SiteNav() {
 
   useFocusTrap(menuRef, open);
 
+  const menuMode = overflowAt !== null;
+
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4 md:pt-4">
       <div
         ref={glassRef}
+        data-island={state}
+        data-menu-mode={menuMode || undefined}
         data-dense={compact || open}
-        className={`glass pointer-events-auto relative flex w-full items-center justify-between gap-2 rounded-full transition-[max-width,height,padding] duration-700 ease-[var(--ease-spring)] ${
-          compact ? "h-[52px] max-w-[1080px] px-2" : "h-[60px] max-w-[1240px] px-3"
-        }`}
+        className="island glass pointer-events-auto relative flex items-center"
       >
-        <Link href="/" className="group flex shrink-0 items-center gap-3 rounded-full p-1 pr-2" aria-label="Sreevarshan Sathiyamurthy — Home">
-          <Monogram size={compact ? 38 : 42} className="transition-[width,height,font-size] duration-500" />
-          <span className={`eyebrow hidden text-fg-soft transition-opacity duration-500 2xl:inline ${compact ? "opacity-0" : "opacity-100"}`}>Sreevarshan Sathiyamurthy</span>
+        <Link href="/" data-island-part="brand" className="island-brand group flex shrink-0 items-center rounded-full" aria-label="Sreevarshan Sathiyamurthy — Home">
+          <Monogram size={40} className="island-mono" />
+          <span className="collapse-x island-name" aria-hidden="true">
+            <span><span className="eyebrow block whitespace-nowrap pl-3 pr-2 text-fg-soft">Sreevarshan Sathiyamurthy</span></span>
+          </span>
         </Link>
 
-        <nav aria-label="Primary" className="relative hidden xl:block">
-          <ul ref={listRef} className="relative flex items-center" onMouseLeave={() => setHovered(null)}>
+        <nav ref={navRef} aria-label="Primary" data-island-part="links" className="island-links relative min-w-0 flex-1 justify-center">
+          <ul ref={listRef} className="relative flex w-max items-center" onMouseLeave={() => setHovered(null)}>
             <span
               aria-hidden="true"
               className="nav-indicator pointer-events-none absolute top-1/2 h-9 rounded-full"
@@ -150,7 +226,7 @@ export function SiteNav() {
                     onMouseEnter={() => setHovered(l.href)}
                     onFocus={() => setHovered(l.href)}
                     onBlur={() => setHovered(null)}
-                    className={`relative z-[1] block rounded-full px-3.5 py-2 text-[0.86rem] transition-colors duration-300 ${
+                    className={`relative z-[1] block whitespace-nowrap rounded-full px-3.5 py-2 text-[0.86rem] transition-colors duration-300 ${
                       active ? "text-fg" : "text-fg-muted hover:text-fg"
                     }`}
                   >
@@ -162,21 +238,23 @@ export function SiteNav() {
           </ul>
         </nav>
 
-        <div className="flex shrink-0 items-center gap-1.5">
+        <div data-island-part="actions" className="island-actions flex shrink-0 items-center gap-1.5">
           <button
             type="button"
             onClick={() => openChat()}
-            className="ai-pill group inline-flex h-10 items-center gap-2 rounded-full pl-1.5 pr-3 text-sm font-medium text-fg sm:pr-4"
+            className="ai-pill group inline-flex h-10 shrink-0 items-center rounded-full pl-1.5 text-sm font-medium text-fg"
             aria-label="Ask My AI — open Sree AI"
           >
             <SreeMark size={28} />
-            <span className="hidden sm:inline">Ask My AI</span>
+            <span className="collapse-x ai-label" aria-hidden="true">
+              <span><span className="block whitespace-nowrap pl-2">Ask My AI</span></span>
+            </span>
           </button>
-          <ThemeToggle className="!border-transparent hover:!border-line" />
+          <ThemeToggle className="island-btn shrink-0 !border-transparent hover:!border-line" />
           <button
             ref={buttonRef}
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-fg-soft transition-colors hover:bg-[var(--glass-lo)] hover:text-fg xl:hidden"
+            className="island-btn island-menu-btn h-10 w-10 shrink-0 items-center justify-center rounded-full text-fg-soft transition-colors hover:bg-[var(--glass-lo)] hover:text-fg"
             aria-expanded={open}
             aria-controls="site-menu"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -198,7 +276,7 @@ export function SiteNav() {
         aria-modal="true"
         aria-label="Site menu"
         hidden={!open}
-        className="glass pointer-events-auto absolute left-3 right-3 top-[calc(max(0.75rem,env(safe-area-inset-top))+64px)] mx-auto max-h-[calc(100dvh-6rem)] max-w-md overflow-y-auto rounded-[28px] p-3 sm:left-auto sm:right-4 sm:w-[380px] md:top-[84px] xl:hidden"
+        className={`glass pointer-events-auto absolute left-3 right-3 top-[calc(max(0.75rem,env(safe-area-inset-top))+64px)] mx-auto max-h-[calc(100dvh-6rem)] max-w-md overflow-y-auto rounded-[28px] p-3 sm:left-auto sm:right-4 sm:w-[380px] md:top-[84px] ${menuMode ? "" : "xl:hidden"}`}
         data-dense="true"
         style={{ animation: open ? "menu-unfold 520ms var(--ease-spring) both" : undefined }}
       >
@@ -251,7 +329,7 @@ export function SiteNav() {
           box-shadow: inset 0 1px 0 rgb(255 255 255 / .12), inset 0 0 0 1px rgb(120 170 255 / .18);
           transition: transform 560ms var(--ease-spring), width 560ms var(--ease-spring), opacity 300ms var(--ease-out);
         }
-        .ai-pill{background:linear-gradient(135deg,rgb(79 143 255/.18),rgb(79 143 255/.04));box-shadow:inset 0 0 0 1px rgb(120 170 255/.28),inset 0 1px 0 rgb(255 255 255/.12);transition:box-shadow .4s var(--ease-out),transform .4s var(--ease-spring)}
+        .ai-pill{background:linear-gradient(135deg,rgb(79 143 255/.18),rgb(79 143 255/.04));box-shadow:inset 0 0 0 1px rgb(120 170 255/.28),inset 0 1px 0 rgb(255 255 255/.12)}
         .ai-pill:hover{box-shadow:inset 0 0 0 1px rgb(120 170 255/.6),0 6px 22px -8px rgb(47 116 255/.6);transform:translateY(-1px)}
         .ai-pill:active{transform:scale(.97)}
         @media (prefers-reduced-motion: reduce){.nav-indicator{transition:none}}

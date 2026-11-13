@@ -97,7 +97,8 @@ export default function Home() {
         <AskSreePromo />
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Contact">
+      <section className="contact-close container-x section relative border-t border-line" aria-label="Contact">
+        <div className="contact-glow" aria-hidden="true" />
         <p className="eyebrow" data-reveal><span className="text-accent">05</span> — Contact</p>
         <h2 className="display mt-8 max-w-[14ch] text-[clamp(2.8rem,8vw,7rem)]" data-reveal>
           Let&apos;s build something <span className="serif-accent text-accent-fg">worth trusting.</span>
