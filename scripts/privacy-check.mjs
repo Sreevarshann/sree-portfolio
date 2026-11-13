@@ -14,7 +14,7 @@ const files = execSync("git ls-files --cached --others --exclude-standard", { en
 
 const PHONE = /(?<![\d.])\+?1?[\s.-]?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}(?![\d])/;
 const FAKE_OK = /555[\s.-]0\d{3}/; // fictional numbers used in tests
-const SECRET = /(sk-ant-[a-z0-9-]{10,}|ghp_[A-Za-z0-9]{20,}|gho_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})/;
+const SECRET = /(sk-ant-[a-z0-9-]{10,}|gsk_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|gho_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})/;
 const FORBIDDEN_PATH = /(^|\/)(private|resume-source)|\.env($|\.(?!example))/i;
 
 const problems = [];

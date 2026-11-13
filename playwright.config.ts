@@ -24,6 +24,6 @@ export default defineConfig({
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
-        env: { ANTHROPIC_API_KEY: "" },
+        env: { ANTHROPIC_API_KEY: "", GROQ_API_KEY: "", ASK_SREE_PROVIDER: "" },
       },
 });
