@@ -2083,3 +2083,22 @@ html[data-view="quick"] .hero-facts { grid-template-columns: repeat(auto-fit, mi
 .approach-word { display: inline-block; }
 @keyframes approach-rise { from { opacity: 0; transform: translateY(0.35em); } }
 @keyframes approach-fade { from { opacity: 0; } }
+
+/* ------------------------------------------------- institution logo plates
+   White in both themes so official artwork stays legible; a neutral border
+   and soft shadow separate it from the page. Never recoloured. */
+.logo-plate {
+  background: #fff;
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.08), 0 6px 18px -10px rgb(15 23 42 / 0.25);
+}
+:root:not([data-theme="light"]) .logo-plate {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 10px 26px -12px rgb(0 0 0 / 0.7);
+}
+.logo-plate-square {
+  width: 60px;
+  height: 60px;
+  padding: 7px;
+  border-radius: 14px;
+}

@@ -17,9 +17,10 @@ function InstitutionMark({ logo, fallback }: { logo: InstitutionLogo; fallback: 
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${logo.alt.replace(/ (logo|seal)$/i, "")} website`}
-        className={`logo-sheen relative inline-block max-w-full overflow-hidden transition-transform duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 ${logo.plate ? "rounded-xl bg-white p-2.5 ring-1 ring-line shadow-[var(--shadow)]" : ""}`}
+        className={`logo-sheen relative inline-block max-w-full overflow-hidden transition-transform duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 ${logo.plate ? "logo-plate" : ""}`}
       >
-        {logo.light === logo.dark ? img(logo.light, "both") : <>{img(logo.light, "light")}{img(logo.dark, "dark")}</>}
+        {/* On a white plate the white-ground artwork is used in both themes, never recoloured. */}
+        {logo.plate || logo.light === logo.dark ? img(logo.light, "both") : <>{img(logo.light, "light")}{img(logo.dark, "dark")}</>}
       </a>
     </div>
   );
