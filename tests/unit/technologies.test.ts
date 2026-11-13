@@ -14,20 +14,22 @@ describe("technology catalog", () => {
     }
   });
 
-  it("backs every hands-on tool with evidence and lists the rest as exploring", () => {
-    for (const t of technologies) {
-      if (t.level === "hands-on") {
-        expect(t.usedIn.length, t.id).toBeGreaterThan(0);
-        for (const id of t.usedIn) expect(evidence[id], `${t.id} → ${id}`).toBeTruthy();
-      } else {
-        expect(t.usedIn, t.id).toEqual([]);
-      }
-    }
+  it("names a real usage context for every mapped tool", () => {
+    for (const t of technologies) for (const id of t.usedIn) expect(evidence[id], `${t.id} → ${id}`).toBeTruthy();
   });
 
-  it("keeps tools without verified usage in the exploring tier", () => {
-    const exploring = technologies.filter((t) => t.level === "exploring").map((t) => t.id).sort();
-    expect(exploring).toEqual(["gemini", "kubernetes", "langchain", "matplotlib", "mongodb", "pytorch", "sqlserver", "supabase", "tableau"]);
+  it("leaves tools without verified usage unmapped instead of inventing a context", () => {
+    const unmapped = technologies.filter((t) => t.usedIn.length === 0).map((t) => t.id).sort();
+    expect(unmapped).toEqual(["gemini", "kubernetes", "langchain", "matplotlib", "mongodb", "pytorch", "sqlserver", "supabase"]);
+  });
+
+  it("attributes university coursework only where the education record names it", () => {
+    const viaCoursework = technologies.filter((t) => t.usedIn.includes("coursework")).map((t) => t.id).sort();
+    expect(viaCoursework).toEqual(["airflow", "docker"]);
+  });
+
+  it("has no classification tiers", () => {
+    expect(JSON.stringify(technologies)).not.toMatch(/exploring|hands-on/i);
   });
 
   it("includes the requested AI tools with recognizable marks", () => {

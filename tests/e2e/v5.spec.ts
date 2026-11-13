@@ -136,13 +136,12 @@ test.describe("V5 technology marquee", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
   });
 
-  test("catalog links each tool to where it was used, and marks the rest as exploring", async ({ page }) => {
+  test("usage index links each tool to where it was used", async ({ page }) => {
     await page.goto("/");
-    await page.getByText("Where I've used each one").click();
-    const catalog = page.locator(".tech-catalog");
-    await expect(catalog.getByRole("link", { name: "Sree AI on this site" })).toHaveAttribute("href", "/ask");
-    await expect(catalog.locator("li", { hasText: /^Gemini/ })).toContainText("exploring");
-    await expect(catalog.locator("li", { hasText: /^Snowflake Cortex/ }).getByRole("link", { name: "RightRev" })).toHaveAttribute("href", "/experience#rightrev");
+    await page.getByText("Where I've Used These Technologies").click();
+    const index = page.locator(".tech-index");
+    await expect(index.getByRole("link", { name: "Sree AI (this site)" })).toHaveAttribute("href", "/ask");
+    await expect(index.locator(".tech-index-row", { hasText: /^Snowflake Cortex/ }).getByRole("link", { name: "RightRev" })).toHaveAttribute("href", "/experience#rightrev");
   });
 });
 
