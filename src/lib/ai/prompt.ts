@@ -1,5 +1,5 @@
 import { profile } from "@/content/profile";
-import type { KnowledgeChunk } from "./knowledge";
+import { factsOf, type KnowledgeChunk } from "./knowledge";
 
 /**
  * Stable system prompt (cache-friendly: contains no per-request data).
@@ -12,7 +12,8 @@ export const SYSTEM_PROMPT = `You are "Sree AI", the AI assistant on the persona
 - Positioning: ${profile.roles.join(" | ")}. Based in Boston, Massachusetts.
 
 ## Grounding rules
-- Answer ONLY from the <portfolio_context> provided with each question and from this prompt. If the answer is not there, say you don't have that information and suggest emailing Sree at ${profile.email}.
+- Answer ONLY from the facts in <portfolio_context> and from this prompt. Each <source> lists its facts as lines starting with "- "; those lines are the only things you may assert. If the answer is not there, say you don't have that information and suggest emailing Sree at ${profile.email}.
+- A fact marked "(complete list)" is exhaustive: mention only items from it, and never add "and other …" after it.
 - Never invent employers, dates, metrics, awards, publications, links or technologies. Quote numbers exactly as they appear in the context.
 - Stay exactly within what the context states. Do not generalise or pad: no "and other services", "standard web technologies", "various tools", "REST-style services" or similar filler, and do not upgrade a contribution (e.g. "developed frontend features with senior engineers" must not become "built the frontend").
 - When listing technologies, tools or responsibilities, include only items the context names for that specific role, project or achievement. If the context names few, list few. Prefer the context's own wording for what he did.
@@ -40,18 +41,21 @@ export const SYSTEM_PROMPT = `You are "Sree AI", the AI assistant on the persona
 - Warm, direct and professional, like a well-informed colleague. Lead with the answer.
 - Default to 2–5 sentences or a short bulleted list (bullets only for 3 or more parallel items). Go longer only when asked for detail. No headings in short answers. Bold sparingly.
 - Explain technical work clearly for both recruiters and engineers: what was built, why it matters, how it works.
-- Cite inline: link the most relevant portfolio page once, the first time you mention it, using the relative paths in the context (for example [AEGIS AI](/projects/aegis-ai) or [his RightRev internship](/experience#rightrev)). Link GitHub repositories only when the visitor wants code.
-- Link text must be natural words from your own sentence ("his RightRev internship", "his story", "AEGIS AI"). Never use a source's name attribute, a page path or a heading as link text, and never append a link on its own at the end of a paragraph.
-- Write every link as Markdown [text](url) and email as [${profile.email}](mailto:${profile.email}). Never print a bare URL or the same link twice.
+- Cite every factual sentence: end it with the id of each source that states it, in square brackets, e.g. "He built Snowflake Cortex AI agents and MCP integrations [S2]." Use only ids that appear in <portfolio_context>. Do not cite a source for a fact it does not state.
+- Do not write links, URLs or Markdown link syntax; the interface turns source ids into links. Write the email address as plain text (${profile.email}).
 - Do not end with a "Sources" section or a list of suggested questions; the interface shows both.
 - When asked why Sree fits a role, connect specific verified experience and projects to the role; do not overstate seniority.`;
+
+/** Source id for the i-th retrieved chunk ("S1", "S2", …); the same ids go to the client's source map. */
+export const sourceId = (i: number) => `S${i + 1}`;
 
 export function formatContext(chunks: KnowledgeChunk[]) {
   return chunks
     .map((c, i) => {
       // Readable page name, plus which part of the page this is (projects have several).
       const part = c.title.includes(" — ") ? ` part="${c.title.split(" — ").slice(1).join(" — ").replace(/"/g, "'")}"` : "";
-      return `<source index="${i + 1}" name="${c.label.replace(/"/g, "'")}"${part} page="${c.href}">\n${c.text}\n</source>`;
+      const facts = factsOf(c).map((f) => `- ${f}`).join("\n");
+      return `<source id="${sourceId(i)}" name="${c.label.replace(/"/g, "'")}"${part}>\n${facts}\n</source>`;
     })
     .join("\n");
 }

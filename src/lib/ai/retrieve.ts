@@ -127,7 +127,7 @@ const INTENT_SECTIONS: Record<Intent, string[]> = {
   achievement: ["Achievements"],
   certification: ["Certifications"],
   education: ["Education"],
-  skills: ["About", "Experience", "Projects"],
+  skills: ["Skills", "About", "Experience", "Projects"],
   contact: ["Contact"],
   fit: ["About", "Experience", "Projects"],
   assistant: ["About", "Site"],
@@ -151,7 +151,7 @@ function pinnedFor(intent: Intent): string[] {
     case "education":
       return ids("edu-");
     case "skills":
-      return ids("skills-");
+      return ["tech-usage", ...ids("skills-")];
     case "contact":
       return ["contact"];
     case "fit":

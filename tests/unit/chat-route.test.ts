@@ -80,23 +80,29 @@ describe("/api/chat", () => {
     expect(streamImpl).not.toHaveBeenCalled();
   });
 
-  it("answers 'Who is Sree?' from the profile, not unrelated projects or contact details", async () => {
+  it("grounds 'Who is Sree?' in structured identity facts, not unrelated projects or contact details", async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
-    streamImpl.mockReturnValue(fakeStream(["Sreevarshan is a Boston-based engineer. See [his story](/about)."]));
+    streamImpl.mockReturnValue(fakeStream(["Sreevarshan is a Boston-based engineer [S1]."]));
     const { events } = await call(ask("Who is Sree?"));
     const ctx = streamImpl.mock.calls[0][0].messages.at(-1).content as string;
-    expect(ctx).toMatch(/<source index="1" name="About Sree" page="\/about">/);
-    // Internal chunk titles are not offered to the model as link text.
+    expect(ctx).toMatch(/<source id="S1" name="About Sree">\n- Full name: Sreevarshan Sathiyamurthy\. Preferred name: Sree\./);
+    expect(ctx).toMatch(/- Based in Boston, Massachusetts\./);
+    expect(ctx).toMatch(/- Most recent role: Software & Data Engineer Intern at RightRev, Jan 2026 – Jul 2026/);
+    // Internal chunk titles and page paths are not in the context: the model has nothing to turn into links.
     expect(ctx).not.toContain("Who Sreevarshan (Sree, SS) is");
+    expect(ctx).not.toMatch(/page="/);
     expect(ctx).not.toMatch(/Event Processing/);
     expect(ctx).not.toMatch(/name="Contact"/);
+    const map = events.find((e) => e.type === "sourceMap");
+    expect(map?.type === "sourceMap" && map.items[0]).toEqual({ id: "S1", label: "About Sree", href: "/about" });
+    expect(events[0].type).toBe("sourceMap");
     const src = events.find((e) => e.type === "sources");
-    expect(src?.type === "sources" && src.sources).toEqual([{ title: "About Sree", href: "/about", section: "About" }]);
+    expect(src?.type === "sources" && src.sources).toEqual([{ id: "S1", title: "About Sree", href: "/about", section: "About" }]);
   });
 
-  it("sends the conversation so follow-ups resolve, with context for the latest turn only", async () => {
+  it("gives RightRev follow-ups the role's complete technology list and keeps the conversation", async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
-    streamImpl.mockReturnValue(fakeStream(["Python, Snowflake and MCP."]));
+    streamImpl.mockReturnValue(fakeStream(["Snowflake Cortex, SQL and MCP [S1]."]));
     await call({
       messages: [
         { role: "user", content: "What did he build at RightRev?" },
@@ -107,17 +113,20 @@ describe("/api/chat", () => {
     const msgs = streamImpl.mock.calls[0][0].messages;
     expect(msgs).toHaveLength(3);
     expect(msgs[0].content).toBe("What did he build at RightRev?");
-    expect(msgs[2].content).toMatch(/<source index="1" name="RightRev" page="\/experience#rightrev">/);
+    expect(msgs[2].content).toMatch(/<source id="S1" name="RightRev">/);
+    expect(msgs[2].content).toMatch(/- Technologies used in this role \(complete list\): Snowflake Cortex, SQL, Stored procedures, MCP, OAuth, RBAC, Salesforce APIs, REST APIs\./);
+    expect(msgs[2].content).toMatch(/- Integrated Salesforce CRM APIs with five AI agents\./);
     expect(msgs[2].content).toMatch(/Retrieval matched this question to: RightRev/);
   });
 
-  it("streams model output, cites only linked pages, suggests follow-ups and redacts phone-like numbers", async () => {
+  it("streams model output, cites by source id, suggests follow-ups and redacts phone-like numbers", async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
-    streamImpl.mockReturnValue(fakeStream(["Sree built [Cortex agents](/experience#rightrev). Call +1 (61", "7) 555-0100 now."]));
+    streamImpl.mockReturnValue(fakeStream(["Sree built Cortex agents [S1][S9]. Call +1 (61", "7) 555-0100 now."]));
     const { events } = await call(ask("What did Sree work on at RightRev?"));
-    expect(events[0].type).toBe("delta");
+    expect(events[0].type).toBe("sourceMap");
     const text = events.filter((e) => e.type === "delta").map((e) => (e.type === "delta" ? e.text : "")).join("");
-    expect(text).toBe("Sree built [Cortex agents](/experience#rightrev). Call [redacted] now.");
+    expect(text).toBe("Sree built Cortex agents [S1][S9]. Call [redacted] now.");
+    // S9 does not exist in this answer's source map, so only S1 is cited.
     const src = events.find((e) => e.type === "sources");
     expect(src?.type === "sources" && src.sources.map((s) => s.href)).toEqual(["/experience#rightrev"]);
     const sug = events.find((e) => e.type === "suggestions");
@@ -130,6 +139,19 @@ describe("/api/chat", () => {
     expect(lastUser).toMatch(/<portfolio_context>/);
     expect(lastUser).toMatch(/RightRev/);
     expect(params.max_tokens).toBeLessThanOrEqual(2000);
+  });
+
+  it("logs unsupported claims against the grounding facts without changing the answer", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const padded = "He built Snowflake Cortex AI agents and integrated them with Salesforce and other services, plus Kubernetes [S1].";
+    streamImpl.mockReturnValue(fakeStream([padded]));
+    const { events } = await call(ask("Who is Sree?"));
+    const text = events.filter((e) => e.type === "delta").map((e) => (e.type === "delta" ? e.text : "")).join("");
+    expect(text).toBe(padded);
+    const logged = warn.mock.calls.flat().join(" ");
+    expect(logged).toContain("vague:and other services");
+    expect(logged).toContain("term:Kubernetes");
   });
 
   it("falls back to page links when the model errors before output, and logs a safe label", async () => {
@@ -188,13 +210,15 @@ describe("/api/chat", () => {
 });
 
 describe("prompt grounding", () => {
-  it("forbids padding and source-name link text, and labels project parts", async () => {
+  it("forbids padding and links, requires id citations, and labels project parts", async () => {
     const { SYSTEM_PROMPT, formatContext } = await import("@/lib/ai/prompt");
     const { knowledge } = await import("@/lib/ai/knowledge");
     expect(SYSTEM_PROMPT).toMatch(/Do not generalise or pad/);
-    expect(SYSTEM_PROMPT).toMatch(/include only items the context names/);
-    expect(SYSTEM_PROMPT).toMatch(/Never use a source's name attribute/);
+    expect(SYSTEM_PROMPT).toMatch(/\(complete list\)" is exhaustive/);
+    expect(SYSTEM_PROMPT).toMatch(/Cite every factual sentence/);
+    expect(SYSTEM_PROMPT).toMatch(/Do not write links, URLs or Markdown link syntax/);
     const ctx = formatContext(knowledge.filter((c) => c.id.startsWith("proj-aegis-ai")));
-    expect(ctx).toContain('name="AEGIS AI" part="tests, results and stack" page="/projects/aegis-ai"');
+    expect(ctx).toContain('name="AEGIS AI" part="tests, results and stack">');
+    expect(ctx).not.toContain("http");
   });
 });

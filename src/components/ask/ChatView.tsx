@@ -8,6 +8,8 @@ import { SreeMark } from "@/components/ui/SreeMark";
 import { MAX_INPUT, useAskSree, type ChatMessage } from "./AskSreeProvider";
 import { MORE_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
 import { normalizeMarkdown } from "@/lib/ai/markdown";
+import { renderCitationMarkers, resolveCitations, stripCitationMarkers, type Citation } from "@/lib/ai/citations";
+import type { SourceRef } from "@/lib/ai/protocol";
 import { profile } from "@/content/profile";
 
 export const GREETING = "Hey! I'm Sree's AI assistant. Ask me about his experience, projects, achievements, or what he's building.";
@@ -19,21 +21,36 @@ const FALLBACK_COPY: Record<FallbackReason, string> = {
   budget: "I've reached today's answer limit. These pages from the portfolio cover your question:",
 };
 
-function MdLink({ href = "", children, ...rest }: ComponentProps<"a">) {
-  if (href.startsWith("/") || href.startsWith("#")) {
-    return (
-      <Link href={href} {...rest}>
-        {children}
-      </Link>
-    );
-  }
-  const safe = /^(https?:|mailto:)/i.test(href) ? href : undefined;
-  if (!safe) return <span>{children}</span>;
-  return (
-    <a href={safe} target={safe.startsWith("mailto:") ? undefined : "_blank"} rel="noopener noreferrer" {...rest}>
-      {children}
-    </a>
-  );
+/**
+ * Link renderer for answers. Citation markers become numbered chips that point
+ * at their verified source. Any other link is rendered only if it targets a
+ * page in this answer's source map or the public email address; otherwise its
+ * text is shown without a link.
+ */
+function makeLinkRenderer(cites: Citation[], map: SourceRef[] | undefined) {
+  const allowed = new Set([`mailto:${profile.email}`, ...(map ?? []).map((s) => s.href)]);
+  return function AnswerLink({ href = "", children, ...rest }: ComponentProps<"a">) {
+    const cite = /^#cite-(\d+)$/.exec(href);
+    if (cite) {
+      const c = cites.find((x) => x.n === Number(cite[1]));
+      if (!c) return null;
+      const label = `Source ${c.n}: ${c.label}`;
+      return (
+        <sup className="cite">
+          {c.href.startsWith("/") ? (
+            <Link href={c.href} aria-label={label} title={c.label}>{c.n}</Link>
+          ) : (
+            <a href={c.href} target="_blank" rel="noopener noreferrer" aria-label={label} title={c.label}>{c.n}</a>
+          )}
+        </sup>
+      );
+    }
+    // Messages saved before source maps existed keep internal links.
+    const ok = map ? allowed.has(href) : href.startsWith("/") || allowed.has(href);
+    if (!ok) return <span>{children}</span>;
+    if (href.startsWith("/")) return <Link href={href} {...rest}>{children}</Link>;
+    return <a href={href} {...rest}>{children}</a>;
+  };
 }
 
 function IconButton({ label, onClick, children, disabled }: { label: string; onClick: () => void; children: React.ReactNode; disabled?: boolean }) {
@@ -138,6 +155,10 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
     );
   }
   const streaming = m.status === "streaming";
+  const cites = m.sourceMap ? resolveCitations(m.content, m.sourceMap) : [];
+  const markdown = m.sourceMap ? renderCitationMarkers(normalizeMarkdown(m.content), m.sourceMap, streaming) : normalizeMarkdown(m.content);
+  // Numbered sources from the answer's own markers; older messages fall back to the server list.
+  const sourceList = m.sourceMap ? cites.map((c) => ({ key: c.id, n: c.n as number | undefined, title: c.label, href: c.href })) : (m.sources ?? []).map((s) => ({ key: s.href, n: undefined as number | undefined, title: s.title, href: s.href }));
   return (
     <div className="msg-in flex gap-3">
       <div className="mt-0.5 shrink-0">
@@ -148,8 +169,8 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
           <FallbackCard reason={m.fallback.reason} links={m.fallback.links} />
         ) : m.content ? (
           <div className={`md ${streaming ? "caret" : ""}`}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: MdLink }} skipHtml>
-              {normalizeMarkdown(m.content)}
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: makeLinkRenderer(cites, m.sourceMap) }} skipHtml>
+              {markdown}
             </ReactMarkdown>
           </div>
         ) : streaming ? (
@@ -161,16 +182,22 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
             {m.error ?? "Something went wrong."}
           </p>
         )}
-        {!!m.sources?.length && !streaming && !m.fallback && (
+        {!!sourceList.length && !streaming && !m.fallback && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
             <p className="text-[0.68rem] text-fg-muted">Sources</p>
             <ul className="flex flex-wrap gap-1.5" aria-label="Sources">
-              {m.sources.map((s) => (
-                <li key={s.href + s.title}>
+              {sourceList.map((s) => (
+                <li key={s.key}>
                   {s.href.startsWith("/") ? (
-                    <Link href={s.href} className="chip !py-1 !text-[0.68rem]">{s.title}</Link>
+                    <Link href={s.href} className="chip !py-1 !text-[0.68rem]">
+                      {s.n !== undefined && <span className="cite-n" aria-hidden="true">{s.n}</span>}
+                      {s.title}
+                    </Link>
                   ) : (
-                    <a href={s.href} target="_blank" rel="noopener noreferrer" className="chip !py-1 !text-[0.68rem]">{s.title} ↗</a>
+                    <a href={s.href} target="_blank" rel="noopener noreferrer" className="chip !py-1 !text-[0.68rem]">
+                      {s.n !== undefined && <span className="cite-n" aria-hidden="true">{s.n}</span>}
+                      {s.title} ↗
+                    </a>
                   )}
                 </li>
               ))}
@@ -179,7 +206,7 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
         )}
         {!streaming && (m.content || m.status === "error" || m.fallback) && (
           <div className="-ml-2 mt-2 flex gap-0.5">
-            {m.content && !m.fallback && <CopyButton text={m.content} />}
+            {m.content && !m.fallback && <CopyButton text={stripCitationMarkers(m.content)} />}
             {isLast && (
               <IconButton label={m.fallback || m.status === "error" ? "Try again" : "Retry"} onClick={retry} disabled={busy}>
                 <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M13 8a5 5 0 11-1.5-3.6M13 2.5V5h-2.5" /></svg>

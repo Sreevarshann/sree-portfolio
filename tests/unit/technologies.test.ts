@@ -20,12 +20,19 @@ describe("technology catalog", () => {
 
   it("leaves tools without verified usage unmapped instead of inventing a context", () => {
     const unmapped = technologies.filter((t) => t.usedIn.length === 0).map((t) => t.id).sort();
-    expect(unmapped).toEqual(["gemini", "kubernetes", "langchain", "matplotlib", "mongodb", "pytorch", "sqlserver", "supabase"]);
+    expect(unmapped).toEqual(["bigquery", "gemini", "kubernetes", "langchain", "matplotlib", "mongodb", "pytorch", "r", "sqlserver", "supabase", "tableau"]);
   });
 
   it("attributes university coursework only where the education record names it", () => {
     const viaCoursework = technologies.filter((t) => t.usedIn.includes("coursework")).map((t) => t.id).sort();
     expect(viaCoursework).toEqual(["airflow", "docker"]);
+  });
+
+  it("never infers usage from a course's typical curriculum", () => {
+    const viaCourse = technologies.filter((t) => t.usedIn.includes("aws-course")).map((t) => t.id);
+    // Only the course whose own title names the tool.
+    expect(viaCourse).toEqual(["aws"]);
+    expect(technologies.some((t) => t.usedIn.includes("google-da"))).toBe(false);
   });
 
   it("has no classification tiers", () => {

@@ -1,5 +1,5 @@
 /** Newline-delimited JSON events streamed from /api/chat to the client. */
-export type ChatSource = { title: string; href: string; section: string };
+export type ChatSource = { title: string; href: string; section: string; id?: string };
 
 /** A portfolio page offered when no AI answer could be written. */
 export type ChatLink = { title: string; href: string; blurb: string };
@@ -12,9 +12,14 @@ export type ChatLink = { title: string; href: string; blurb: string };
  */
 export type FallbackReason = "unavailable" | "busy" | "budget";
 
+/** A source the answer may cite by id ("S2"); href is allowlisted server-side. */
+export type SourceRef = { id: string; label: string; href: string };
+
 export type StreamEvent =
+  /** Sent first: the sources this answer may cite, by id. */
+  | { type: "sourceMap"; items: SourceRef[] }
   | { type: "delta"; text: string }
-  /** Pages the answer drew on; sent once the answer is complete. */
+  /** Sources the answer actually cited (by marker), once it is complete. */
   | { type: "sources"; sources: ChatSource[] }
   | { type: "suggestions"; items: string[] }
   | { type: "fallback"; reason: FallbackReason; links: ChatLink[] }

@@ -3,6 +3,7 @@ import { experience } from "@/content/experience";
 import { education, certifications, achievements } from "@/content/credentials";
 import { projects } from "@/content/projects";
 import { skillClusters, evidenceLabels } from "@/content/skills";
+import { technologies, evidence as techEvidence, TECH_CATEGORIES } from "@/content/technologies";
 
 /**
  * The Sree AI knowledge base, built only from the typed portfolio content
@@ -19,8 +20,25 @@ export type KnowledgeChunk = {
   label: string;
   /** One clean sentence shown on fallback cards (never raw chunk text). */
   blurb: string;
+  /** Retrieval text (BM25 is computed over this). */
   text: string;
+  /**
+   * Atomic, verified statements given to the model. Answers may only state
+   * these. When omitted, the text's sentences are used.
+   */
+  facts?: string[];
 };
+
+/** The facts the model sees for a chunk. */
+export function factsOf(c: KnowledgeChunk): string[] {
+  const raw = c.facts
+    ? c.facts
+    : c.text.split(/(?<=[.!?])\s+(?=[A-Z"(])/);
+  // URLs never reach the model (it must not write links): the cited page carries them.
+  return raw
+    .map((f) => f.replace(/https?:\/\/[^\s;,)]+/g, "(linked on the cited page)").trim())
+    .filter(Boolean);
+}
 
 const chunks: KnowledgeChunk[] = [];
 const add = (c: KnowledgeChunk) => chunks.push(c);
@@ -43,6 +61,16 @@ add({
     `Current focus: ${profile.focus.join("; ")}.`,
     `Engineering values: ${profile.values.map((v) => `${v.title} — ${v.body}`).join(" ")}`,
   ].join(" "),
+  facts: [
+    `Full name: ${profile.name}. Preferred name: ${profile.displayName}. "SS" is his monogram on this website; all refer to the same person.`,
+    `Based in ${profile.location}.`,
+    `Works as an engineer across AI engineering, data engineering and software engineering (${profile.roles.join(", ")}).`,
+    ...education.filter((ed) => ed.status === "in-progress").map((ed) => `Studying: ${ed.degree} in ${ed.field} at ${ed.institution}, ${ed.date.toLowerCase()}; ${ed.gpaLabel} ${ed.gpa}.`),
+    ...education.filter((ed) => ed.status === "completed").map((ed) => `Earlier degree: ${ed.degree} in ${ed.field}, ${ed.institution}${ed.college ? ` (${ed.college})` : ""}, ${ed.date.toLowerCase()}.`),
+    ...experience.map((e, i) => `${i === 0 ? "Most recent role" : "Earlier role"}: ${e.role} at ${e.company}, ${e.period} (${e.location}). ${e.summary}`),
+    `Focus areas: ${profile.focus.join("; ")}.`,
+    `Engineering values: ${profile.values.map((v) => v.title).join("; ")}.`,
+  ],
 });
 
 add({
@@ -71,6 +99,13 @@ for (const e of experience) {
       `Technologies: ${e.stack.join(", ")}.`,
       e.url ? `Company website: ${e.url}.` : "",
     ].join(" "),
+    facts: [
+      `Role: ${e.role} at ${e.company}, ${e.period}, ${e.location}.`,
+      e.summary,
+      ...e.highlights,
+      ...e.outcomes.map((o) => `Outcome: ${o.value} ${o.label}.`),
+      `Technologies used in this role (complete list): ${e.stack.join(", ")}.`,
+    ],
   });
 }
 
@@ -114,8 +149,36 @@ for (const a of achievements) {
       a.stages ? `Competition stages: ${a.stages.map((st) => `${st.value} ${st.label}`).join(" → ")}.` : "",
       `Evidence: ${a.evidence.map((e) => `${e.label}${e.note ? ` (${e.note})` : ""}${e.href ? `: ${e.href}` : ""}`).join("; ")}.`,
     ].join(" "),
+    facts: [
+      `Result: ${a.result} at ${a.event}${a.rank.field ? `, among ${a.rank.field}` : ""}. Project: ${a.project}.`,
+      a.summary,
+      ...a.details,
+      a.stages ? `Competition stages: ${a.stages.map((st) => `${st.value} ${st.label}`).join(" → ")}.` : "",
+      `Technologies used (complete list): ${a.stack.join(", ")}.`,
+    ],
   });
 }
+
+add({
+  id: "tech-usage",
+  title: "Tools & technologies — where each was used",
+  section: "Skills",
+  href: "/#tools",
+  label: "Tools & technologies",
+  blurb: "The technologies he uses and where he used each one.",
+  text: `Tools and technologies, skills, tech stack: ${technologies.map((t) => t.name).join(", ")}.`,
+  facts: [
+    ...TECH_CATEGORIES.flatMap((cat) =>
+      technologies
+        .filter((t) => t.category === cat)
+        .map((t) =>
+          t.usedIn.length
+            ? `${t.name} (${cat}): used at/in ${t.usedIn.map((id) => techEvidence[id]?.label ?? id).join(", ")}.`
+            : `${t.name} (${cat}): listed in his toolkit; no documented work or project usage.`, // see NO_USAGE in validate.ts
+        ),
+    ),
+  ],
+});
 
 add({
   id: "resume-event-processing",

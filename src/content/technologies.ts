@@ -5,7 +5,9 @@ import { evidenceLabels } from "./skills";
  * "Where I've Used These Technologies" index.
  *
  * Each entry names where it was used: a role, a project with a public
- * repository, this site, university coursework or a certificate course.
+ * repository, this site, coursework named in the education record, or a
+ * course whose title names the tool. Nothing is inferred from a course's
+ * typical curriculum.
  * Nothing is attributed without a source. No proficiency levels.
  *
  * Logos: `sprite` ids are symbols in public/tech-icons.svg (drawn in
@@ -42,8 +44,6 @@ export const evidence: Record<string, { label: string; href: string }> = {
   lab: { label: "The Lab", href: "/lab" },
   /** Northeastern M.S.: MLOps coursework labs (Airflow, Docker) noted under Education. */
   coursework: { label: "University coursework", href: "/education" },
-  /** Google Data Analytics Professional Certificate course work (BigQuery SQL, R, Tableau). */
-  "google-da": { label: "Google Data Analytics Certificate", href: "/certifications" },
   "aws-course": { label: "AWS Cloud Practitioner Essentials course", href: "/certifications" },
 };
 
@@ -67,7 +67,7 @@ export const technologies: Tech[] = [
   // Languages & frontend
   { id: "python", name: "Python", category: "Languages & frontend", logo: s("python", "#3776AB", "#5B9BD5"), usedIn: ["flare-innovation", "sri-sairam-techno-incubator", "aegis-ai", "sourceatlas"] },
   { id: "sql", name: "SQL", category: "Languages & frontend", logo: t("SQL"), usedIn: ["rightrev", "flare-innovation", "insightforge"] },
-  { id: "r", name: "R", category: "Languages & frontend", logo: s("r", "#276DC3", "#5B9BD5"), usedIn: ["google-da"] },
+  { id: "r", name: "R", category: "Languages & frontend", logo: s("r", "#276DC3", "#5B9BD5"), usedIn: [] },
   { id: "javascript", name: "JavaScript", category: "Languages & frontend", logo: s("javascript", "#E8C900", "#F7DF1E"), usedIn: ["reviewpilot", "workmesh", "this-site"] },
   { id: "typescript", name: "TypeScript", category: "Languages & frontend", logo: s("typescript", "#3178C6", "#4B9BE8"), usedIn: ["reviewpilot", "workmesh", "nexus-ai", "this-site"] },
   { id: "react", name: "React", category: "Languages & frontend", logo: s("react", "#149ECA", "#61DAFB"), usedIn: ["reviewpilot", "workmesh", "aegis-ai", "this-site"] },
@@ -92,7 +92,7 @@ export const technologies: Tech[] = [
   // Cloud & databases
   { id: "aws", name: "AWS", category: "Cloud & databases", logo: s("aws", "ink"), usedIn: ["aws-course"] },
   { id: "azure", name: "Microsoft Azure · Azure ML", category: "Cloud & databases", logo: f("azure"), usedIn: ["google-mlops-expo"] },
-  { id: "bigquery", name: "Google BigQuery", category: "Cloud & databases", logo: s("googlebigquery", "#4285F4", "#669DF6"), usedIn: ["google-da"] },
+  { id: "bigquery", name: "Google BigQuery", category: "Cloud & databases", logo: s("googlebigquery", "#4285F4", "#669DF6"), usedIn: [] },
   { id: "postgresql", name: "PostgreSQL", category: "Cloud & databases", logo: s("postgresql", "#4169E1", "#6E8EF0"), usedIn: ["flare-innovation", "aegis-ai", "sourceatlas", "workmesh"] },
   { id: "sqlserver", name: "SQL Server", category: "Cloud & databases", logo: f("sqlserver"), usedIn: [] },
   { id: "mongodb", name: "MongoDB", category: "Cloud & databases", logo: s("mongodb", "#47A248"), usedIn: [] },
@@ -111,7 +111,7 @@ export const technologies: Tech[] = [
   // Visualization
   { id: "plotly", name: "Plotly", category: "Visualization", logo: s("plotly", "#3F4F75", "#9A97FF"), usedIn: ["lab", "insightforge", "tunelab"] },
   { id: "powerbi", name: "Power BI", category: "Visualization", logo: t("BI"), usedIn: ["flare-innovation"] },
-  { id: "tableau", name: "Tableau", category: "Visualization", logo: t("Tb"), usedIn: ["google-da"] },
+  { id: "tableau", name: "Tableau", category: "Visualization", logo: t("Tb"), usedIn: [] },
   { id: "matplotlib", name: "Matplotlib", category: "Visualization", logo: f("matplotlib"), usedIn: [] },
 ];
 

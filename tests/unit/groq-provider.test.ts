@@ -154,7 +154,7 @@ describe("/api/chat with Groq", () => {
   }
 
   it("streams the Groq answer with retrieval context, citations, follow-ups and phone redaction", async () => {
-    fetchMock.mockResolvedValue(sse([delta("At [RightRev](/experience#rightrev) he built Cortex agents. Call +1 (61"), delta("7) 555-0100."), "data: [DONE]\n\n"]));
+    fetchMock.mockResolvedValue(sse([delta("At RightRev he built Cortex agents [S"), delta("1]. Call +1 (61"), delta("7) 555-0100."), "data: [DONE]\n\n"]));
     const { events } = await call([
       { role: "user", content: "What did he build at RightRev?" },
       { role: "assistant", content: "Snowflake Cortex agents." },
@@ -165,7 +165,7 @@ describe("/api/chat with Groq", () => {
     expect(body.messages).toHaveLength(4); // system + 3 turns: the conversation is kept
     expect(body.messages[3].content).toMatch(/<portfolio_context>[\s\S]*RightRev/);
     const text = events.filter((e) => e.type === "delta").map((e) => (e.type === "delta" ? e.text : "")).join("");
-    expect(text).toBe("At [RightRev](/experience#rightrev) he built Cortex agents. Call [redacted].");
+    expect(text).toBe("At RightRev he built Cortex agents [S1]. Call [redacted].");
     const src = events.find((e) => e.type === "sources");
     expect(src?.type === "sources" && src.sources.map((s) => s.href)).toEqual(["/experience#rightrev"]);
     expect(events.find((e) => e.type === "suggestions")).toBeTruthy();
