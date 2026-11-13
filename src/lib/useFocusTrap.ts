@@ -12,7 +12,10 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean
     const root = ref.current;
     const items = () => Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.offsetParent !== null);
     const first = initial?.current ?? items()[0];
-    window.setTimeout(() => first?.focus(), 30);
+    // Respect focus a child already placed (e.g. the chat composer).
+    window.setTimeout(() => {
+      if (!root.contains(document.activeElement)) first?.focus();
+    }, 30);
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
       const list = items();

@@ -17,14 +17,27 @@ export const profile = {
   resumePath: "/Sreevarshan-Sathiyamurthy-Resume.pdf",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://sree-portfolio.vercel.app",
   headline: "I design intelligent systems, engineer the data underneath them, and ship the software around them.",
-  summary:
-    "Sree is an engineer in Boston working where AI, data infrastructure and product software meet. He is completing an M.S. in Data Analytics Engineering at Northeastern University and most recently built Snowflake Cortex AI agents and MCP integrations as a Software & Data Engineer Intern at RightRev.",
-  about: [
-    "I like systems you can reason about. An AI feature is only as good as the data it reads, the checks around it and the interface that explains it, so I tend to work across all three: the pipeline, the model and the product surface.",
-    "At RightRev I built Snowflake Cortex AI agents, SQL stored procedures and Model Context Protocol integrations that let business teams ask revenue questions without manual analysis. Moving 18 agents into production taught me to treat tenant isolation, access control and validation tests as part of the feature rather than paperwork after it.",
-    "Before that I was a data analyst and engineer at Flare Innovation in Chennai, building Python ETL pipelines for more than a million IoT records and Power BI dashboards that cut reporting latency by 30%. Earlier, at the Sri Sairam Techno Incubator Foundation, I worked on computer vision and reinforcement-learning control for an autonomous underwater vehicle that placed 6th of 320+ teams at the Singapore AUV Challenge.",
-    "Outside of work I build end-to-end projects to test ideas properly: real-time fraud scoring on a streaming pipeline, agentic retrieval that refuses to cite what it can't verify, LoRA fine-tuning measured against a frozen baseline. Each one ships with tests, an evaluation and honest notes on its limits.",
-  ],
+  /** Short first-person introduction for the About page (about 90 words in total). */
+  intro: {
+    statement: {
+      before: "I'm Sreevarshan, a Boston-based engineer building ",
+      highlights: ["intelligent systems", "data platforms", "software products"],
+      after: ".",
+    },
+    blocks: [
+      {
+        label: "What I do",
+        title: "Pipeline, model and product.",
+        body: "I work across all three, because an AI feature is only as good as the data it reads and the interface that explains it. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.",
+      },
+      {
+        label: "What I'm working toward",
+        title: "AI that teams can trust.",
+        body: "Agents that cite their sources, data that is checked before it is used, and results I can measure.",
+      },
+    ],
+    now: "Finishing my M.S. in Data Analytics Engineering at Northeastern",
+  },
   values: [
     { title: "Evidence over adjectives", body: "Every number I report comes from a test, an eval run or a log. If I can't verify it, I say so." },
     { title: "Guardrails are features", body: "Tenant isolation, RBAC, input validation and abstention belong in the first version, not the third." },

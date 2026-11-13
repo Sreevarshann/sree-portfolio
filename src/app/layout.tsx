@@ -5,7 +5,6 @@ import { profile } from "@/content/profile";
 import { SiteNav } from "@/components/layout/SiteNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { MotionRuntime } from "@/components/motion/MotionRuntime";
-import { Cursor } from "@/components/motion/Cursor";
 import { AskSreeProvider } from "@/components/ask/AskSreeProvider";
 import { AskSreeLauncher } from "@/components/ask/AskSreeLauncher";
 import { themeScript } from "@/components/layout/themeScript";
@@ -18,30 +17,30 @@ const serif = Instrument_Serif({
   variable: "--font-serif",
   subsets: ["latin"],
   weight: "400",
-  style: ["normal", "italic"],
+  style: "italic",
   display: "swap",
 });
 
 /** Vercel serves the analytics scripts; skip them in local and CI builds. */
 const onVercel = process.env.VERCEL === "1";
 
-const title = "Sree — AI, Data & Software Engineer";
+const title = "Sreevarshan Sathiyamurthy — AI, Data & Software Engineer";
 const description =
-  "Sreevarshan (Sree) Sathiyamurthy builds intelligent systems, data infrastructure and full-stack software in Boston. Experience at RightRev with Snowflake Cortex AI agents and MCP; M.S. Data Analytics Engineering at Northeastern.";
+  "Sreevarshan Sathiyamurthy (Sree) builds intelligent systems, data infrastructure and full-stack software in Boston. Experience at RightRev with Snowflake Cortex AI agents and MCP; M.S. Data Analytics Engineering at Northeastern.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(profile.siteUrl),
-  title: { default: title, template: "%s · Sree" },
+  title: { default: title, template: "%s · Sreevarshan Sathiyamurthy" },
   description,
-  applicationName: "Sree",
+  applicationName: "Sreevarshan Sathiyamurthy",
   authors: [{ name: profile.name, url: profile.links.github }],
   creator: profile.name,
-  keywords: ["Sreevarshan Sathiyamurthy", "Sree", "AI Engineer", "Data Engineer", "Software Engineer", "Boston", "Snowflake Cortex", "LangGraph", "RAG"],
+  keywords: ["Sreevarshan Sathiyamurthy", "Sree", "SS", "AI Engineer", "Data Engineer", "Software Engineer", "Boston", "Snowflake Cortex", "LangGraph", "RAG"],
   openGraph: {
     type: "website",
     title,
     description,
-    siteName: "Sree",
+    siteName: "Sreevarshan Sathiyamurthy",
     locale: "en_US",
     url: "/",
   },
@@ -72,6 +71,7 @@ const personJsonLd = {
   alumniOf: [
     { "@type": "CollegeOrUniversity", name: "Northeastern University" },
     { "@type": "CollegeOrUniversity", name: "Anna University" },
+    { "@type": "CollegeOrUniversity", name: "Sri Sairam Engineering College" },
   ],
   sameAs: [profile.links.linkedin, profile.links.github, profile.links.scholar],
 };
@@ -107,7 +107,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <AskSreeLauncher />
         </AskSreeProvider>
         <MotionRuntime />
-        <Cursor />
         {onVercel && (
           <>
             <Analytics />

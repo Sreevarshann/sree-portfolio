@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 import { KineticText } from "@/components/motion/KineticText";
 import { ArchitectureDiagram } from "@/components/projects/ArchitectureDiagram";
+import { TechChip } from "@/components/ui/TechChip";
 import { getProject, projects } from "@/content/projects";
 
 const labAnchors: Record<string, string> = {
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
     title: `${p.name} — ${p.tagline}`,
     description: p.oneLiner,
     alternates: { canonical: `/projects/${p.slug}` },
-    openGraph: { title: `${p.name} · Sree`, description: p.oneLiner, images: [{ url: p.screenshots[0].src }] },
+    openGraph: { title: `${p.name} · Sreevarshan Sathiyamurthy`, description: p.oneLiner, images: [{ url: p.screenshots[0].src }] },
   };
 }
 
@@ -148,7 +149,9 @@ export default async function CaseStudy({ params }: PageProps<"/projects/[slug]"
                 <h3 className="text-sm font-medium text-fg">{g.group}</h3>
                 <ul className="mt-3 flex flex-wrap gap-1.5">
                   {g.items.map((i) => (
-                    <li key={i} className="chip">{i}</li>
+                    <li key={i}>
+                      <TechChip name={i} />
+                    </li>
                   ))}
                 </ul>
               </div>

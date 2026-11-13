@@ -4,7 +4,7 @@ import { AegisExperience, SourceAtlasExperience, TuneLabExperience, WorkMeshExpe
 
 export const metadata: Metadata = {
   title: "Lab — interactive results",
-  description: "Interactive Plotly explorations of real results from Sree's projects: LoRA evaluation, fraud-model metrics, API latency and RAG evaluation.",
+  description: "Interactive Plotly explorations of real results from Sreevarshan Sathiyamurthy's projects: LoRA evaluation, fraud-model metrics, API latency and RAG evaluation.",
   alternates: { canonical: "/lab" },
 };
 

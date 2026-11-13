@@ -4,11 +4,7 @@ import Link from "next/link";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { useAskSree } from "./AskSreeProvider";
 
-const picks = [
-  "Explain his Snowflake AI agent work",
-  "What projects has Sree recently built?",
-  "Why might Sree be a good fit for a software engineering role?",
-];
+const picks = ["Who is Sree?", "What has he built?", "What did he do at RightRev?", "Why work with Sree?"];
 
 export function AskSreePromo() {
   const { send, openChat } = useAskSree();
@@ -22,12 +18,12 @@ export function AskSreePromo() {
           <SreeMark size={112} />
         </div>
         <div>
-          <p className="eyebrow">Ask Sree · AI assistant</p>
+          <p className="eyebrow">Sree AI · my digital twin</p>
           <h2 className="mt-4 max-w-[20ch] text-[clamp(2rem,4.6vw,3.6rem)] font-medium leading-[1.02] tracking-[-0.04em]">
             Questions? Ask an assistant that <span className="serif-accent text-accent-fg">only knows what&apos;s verified.</span>
           </h2>
           <p className="mt-5 max-w-xl leading-relaxed text-fg-soft">
-            Ask Sree answers from the resume, case studies and public repositories on this site, cites the pages it used, and says so when it doesn&apos;t know.
+            Sree AI answers from the resume, case studies and public repositories on this site, cites the pages it used, and says so when it doesn&apos;t know. It&apos;s an assistant — it can&apos;t make commitments on my behalf.
           </p>
         </div>
       </div>
@@ -41,7 +37,7 @@ export function AskSreePromo() {
         ))}
         <li>
           <button type="button" onClick={() => openChat()} className="rounded-full bg-accent-solid px-4 py-2 text-sm text-white">
-            Ask your own →
+            Ask My AI →
           </button>
         </li>
         <li>

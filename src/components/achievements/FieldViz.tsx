@@ -1,5 +1,5 @@
 /** Original competition graphics. Decorative; the facts are stated in text. */
-export function TeamField({ total = 320, place = 6 }: { total?: number; place?: number }) {
+export function TeamField({ total = 320, qualified = 0, shortlisted = 0, place = 6 }: { total?: number; qualified?: number; shortlisted?: number; place?: number }) {
   const cols = 32;
   return (
     <svg viewBox={`0 0 ${cols * 12} ${Math.ceil(total / cols) * 12}`} className="h-auto w-full" aria-hidden="true">
@@ -7,15 +7,16 @@ export function TeamField({ total = 320, place = 6 }: { total?: number; place?: 
         const x = (i % cols) * 12 + 6;
         const y = Math.floor(i / cols) * 12 + 6;
         const isPlace = i === place - 1;
-        const ahead = i < place - 1;
+        const short = i < shortlisted;
+        const qual = i < qualified;
         return (
           <circle
             key={i}
             cx={x}
             cy={y}
-            r={isPlace ? 4.6 : 2.2}
-            fill={isPlace ? "var(--accent)" : ahead ? "var(--accent-fg)" : "var(--line-strong)"}
-            opacity={isPlace ? 1 : ahead ? 0.7 : 0.9}
+            r={isPlace ? 4.6 : short ? 2.8 : 2.2}
+            fill={isPlace ? "var(--accent)" : short ? "var(--accent-fg)" : qual ? "var(--accent)" : "var(--line-strong)"}
+            opacity={isPlace ? 1 : short ? 0.95 : qual ? 0.45 : 0.9}
             className={isPlace ? "tf-me" : "tf-dot"}
             style={{ animationDelay: `${(i % cols) * 12 + Math.floor(i / cols) * 30}ms` }}
           />

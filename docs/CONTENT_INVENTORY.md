@@ -9,7 +9,17 @@ Evidence for every factual claim on the site. Audited November 2026.
 | Resume (private original, not in this repo) | Name, location, email, links, education, experience, achievements, certifications |
 | Resume PDF hyperlinks | Google Scholar URL, certificate document links |
 | Public GitHub repositories (README, docs/, CI) | Projects, features, architecture, tests, metrics, screenshots |
-| Official websites | RightRev logo (rightrev.com), Northeastern wordmark (brand.northeastern.edu), Anna University logo (annauniv.edu), SAUVC site (sauvc.org) |
+| Official websites | RightRev logo (rightrev.com), SAUVC site (sauvc.org) |
+| Supplied by Sree | Anna University emblem (two versions), Northeastern University (logo and seal), Sri Sairam Engineering College (wide and stacked), Flare Innovations and Sri Sairam Techno Incubator Foundation logos (backgrounds removed; dark-theme variants recolour only the neutral ink, brand colours unchanged) |
+
+## Achievement proof
+
+| Achievement | Proof link (Sree's LinkedIn post) | Extra facts from the post (supplied by Sree) |
+| --- | --- | --- |
+| Singapore AUV Challenge, 6th | linkedin.com/posts/sreevarshansathiyamurthy_sauvc2022-… | 320+ teams entered, 130+ qualified, 20 shortlisted |
+| Google MLOps Expo, 3rd | linkedin.com/posts/sreevarshansathiyamurthy_mlops-… | — |
+
+Tracking parameters from the share links (including a member ID) are stripped. The LinkedIn "in" logo is LinkedIn's official asset from brand.linkedin.com, used only to label links to LinkedIn.
 
 ## Personal details
 
@@ -20,9 +30,13 @@ Evidence for every factual claim on the site. Audited November 2026.
 | Phone | **omitted everywhere** | private |
 | Work authorization line | **omitted** from site and public PDF | needs explicit approval before publishing |
 
+## Name and voice
+
+Full name: Sreevarshan Sathiyamurthy; preferred short name: Sree; monogram: SS. The site speaks in the first person; Sree AI speaks about him in the third person and treats all three names as the same person. The About copy is a condensed restatement of the resume; it adds no new facts.
+
 ## Experience, education, achievements
 
-All bullet points match the resume. Wording was tightened, not embellished. Flare Innovation and Sri Sairam Techno Incubator Foundation use text monograms because no verifiable official logo or website was found.
+The B.E. was earned at **Sri Sairam Engineering College**, an affiliated college of Anna University (confirmed by Sree); the site names both. All bullet points match the resume. Wording was tightened, not embellished. Company names follow the resume ("Flare Innovation"); the supplied logo reads "Flare Innovations".
 
 ## Certifications
 

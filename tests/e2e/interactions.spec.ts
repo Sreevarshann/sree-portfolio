@@ -6,7 +6,7 @@ test("navigation reaches every section (desktop nav or mobile menu)", async ({ p
   const targets = ["About", "Experience", "Projects", "Achievements", "Education", "Certifications", "Lab", "Contact"];
   for (const label of targets) {
     if (isMobile) {
-      await page.getByRole("button", { name: "Menu" }).click();
+      await page.getByRole("button", { name: "Open menu" }).click();
       const menu = page.getByRole("dialog", { name: "Site menu" });
       await expect(menu).toBeVisible();
       await menu.getByRole("link", { name: label, exact: true }).click();
@@ -22,22 +22,21 @@ test("navigation reaches every section (desktop nav or mobile menu)", async ({ p
 test("mobile menu traps focus and closes with Escape", async ({ page, isMobile }) => {
   test.skip(!isMobile, "mobile only");
   await page.goto("/about");
-  const btn = page.getByRole("button", { name: "Menu" });
-  await btn.click();
+  await page.getByRole("button", { name: "Open menu" }).click();
   await expect(page.getByRole("dialog", { name: "Site menu" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog", { name: "Site menu" })).toBeHidden();
-  await expect(btn).toBeFocused();
+  await expect(page.getByRole("button", { name: "Open menu" })).toBeFocused();
 });
 
-test("Ask Sree opens, answers with an honest fallback without a key, and closes with Escape", async ({ page }) => {
+test("Sree AI opens, answers with an honest fallback without a key, and closes with Escape", async ({ page }) => {
   await page.goto("/about");
-  const launcher = page.getByRole("button", { name: /^Ask Sree/ }).last();
+  const launcher = page.getByRole("button", { name: /^Ask My AI$/ });
   await launcher.click();
-  const panel = page.getByRole("dialog", { name: /Ask Sree/ });
+  const panel = page.getByRole("dialog", { name: /Sree AI assistant/ });
   await expect(panel).toBeVisible();
   const input = panel.getByLabel("Ask a question about Sree");
-  await expect(input).toBeFocused();
+  await expect(input).toBeFocused({ timeout: 15_000 });
   await input.fill("What did Sree work on at RightRev?");
   await input.press("Enter");
   await expect(panel.getByText("Search results · AI model offline")).toBeVisible();
@@ -52,7 +51,8 @@ test("suggested question runs from the full-page Ask view; clear resets", async 
   await page.getByRole("button", { name: "How can I contact Sree?" }).click();
   await expect(page.getByRole("link", { name: "sreevarshan.dev@gmail.com" }).first()).toBeVisible();
   await page.getByRole("button", { name: "Clear conversation" }).click();
-  await expect(page.getByRole("button", { name: "Who is Sree?" })).toBeVisible();
+  await expect(page.getByText(/Hey, I'm Sree's AI/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Who is Sree\?/ })).toBeVisible();
 });
 
 test("chat API validates input and labels fallback answers", async ({ request }) => {

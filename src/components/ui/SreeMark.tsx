@@ -3,29 +3,34 @@
 import { useId } from "react";
 
 /**
- * The Ask Sree mark: eight rounded capsules of two lengths around an open
- * core, with a small orbiting satellite. Original artwork.
- * state: "idle" (slow rotation + breathing) | "thinking" (staggered pulse).
+ * The Sree AI mark — original artwork. Eight rounded capsules (four long,
+ * four short) around an open core, a silver-white nucleus and a small
+ * orbiting satellite, over a soft blue glow. Colors: deep ocean → electric
+ * blue → silver-white (theme tokens --mark-*).
+ *
+ * States: "idle" rotates slowly and breathes; "thinking" speeds up, the arms
+ * morph in a staggered wave and the glow pulses.
  */
 export function SreeMark({
   size = 40,
   state = "idle",
   className = "",
   title,
+  glow = size >= 26,
 }: {
   size?: number;
   state?: "idle" | "thinking";
   className?: string;
   title?: string;
+  glow?: boolean;
 }) {
   const uid = useId().replace(/:/g, "");
   const grad = `sm-g-${uid}`;
-  const grad2 = `sm-h-${uid}`;
+  const core = `sm-c-${uid}`;
+  const halo = `sm-h-${uid}`;
   const arms = Array.from({ length: 8 }, (_, i) => {
     const long = i % 2 === 0;
-    const len = long ? 30 : 19;
-    const w = long ? 10.5 : 8.5;
-    return { angle: i * 45, len, w, delay: (i * 0.11).toFixed(2) };
+    return { angle: i * 45, len: long ? 29 : 18, w: long ? 10.5 : 8.5, delay: (i * 0.09).toFixed(2) };
   });
 
   return (
@@ -39,25 +44,31 @@ export function SreeMark({
       aria-hidden={title ? undefined : true}
       aria-label={title}
       focusable="false"
+      overflow="visible"
     >
       <defs>
-        <linearGradient id={grad} x1="12" y1="10" x2="88" y2="92" gradientUnits="userSpaceOnUse">
+        <linearGradient id={grad} x1="14" y1="8" x2="86" y2="94" gradientUnits="userSpaceOnUse">
           <stop offset="0" style={{ stopColor: "var(--mark-1)" }} />
-          <stop offset="0.42" style={{ stopColor: "var(--mark-2)" }} />
+          <stop offset="0.45" style={{ stopColor: "var(--mark-2)" }} />
           <stop offset="1" style={{ stopColor: "var(--mark-3)" }} />
         </linearGradient>
-        <radialGradient id={grad2} cx="50" cy="50" r="12" gradientUnits="userSpaceOnUse">
+        <radialGradient id={core} cx="47" cy="46" r="10" gradientUnits="userSpaceOnUse">
           <stop offset="0" style={{ stopColor: "var(--mark-core-1)" }} />
           <stop offset="1" style={{ stopColor: "var(--mark-core-2)" }} />
         </radialGradient>
+        <radialGradient id={halo} cx="50" cy="50" r="50" gradientUnits="userSpaceOnUse">
+          <stop offset="0" style={{ stopColor: "var(--mark-glow)", stopOpacity: 0.5 }} />
+          <stop offset="1" style={{ stopColor: "var(--mark-glow)", stopOpacity: 0 }} />
+        </radialGradient>
       </defs>
+      {glow && <circle className="glow" cx="50" cy="50" r="50" fill={`url(#${halo})`} />}
       <g className="arms">
         {arms.map((a) => (
           <g key={a.angle} transform={`rotate(${a.angle} 50 50)`}>
             <rect
               className="arm"
               x={50 - a.w / 2}
-              y={50 - 13 - a.len}
+              y={50 - 12.5 - a.len}
               width={a.w}
               height={a.len}
               rx={a.w / 2}
@@ -67,9 +78,9 @@ export function SreeMark({
           </g>
         ))}
       </g>
-      <circle className="core" cx="50" cy="50" r="6.5" fill={`url(#${grad2})`} />
+      <circle className="core" cx="50" cy="50" r="6.5" fill={`url(#${core})`} />
       <g className="orbit">
-        <circle cx="50" cy="4.5" r="3.2" style={{ fill: "var(--mark-2)" }} opacity="0.9" />
+        <circle cx="50" cy="3.5" r="3" style={{ fill: "var(--mark-1)" }} opacity="0.95" />
       </g>
     </svg>
   );

@@ -3,11 +3,12 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
 import { KineticText } from "@/components/motion/KineticText";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { useAskSree } from "@/components/ask/AskSreeProvider";
 import { profile } from "@/content/profile";
+import { Portrait } from "@/components/ui/Portrait";
+import type { PortraitAsset } from "@/lib/portrait";
 
 const ContourField = dynamic(() => import("./ContourField").then((m) => m.ContourField), { ssr: false });
 
@@ -18,20 +19,17 @@ function Coordinates() {
   useEffect(() => {
     const el = ref.current;
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const o = { lat: 0, lng: 0 };
-    const tw = gsap.to(o, {
-      lat: 42.3601,
-      lng: 71.0589,
-      duration: 1.6,
-      ease: "expo.out",
-      delay: 0.2,
-      onUpdate: () => {
-        el.textContent = `${o.lat.toFixed(4)}° N, ${o.lng.toFixed(4)}° W`;
-      },
-    });
-    return () => {
-      tw.kill();
+    // Count up to Boston's coordinates (expo-out over 1.6 s, after 0.2 s).
+    const start = performance.now() + 200;
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, Math.max(0, (now - start) / 1600));
+      const e = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+      el.textContent = `${(42.3601 * e).toFixed(4)}° N, ${(71.0589 * e).toFixed(4)}° W`;
+      if (t < 1) raf = requestAnimationFrame(tick);
     };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, []);
   return (
     <span ref={ref} className="tabular-nums">
@@ -59,7 +57,7 @@ function RoleTicker() {
   );
 }
 
-export function Hero() {
+export function Hero({ portrait }: { portrait: PortraitAsset }) {
   const { openChat } = useAskSree();
   const [field, setField] = useState(false);
 
@@ -79,33 +77,47 @@ export function Hero() {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-bg" />
       </div>
 
-      <div className="container-x flex flex-1 flex-col justify-center pb-10">
-        <div className="hero-fade flex flex-wrap items-center justify-between gap-3" style={{ ["--enter-delay" as string]: "0.05s" }}>
+      <div className="container-x flex flex-1 flex-col justify-center pb-10" data-scroll-out>
+        <div className="hero-fade flex items-end justify-between gap-3 lg:flex-wrap lg:items-center" style={{ ["--enter-delay" as string]: "0.05s" }}>
           <p className="eyebrow flex items-center gap-3">
             <span className="relative flex h-2 w-2" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--success)]" />
             </span>
-            {profile.name} · Boston, MA
+            Boston, MA · AI, data &amp; software
           </p>
-          <p className="eyebrow mono hidden sm:block" aria-label="Boston coordinates">
+          <p className="eyebrow mono hidden lg:block" aria-label="Boston coordinates">
             <Coordinates />
           </p>
+          {/* Phones and tablets: a small editorial tile in the name row. */}
+          <div className="lg:hidden">
+            <Portrait asset={portrait} size="sm" priority />
+          </div>
         </div>
         <div className="hero-line mt-5 h-px w-full bg-gradient-to-r from-accent via-line-strong to-transparent" aria-hidden="true" />
+        <h1 className="hero-fade mt-8 text-[clamp(1.5rem,3.6vw,2.6rem)] font-medium leading-tight tracking-[-0.035em] text-fg md:mt-10" style={{ ["--enter-delay" as string]: "0.08s" }}>
+          Sreevarshan Sathiyamurthy
+        </h1>
 
-        <KineticText
-          as="h1"
-          className="display mt-10 max-w-[13ch] text-[clamp(3.1rem,10.5vw,9.6rem)] md:mt-14"
-          delay={0.1}
-          trigger="css"
-          segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems — from data to interface."]}
-        />
+        <div className="mt-4 grid items-center gap-10 md:mt-6 lg:grid-cols-[minmax(0,1fr)_clamp(220px,22vw,330px)] lg:gap-14">
+          <div className="relative">
+            <KineticText
+              as="p"
+              className="display hero-title relative z-[1] max-w-[13ch] text-[clamp(3.1rem,10.5vw,9.6rem)] lg:text-[clamp(4rem,7.4vw,8.6rem)]"
+              delay={0.1}
+              trigger="css"
+              segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems — from data to interface."]}
+            />
+          </div>
+          <div className="hidden lg:block" data-parallax="0.18">
+            <Portrait asset={portrait} priority />
+          </div>
+        </div>
 
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-[1.2fr_1fr] md:items-end">
           <div className="hero-fade max-w-xl" style={{ ["--enter-delay" as string]: "0.6s" }}>
             <p className="lede">
-              I&apos;m <strong className="font-medium text-fg">Sree</strong>, an engineer in Boston working across AI agents, data pipelines and full-stack products. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev. Now finishing an M.S. in Data Analytics Engineering at Northeastern.
+              I&apos;m <strong className="font-medium text-fg">Sreevarshan</strong> (Sree for short), an engineer in Boston working across AI agents, data pipelines and full-stack products. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
             </p>
             <div className="mt-6">
               <RoleTicker />
@@ -116,7 +128,7 @@ export function Hero() {
               View projects <span className="arrow" aria-hidden="true">→</span>
             </Link>
             <button type="button" onClick={() => openChat()} className="btn btn-ghost group">
-              <SreeMark size={22} /> Ask Sree
+              <SreeMark size={22} /> Ask My AI
             </button>
             <a href={profile.resumePath} target="_blank" rel="noopener" className="btn btn-ghost">
               Resume

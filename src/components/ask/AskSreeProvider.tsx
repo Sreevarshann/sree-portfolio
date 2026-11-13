@@ -127,7 +127,7 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
           patch(assistantId, (m) => ({
             ...m,
             status: "error",
-            error: "Couldn't reach Ask Sree. Check your connection and try again.",
+            error: "Couldn't reach Sree AI. Check your connection and try again.",
           }));
           console.error(err);
         }
@@ -174,10 +174,22 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
     window.setTimeout(() => launcherRef.current?.focus(), 0);
   }, []);
 
-  // Keyboard shortcut: "/" opens Ask Sree when not typing elsewhere.
+  // Warm the chat bundle once the page is idle so the first open is instant.
+  useEffect(() => {
+    const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 3000));
+    const id = ric(() => void import("./ChatView"), { timeout: 6000 } as IdleRequestOptions);
+    return () => (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
+  }, []);
+
+  // Keyboard shortcut: "/" opens Sree AI when not typing elsewhere.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen((o) => !o);
+        return;
+      }
       if (e.key === "/" && !e.metaKey && !e.ctrlKey && !t.closest("input, textarea, [contenteditable='true']")) {
         e.preventDefault();
         setOpen(true);

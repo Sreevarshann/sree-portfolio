@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { retrieve, retrieveForConversation, tokenize } from "@/lib/ai/retrieve";
 import { knowledge } from "@/lib/ai/knowledge";
 
-const PHONE = /\+?\d?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/;
+const PHONE = /(?<![\d\w-])\+?\d?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?![\d\w])/;
 
 describe("retrieval", () => {
   it("tokenizes and drops stop words", () => {
@@ -17,6 +17,11 @@ describe("retrieval", () => {
     ["How can I contact Sree?", "contact"],
     ["How does the fraud detection pipeline handle duplicate events?", "proj-aegis-ai"],
     ["Explain LoRA fine-tuning results", "proj-tunelab"],
+    ["What has he built?", "proj-"],
+    ["What did he do at RightRev?", "exp-rightrev"],
+    ["Why work with Sree?", "profile"],
+    ["Who is Sreevarshan Sathiyamurthy?", "profile"],
+    ["Who is SS?", "profile"],
   ])("ranks the right chunk for %s", (q, prefix) => {
     const ids = retrieve(q, 6).map((c) => c.id);
     expect(ids.some((id) => id.startsWith(prefix))).toBe(true);

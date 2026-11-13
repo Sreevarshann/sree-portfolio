@@ -6,6 +6,7 @@ export function PageHeader({
   title,
   accent,
   lede,
+  titleClassName,
   children,
 }: {
   index: string;
@@ -13,6 +14,8 @@ export function PageHeader({
   title: string;
   accent?: string;
   lede?: string;
+  /** Overrides the default display size, e.g. for long names. */
+  titleClassName?: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -25,7 +28,7 @@ export function PageHeader({
       </p>
       <KineticText
         as="h1"
-        className="display mt-6 max-w-[16ch] text-[clamp(3rem,10vw,8.5rem)]"
+        className={`display mt-6 max-w-[16ch] ${titleClassName ?? "text-[clamp(3rem,10vw,8.5rem)]"}`}
         trigger="css"
         segments={accent ? [title + " ", { text: accent, className: "serif-accent text-accent-fg" }] : [title]}
       />

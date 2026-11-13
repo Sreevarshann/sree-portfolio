@@ -1,6 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useGlide } from "@/lib/useGlide";
 
 export function Segmented<T extends string>({
   label,
@@ -13,8 +14,11 @@ export function Segmented<T extends string>({
   options: { value: T; label: string }[];
   onChange: (v: T) => void;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const glide = useGlide(ref, value);
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex flex-wrap gap-1 rounded-full border border-line p-1">
+    <div ref={ref} role="radiogroup" aria-label={label} className="relative inline-flex flex-wrap gap-1 rounded-full border border-line p-1">
+      <span className="glide-pill bg-fg" style={glide.style} aria-hidden="true" />
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -35,7 +39,8 @@ export function Segmented<T extends string>({
               }
             }}
             tabIndex={on ? 0 : -1}
-            className={`rounded-full px-3.5 py-1.5 text-[0.82rem] transition-colors ${on ? "bg-fg text-bg" : "text-fg-soft hover:text-fg"}`}
+            data-glide-key={o.value}
+            className={`relative z-[1] rounded-full px-3.5 py-1.5 text-[0.82rem] transition-colors duration-300 ${on ? "text-bg" : "text-fg-soft hover:text-fg"}`}
           >
             {o.label}
           </button>

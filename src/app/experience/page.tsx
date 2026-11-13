@@ -24,7 +24,7 @@ export default function ExperiencePage() {
         </div>
       </PageHeader>
       <section className="container-x pb-16" aria-label="Work history">
-        <ExperienceTimeline />
+        <ExperienceTimeline headingLevel={2} />
       </section>
     </>
   );

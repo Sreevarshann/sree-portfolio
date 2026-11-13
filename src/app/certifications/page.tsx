@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { certifications } from "@/content/credentials";
+import { BrandIcon } from "@/components/ui/BrandIcon";
 
 export const metadata: Metadata = {
   title: "Certifications",
@@ -15,12 +16,14 @@ export default function CertificationsPage() {
       <section className="container-x pb-16" aria-label="Certifications">
         <ul className="grid gap-6 md:grid-cols-3">
           {certifications.map((c, i) => (
-            <li key={c.name} data-reveal>
+            <li key={c.name} data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
               <article className="cert panel group relative flex h-full flex-col overflow-hidden p-7 transition-[transform,border-color] duration-500 hover:-translate-y-1 hover:border-accent">
                 <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full border border-line" aria-hidden="true" />
                 <div className="pointer-events-none absolute -right-4 -top-4 h-28 w-28 rounded-full border border-line" aria-hidden="true" />
                 <div className="flex items-center justify-between">
-                  <span className="mono inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-line-strong bg-bg text-lg font-semibold text-accent-fg" aria-hidden="true">{c.issuerMark}</span>
+                  <span className="issuer-badge inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-line-strong bg-bg text-fg-soft transition-[transform,border-color,color] duration-500 ease-[var(--ease-spring)] group-hover:-rotate-3 group-hover:scale-105 group-hover:border-accent group-hover:text-fg" aria-hidden="true">
+                    {c.issuerIcon ? <BrandIcon name={c.issuerIcon} size={26} /> : <span className="text-[1.05rem] font-semibold lowercase tracking-[-0.04em]">{c.issuerMark}</span>}
+                  </span>
                   <span className="mono text-xs text-fg-muted">0{i + 1}</span>
                 </div>
                 <p className="eyebrow mt-8">{c.kind}</p>
@@ -37,7 +40,7 @@ export default function CertificationsPage() {
           ))}
         </ul>
         <p className="mt-8 max-w-2xl text-sm text-fg-muted">
-          Credential IDs and issue dates are shown on the linked documents. Issuer marks above are simple monograms, not official logos.
+          Credential IDs and issue dates are shown on the linked documents. Issuer marks are monochrome brand icons from Simple Icons (CC0); AWS is shown as text. Trademarks belong to their owners.
         </p>
       </section>
     </>

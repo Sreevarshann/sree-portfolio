@@ -70,8 +70,8 @@ function Art({ kind }: { kind: (typeof caps)[number]["art"] }) {
 export function Capabilities() {
   return (
     <div className="grid gap-px overflow-hidden rounded-[22px] border border-line bg-line lg:grid-cols-3">
-      {caps.map((c) => (
-        <article key={c.n} className="group relative flex flex-col bg-bg p-7 transition-colors duration-500 hover:bg-bg-elev md:p-9" data-reveal>
+      {caps.map((c, i) => (
+        <article key={c.n} className="group relative flex flex-col bg-bg p-7 transition-colors duration-500 hover:bg-bg-elev md:p-9" data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
           <div className="flex items-start justify-between">
             <span className="mono text-xs text-fg-muted">{c.n}</span>
             <Art kind={c.art} />

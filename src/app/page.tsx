@@ -7,9 +7,11 @@ import { ProjectFeature } from "@/components/projects/ProjectFeature";
 import { ExperienceTimeline } from "@/components/experience/ExperienceTimeline";
 import { AskSreePromo } from "@/components/ask/AskSreePromo";
 import { LabTeaser } from "@/components/lab/LabTeaser";
+import { LinkedInProof } from "@/components/ui/LinkedInProof";
 import { projects } from "@/content/projects";
 import { achievements } from "@/content/credentials";
 import { profile } from "@/content/profile";
+import { getPortrait } from "@/lib/portrait";
 
 const featured = ["aegis-ai", "nexus-ai", "sourceatlas", "tunelab"]
   .map((s) => projects.find((p) => p.slug === s)!)
@@ -18,7 +20,7 @@ const featured = ["aegis-ai", "nexus-ai", "sourceatlas", "tunelab"]
 export default function Home() {
   return (
     <>
-      <Hero />
+      <Hero portrait={getPortrait()} />
 
       <section className="container-x section" aria-label="Approach">
         <p className="eyebrow mb-10" data-reveal>
@@ -35,7 +37,7 @@ export default function Home() {
         <Capabilities />
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Selected work">
+      <section className="container-x section" aria-label="Selected work">
         <SectionHead index="01" eyebrow="Selected work" title="Systems built" accent="end to end." href="/projects" hrefLabel="All projects" />
         <div className="mt-20 space-y-28 md:space-y-40">
           {featured.map((p, i) => (
@@ -44,48 +46,54 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Experience">
+      <section className="container-x section" aria-label="Experience">
         <SectionHead index="02" eyebrow="Experience" title="Where I've" accent="shipped." href="/experience" hrefLabel="Full experience" />
         <div className="mt-16">
           <ExperienceTimeline compact />
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Achievements">
+      <section className="container-x section" aria-label="Achievements">
         <SectionHead index="03" eyebrow="Recognition" title="Results under" accent="pressure." href="/achievements" hrefLabel="Achievements" />
         <div className="mt-16 grid gap-6 md:grid-cols-2">
           {achievements.map((a) => (
-            <Link
+            <div
               key={a.slug}
-              href={`/achievements#${a.slug}`}
               className="panel group relative overflow-hidden p-8 transition-[border-color,transform] duration-500 hover:-translate-y-1 hover:border-accent md:p-10"
               data-reveal
             >
               <div className="flex items-start justify-between gap-6">
-                <p className="text-[clamp(5rem,12vw,9rem)] font-medium leading-[0.8] tracking-[-0.06em]">
+                <p className="rank-reveal text-[clamp(5rem,12vw,9rem)] font-medium leading-[0.8] tracking-[-0.06em]">
                   {a.rank.place}
                   <span className="serif-accent align-top text-[0.35em] text-accent-fg">{a.rank.suffix}</span>
                 </p>
                 <span className="chip">{a.rank.field ?? "Competition"}</span>
               </div>
-              <h3 className="mt-8 text-2xl font-medium tracking-[-0.03em]">{a.event}</h3>
+              <h3 className="mt-8 text-2xl font-medium tracking-[-0.03em]">
+                <Link href={`/achievements#${a.slug}`} className="after:absolute after:inset-0 hover:text-accent-fg">
+                  {a.event}
+                </Link>
+              </h3>
               <p className="mt-2 text-fg-muted">{a.project}</p>
-              <span className="mt-6 inline-flex items-center gap-2 text-sm text-accent-fg">
-                Details <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
-              </span>
-            </Link>
+              <div className="relative z-[1] mt-6 flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-2 text-sm text-accent-fg">
+                  Details <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+                </span>
+                {a.proof && <LinkedInProof href={a.proof.href} label={a.proof.label} compact />}
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Lab">
+      <section className="container-x section" aria-label="Lab">
         <SectionHead index="04" eyebrow="Lab" title="Results you can" accent="explore." href="/lab" hrefLabel="Open the Lab" />
         <div className="mt-16">
           <LabTeaser />
         </div>
       </section>
 
-      <section className="container-x section border-t border-line" aria-label="Ask Sree">
+      <section className="container-x section border-t border-line" aria-label="Sree AI">
         <AskSreePromo />
       </section>
 

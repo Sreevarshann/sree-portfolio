@@ -28,7 +28,10 @@ const SYNONYMS: Record<string, string[]> = {
   cert: ["certifications"],
   school: ["education", "university"],
   degree: ["education", "university", "gpa"],
-  education: ["university", "northeastern", "anna", "gpa"],
+  education: ["university", "northeastern", "anna", "sairam", "college", "gpa"],
+  undergrad: ["sairam", "college", "anna", "bachelor"],
+  bachelor: ["sairam", "anna", "college"],
+  college: ["sairam", "anna", "university"],
   fraud: ["aegis"],
   aegis: ["fraud", "streaming"],
   nexus: ["agents", "mission"],
@@ -43,8 +46,14 @@ const SYNONYMS: Record<string, string[]> = {
   skills: ["skill", "technologies"],
   projects: ["project", "built"],
   recent: ["projects", "2026"],
+  built: ["projects", "project", "aegis", "nexus", "sourceatlas"],
+  build: ["projects", "project"],
+  why: ["experience", "values", "skills"],
   ai: ["agents", "llm", "rag"],
   agent: ["agents"],
+  sreevarshan: ["sree", "sathiyamurthy"],
+  sathiyamurthy: ["sree", "sreevarshan"],
+  ss: ["sree", "sreevarshan", "sathiyamurthy"],
 };
 
 function stem(t: string) {
