@@ -49,7 +49,8 @@ test.describe("dynamic island geometry", () => {
     expect((await label.boundingBox())!.width).toBeGreaterThan(50);
     await scrollTo(page, 1500);
     await settle(page);
-    expect((await label.boundingBox())!.width).toBeLessThan(1);
+    // Wait for the collapse transition rather than a fixed delay (slow CI runners).
+    await expect.poll(async () => (await label.boundingBox())!.width).toBeLessThan(1);
     const pill = (await page.getByRole("button", { name: "Ask My AI — open Sree AI" }).boundingBox())!;
     expect(Math.abs(pill.width - pill.height)).toBeLessThan(2);
   });

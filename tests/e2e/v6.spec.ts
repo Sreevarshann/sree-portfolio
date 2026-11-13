@@ -12,7 +12,8 @@ async function layout(page: Page) {
     };
     const index = document.querySelector(".tech-index")!;
     const body = index.querySelector(".tech-index-body")!;
-    const work = document.querySelector('section[aria-label="Selected work"]')!;
+    // The section after the toolkit (V7 order: Achievements).
+    const work = document.querySelector("#tools")!.nextElementSibling as HTMLElement;
     const rule = work.querySelector(".rule-draw") ?? work;
     // The site's established gap between two full sections (bottom + top padding).
     const sectionPad = parseFloat(getComputedStyle(work).paddingTop);
@@ -25,7 +26,7 @@ async function settle(page: Page) {
 }
 
 test.describe("V6 technology index", () => {
-  test("collapsed: no oversized empty region before Selected Work", async ({ page }) => {
+  test("collapsed: no oversized empty region before the next section", async ({ page }) => {
     for (const width of WIDTHS) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
@@ -33,19 +34,20 @@ test.describe("V6 technology index", () => {
       const gap = l.rule.top - l.index.bottom;
       // Selected Work's own top padding is the spacing; the toolkit adds at most 40px.
       expect(gap, `gap at ${width}px`).toBeLessThanOrEqual(l.sectionPad + 41);
-      expect(gap, `gap at ${width}px`).toBeGreaterThanOrEqual(l.sectionPad);
+      // (-1.5: the section rule has a 1px negative top margin, plus sub-pixel rounding.)
+      expect(gap, `gap at ${width}px`).toBeGreaterThanOrEqual(l.sectionPad - 1.5);
       // The closed index is just its summary row.
       expect(l.index.height, `collapsed height at ${width}px`).toBeLessThan(64);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
     }
   });
 
-  test("expanded: the panel fits its content and Selected Work follows directly", async ({ page }) => {
+  test("expanded: the panel fits its content and the next section follows directly", async ({ page }) => {
     for (const width of [375, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
       const closed = await layout(page);
-      await page.getByText("Where I've Used These Technologies").click();
+      await page.getByText("Explore My Stack").click();
       await settle(page);
       const open = await layout(page);
       // The body renders exactly its content: no extra reserved height.
@@ -63,7 +65,7 @@ test.describe("V6 technology index", () => {
 
   test("rapid repeated toggling settles to the natural open and closed heights", async ({ page }) => {
     await page.goto("/");
-    const summary = page.getByText("Where I've Used These Technologies");
+    const summary = page.getByText("Explore My Stack");
     await summary.scrollIntoViewIfNeeded();
     const closed = await layout(page);
     for (let i = 0; i < 7; i++) await summary.click({ delay: 10 });
@@ -83,8 +85,8 @@ test.describe("V6 technology index", () => {
     const tools = page.locator(".tools-section");
     await expect(tools).not.toContainText("Used in work or projects");
     await expect(tools).not.toContainText(/exploring/i);
-    await expect(tools.locator("summary")).toHaveText("Where I've Used These Technologies");
-    await page.getByText("Where I've Used These Technologies").click();
+    await expect(tools.locator("summary")).toHaveText("Explore My Stack");
+    await page.getByText("Explore My Stack").click();
     const rows = tools.locator(".tech-index-row");
     expect(await rows.count()).toBeGreaterThan(30);
     for (const row of await rows.all()) await expect(row.locator(".tech-index-where a").first()).toBeVisible();
@@ -97,7 +99,7 @@ test.describe("V6 technology index", () => {
     test(`index is readable in ${scheme} theme`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: scheme });
       await page.goto("/");
-      await page.getByText("Where I've Used These Technologies").click();
+      await page.getByText("Explore My Stack").click();
       const [name, where] = await page.$eval(".tech-index-row", (r) => [getComputedStyle(r.querySelector(".tech-index-name")!).color, getComputedStyle(r.querySelector(".tech-index-where")!).color]);
       expect(name).not.toBe(where); // names and context are visually distinct
     });

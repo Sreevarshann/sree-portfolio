@@ -14,9 +14,11 @@ const channels = [
   { label: "LinkedIn", value: "in/sreevarshansathiyamurthy", href: profile.links.linkedin, icon: null, mark: "profile" },
   { label: "GitHub", value: "@Sreevarshann", href: profile.links.github, icon: "github", mark: "" },
   { label: "Google Scholar", value: "Scholar profile", href: profile.links.scholar, icon: "googlescholar", mark: "" },
+  { label: "Tableau Public", value: "Data visualizations", href: profile.links.tableau, icon: null, mark: "tableau" },
   { label: "Resume", value: "PDF, one page", href: profile.resumePath, icon: null, mark: "CV" },
 ];
 
+/* eslint-disable @next/next/no-img-element -- 1 KB static brand SVG for the Tableau channel */
 export default function ContactPage() {
   return (
     <>
@@ -32,14 +34,14 @@ export default function ContactPage() {
             <CopyEmail email={profile.email} />
           </div>
         </div>
-        <ul className="mt-6 grid gap-px overflow-hidden rounded-[22px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-6 grid gap-px overflow-hidden rounded-[22px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
           {channels.map((c) => (
             <li key={c.label} data-reveal>
               <a href={c.href} target="_blank" rel={c.href.startsWith("/") ? "noopener" : "noopener noreferrer"} className="group flex h-full flex-col justify-between gap-10 bg-bg p-7 transition-colors hover:bg-bg-elev">
                 <span className="flex items-center justify-between">
                   <span className="eyebrow">{c.label}</span>
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line text-fg-muted transition-[color,border-color,transform] duration-500 ease-[var(--ease-spring)] group-hover:-translate-y-0.5 group-hover:border-accent group-hover:text-fg" aria-hidden="true">
-                    {c.icon ? <BrandIcon name={c.icon} size={18} /> : c.mark === "profile" ? <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="8" cy="5.5" r="2.6" /><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3" strokeLinecap="round" /></svg> : <span className="text-[0.8rem] font-semibold tracking-[-0.02em]">{c.mark}</span>}
+                    {c.icon ? <BrandIcon name={c.icon} size={18} /> : c.mark === "tableau" ? <img src="/tech/tableau.svg" alt="" width={18} height={18} className="h-[18px] w-[18px]" /> : c.mark === "profile" ? <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="8" cy="5.5" r="2.6" /><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3" strokeLinecap="round" /></svg> : <span className="text-[0.8rem] font-semibold tracking-[-0.02em]">{c.mark}</span>}
                   </span>
                 </span>
                 <span className="flex items-end justify-between gap-3">

@@ -4,6 +4,7 @@ const caps = [
   {
     n: "01",
     title: "Intelligent systems",
+    short: "AI agents and retrieval that cite their sources and get measured.",
     body: "AI agents, retrieval and evaluation built to be checked: grounded citations, abstention, guarded tools and measured results.",
     proof: [
       { label: "Snowflake Cortex agents at RightRev", href: "/experience#rightrev" },
@@ -15,6 +16,7 @@ const caps = [
   {
     n: "02",
     title: "Data infrastructure",
+    short: "Pipelines with quality gates, so the data downstream can be trusted.",
     body: "Streaming and batch pipelines with schema checks, quality gates and models that make downstream analytics trustworthy.",
     proof: [
       { label: "1M+ IoT records through Python ETL", href: "/experience#flare-innovation" },
@@ -26,6 +28,7 @@ const caps = [
   {
     n: "03",
     title: "Full-stack software",
+    short: "Products with real auth and interfaces that explain what happened.",
     body: "Multi-tenant products with real auth, RBAC and realtime UX — interfaces that explain what the system did and why.",
     proof: [
       { label: "ReviewPilot — GenAI code-review SaaS", href: "/projects/reviewpilot" },
@@ -77,10 +80,11 @@ export function Capabilities() {
             <Art kind={c.art} />
           </div>
           <h3 className="mt-8 text-2xl font-medium tracking-[-0.03em] md:text-3xl">{c.title}</h3>
-          <p className="mt-3 text-[0.98rem] leading-relaxed text-fg-soft">{c.body}</p>
+          <p className="v-quick mt-3 text-[0.98rem] leading-relaxed text-fg-soft">{c.short}</p>
+          <p className="v-detailed mt-3 text-[0.98rem] leading-relaxed text-fg-soft">{c.body}</p>
           <ul className="mt-6 space-y-2 border-t border-line pt-5 text-sm">
-            {c.proof.map((p) => (
-              <li key={p.href}>
+            {c.proof.map((p, pi) => (
+              <li key={p.href} className={pi > 0 ? "v-detailed" : undefined}>
                 <Link href={p.href} className="group/l flex items-center justify-between gap-3 text-fg-soft hover:text-fg">
                   <span className="link-u">{p.label}</span>
                   <span className="text-fg-muted transition-transform group-hover/l:translate-x-1" aria-hidden="true">→</span>

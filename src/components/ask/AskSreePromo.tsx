@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { useAskSree } from "./AskSreeProvider";
-import { SUGGESTED_QUESTIONS } from "@/lib/ai/protocol";
+import { DETAILED_QUESTIONS } from "@/lib/ai/protocol";
 
-const picks = SUGGESTED_QUESTIONS;
+/** The promo appears in Detailed View, so it offers the technical prompts. */
+const picks = DETAILED_QUESTIONS;
 
 export function AskSreePromo() {
   const { send, openChat } = useAskSree();

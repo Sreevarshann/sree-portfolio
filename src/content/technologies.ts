@@ -1,4 +1,5 @@
 import { evidenceLabels } from "./skills";
+import { profile } from "./profile";
 
 /**
  * Technologies shown in the "Tools & Technologies" marquee and in the
@@ -46,6 +47,8 @@ export const evidence: Record<string, { label: string; href: string }> = {
   /** Northeastern M.S.: MLOps coursework labs (Airflow, Docker) noted under Education. */
   coursework: { label: "University coursework", href: "/education" },
   "aws-course": { label: "AWS Cloud Practitioner Essentials course", href: "/certifications" },
+  /** Three public dashboards on his Tableau Public profile (checked on the live profile). */
+  "tableau-public": { label: "Tableau Public dashboards", href: profile.links.tableau },
 };
 
 const s = (id: string, color: string | "ink", darkColor?: string | "ink", backdrop?: string): TechLogo => ({ kind: "sprite", id, color, darkColor, backdrop });
@@ -112,7 +115,7 @@ export const technologies: Tech[] = [
   // Visualization
   { id: "plotly", name: "Plotly", category: "Visualization", logo: s("plotly", "#3F4F75", "#9A97FF"), usedIn: ["lab", "insightforge", "tunelab"] },
   { id: "powerbi", name: "Power BI", category: "Visualization", logo: f("powerbi"), usedIn: ["flare-innovation"] },
-  { id: "tableau", name: "Tableau", category: "Visualization", logo: f("tableau"), usedIn: [] },
+  { id: "tableau", name: "Tableau", category: "Visualization", logo: f("tableau"), usedIn: ["tableau-public"] },
   { id: "matplotlib", name: "Matplotlib", category: "Visualization", logo: f("matplotlib"), usedIn: [] },
 ];
 

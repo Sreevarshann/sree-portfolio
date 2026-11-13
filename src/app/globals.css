@@ -209,8 +209,14 @@ html.theme-transition *::after {
 .hairline {
   border-color: var(--line);
 }
+/* Spacing system. A section owns only the gap above it, so two sections
+   never stack their paddings at a shared boundary (previously 168 + 168px). */
+:root {
+  --space-chapter: clamp(64px, 8vw, 120px); /* between major sections */
+  --space-head: clamp(32px, 3.6vw, 48px); /* section head → content */
+}
 .section {
-  padding-block: clamp(80px, 12vw, 168px);
+  padding-block: var(--space-chapter) 0;
 }
 
 /* ------------------------------------------------------------------ surfaces */
@@ -1634,8 +1640,8 @@ a:focus-visible > .ss-mark .ss-rule {
 /* The toolkit is a strip between two full sections: it carries a lighter
    rhythm than .section so the space around it reads as one gap, not two. */
 .tools-section {
-  padding-top: clamp(56px, 7vw, 104px);
-  padding-bottom: clamp(24px, 3vw, 40px);
+  padding-top: var(--space-chapter);
+  padding-bottom: 0;
 }
 
 /* "Where I've Used These Technologies" */
@@ -1791,3 +1797,173 @@ a:focus-visible > .ss-mark .ss-rule {
   font-size: 0.92em;
   font-weight: 600;
 }
+
+
+/* ================================================================== V7 */
+/* ------------------------------------------------ Quick / Detailed views
+   html[data-view] is set before paint (viewScript); blocks for the other view
+   are display:none — out of layout and of the accessibility tree. */
+html[data-view="quick"] .v-detailed,
+html[data-view="detailed"] .v-quick {
+  display: none !important;
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--dur-m);
+    animation-timing-function: var(--ease-out);
+  }
+}
+
+/* ---------------------------------------------------------- view switch */
+.view-switch {
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: center;
+  height: 36px;
+  padding: 3px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--bg) 55%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.view-switch-opt {
+  position: relative;
+  z-index: 1;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  color: var(--fg-muted);
+  transition: color var(--dur-s) var(--ease-out);
+}
+.view-switch-opt:hover { color: var(--fg); }
+.view-switch-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+html[data-view="quick"] .view-switch-opt[data-view-option="quick"],
+html[data-view="detailed"] .view-switch-opt[data-view-option="detailed"] { color: var(--fg); }
+.view-switch-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgb(120 170 255 / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.1);
+  transition: transform var(--dur-l) var(--ease-spring-soft);
+}
+html[data-view="detailed"] .view-switch-thumb { transform: translateX(100%); }
+.view-switch-short { display: none; }
+.island[data-island="compact"] .view-switch-long { display: none; }
+.island[data-island="compact"] .view-switch-short { display: inline; }
+@media (max-width: 1279.98px) {
+  .view-switch-long { display: none; }
+  .view-switch-short { display: inline; }
+}
+@media (max-width: 419.98px) {
+  .view-switch { height: 34px; }
+  .view-switch-opt { height: 28px; padding: 0 9px; font-size: 0.74rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .view-switch-thumb { transition: none; }
+}
+
+/* ------------------------------------------------------- "More" dropdown */
+.more-panel {
+  left: 0;
+  top: 0;
+}
+.more-panel:not([hidden]) { animation: more-in var(--dur-m) var(--ease-spring-soft) both; }
+@keyframes more-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
+.more-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  color: var(--fg-soft);
+  transition: background-color var(--dur-s) var(--ease-out), color var(--dur-s) var(--ease-out);
+}
+.more-item:hover,
+.more-item:focus-visible,
+.more-item[data-active] {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+.more-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) { .more-panel:not([hidden]) { animation: none; } }
+
+/* Homepage hero in view: the SS mark carries the active ring. */
+.island-brand .ss-mark { transition: box-shadow var(--dur-m) var(--ease-out); }
+.island-brand[data-active] .ss-mark { box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent); }
+
+/* --------------------------------------------------------- coach mark */
+.coach {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 60;
+  width: min(348px, calc(100vw - 24px));
+  padding: 13px 15px 12px;
+  border-radius: 20px;
+  color: var(--fg);
+  background: color-mix(in oklab, var(--bg-elev) 82%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 0 0 1px color-mix(in oklab, var(--accent) 28%, var(--line)),
+    0 24px 50px -22px rgb(0 0 0 / 0.65);
+}
+:root[data-theme="light"] .coach {
+  background: color-mix(in oklab, #fff 88%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 22%, var(--line)), 0 22px 44px -22px rgb(15 23 42 / 0.35);
+}
+.coach-arrow {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  transform: rotate(45deg);
+  box-shadow: -1px -1px 0 0 color-mix(in oklab, var(--accent) 28%, var(--line));
+}
+.coach[data-side="top"] .coach-arrow { box-shadow: 1px 1px 0 0 color-mix(in oklab, var(--accent) 28%, var(--line)); }
+.coach-title { font-size: 0.95rem; font-weight: 560; letter-spacing: -0.015em; }
+.coach-body { margin-top: 0.25rem; font-size: 0.83rem; line-height: 1.45; color: var(--fg-soft); }
+.coach-actions { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
+.coach-actions .btn { height: 34px; padding: 0 14px; font-size: 0.82rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .coach[data-state="open"] { animation: coach-in var(--dur-l) var(--ease-spring-soft) both; }
+}
+@keyframes coach-in { from { opacity: 0; transform: translateY(-6px) scale(0.97); } }
+/* Phones: a compact mark that ends above the hero headline. */
+@media (max-width: 639.98px) {
+  .coach { padding: 11px 12px 11px; border-radius: 16px; }
+  .coach-title { font-size: 0.88rem; }
+  .coach-body { margin-top: 0.2rem; font-size: 0.76rem; line-height: 1.4; }
+  .coach-actions { margin-top: 0.6rem; }
+  .coach-actions .btn { height: 32px; padding: 0 12px; font-size: 0.78rem; }
+}
+/* Narrow phones: tighter still, so it clears the headline with room to spare. */
+@media (max-width: 379.98px) {
+  .coach { padding: 9px 11px 10px; }
+  .coach-title { font-size: 0.84rem; }
+  .coach-body { font-size: 0.72rem; line-height: 1.35; }
+  .coach-actions { margin-top: 0.5rem; }
+  .coach-actions .btn { height: 30px; padding: 0 11px; font-size: 0.74rem; }
+}
+
+/* ---------------------------------------------------- experience snapshot */
+@media (prefers-reduced-motion: no-preference) {
+  .xp-snap-value { transition: color var(--dur-m) var(--ease-out); }
+  .xp-snap a:hover .xp-snap-value { color: var(--accent-fg); }
+}
+.tableau-link img { flex-shrink: 0; }
+html[data-view="quick"] .hero-bottom { grid-template-columns: minmax(0, 1fr); }
+html[data-view="quick"] .hero-facts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); max-width: 960px; }

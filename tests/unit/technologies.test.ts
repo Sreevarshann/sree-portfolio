@@ -20,7 +20,7 @@ describe("technology catalog", () => {
 
   it("leaves tools without verified usage unmapped instead of inventing a context", () => {
     const unmapped = technologies.filter((t) => t.usedIn.length === 0).map((t) => t.id).sort();
-    expect(unmapped).toEqual(["bigquery", "gemini", "kubernetes", "langchain", "matplotlib", "mongodb", "pytorch", "r", "sqlserver", "supabase", "tableau"]);
+    expect(unmapped).toEqual(["bigquery", "gemini", "kubernetes", "langchain", "matplotlib", "mongodb", "pytorch", "r", "sqlserver", "supabase"]);
   });
 
   it("attributes university coursework only where the education record names it", () => {
@@ -33,6 +33,11 @@ describe("technology catalog", () => {
     // Only the course whose own title names the tool.
     expect(viaCourse).toEqual(["aws"]);
     expect(technologies.some((t) => t.usedIn.includes("google-da"))).toBe(false);
+  });
+
+  it("credits Tableau to the public dashboards on his Tableau Public profile", () => {
+    expect(technologies.find((t) => t.id === "tableau")?.usedIn).toEqual(["tableau-public"]);
+    expect(evidence["tableau-public"].href).toBe("https://public.tableau.com/app/profile/sreevarshan.sathiyamurthy/vizzes");
   });
 
   it("has no classification tiers", () => {

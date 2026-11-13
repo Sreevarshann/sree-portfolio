@@ -48,7 +48,7 @@ export default function AboutPage() {
             <span><span className="mono mr-2 text-xs uppercase tracking-[0.14em] text-fg-muted">Now</span>{intro.now}</span>
           </p>
 
-          <div className="mt-14 grid gap-px overflow-hidden rounded-[22px] border border-line bg-line sm:grid-cols-2">
+          <div className="grid gap-px overflow-hidden rounded-[22px] border border-line bg-line sm:grid-cols-2">
             {intro.blocks.map((b, i) => (
               <div key={b.label} className="bg-bg p-7 md:p-8" data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
                 <p className="eyebrow"><span className="text-accent">0{i + 1}</span> · {b.label}</p>
@@ -99,7 +99,7 @@ export default function AboutPage() {
 
       <section className="container-x section" aria-label="Engineering values">
         <SectionHead index="A.1" eyebrow="Values" title="How I" accent="work." />
-        <div className="mt-14 grid gap-px overflow-hidden rounded-[22px] border border-line bg-line sm:grid-cols-2">
+        <div className="grid gap-px overflow-hidden rounded-[22px] border border-line bg-line sm:grid-cols-2">
           {profile.values.map((v, i) => (
             <div key={v.title} className="bg-bg p-7 md:p-10" data-reveal>
               <span className="mono text-xs text-accent">0{i + 1}</span>
@@ -112,7 +112,7 @@ export default function AboutPage() {
 
       <section id="skills" className="container-x section scroll-mt-24" aria-label="Skills">
         <SectionHead index="A.2" eyebrow="Capability map" title="Skills, with" accent="receipts." />
-        <p className="lede mt-6 max-w-2xl" data-reveal>
+        <p className="lede max-w-2xl" data-reveal>
           No percentage bars. Select a skill to see the roles and projects where it was actually used.
         </p>
         <div className="mt-14">
