@@ -20,6 +20,7 @@ const INTERNAL = new Set([
   "/contact",
   "/ask",
   profile.resumePath,
+  ...certifications.flatMap((c) => [c.pdf ?? "", c.verifyUrl]).filter((u) => u.startsWith("/")),
   ...projects.map((p) => `/projects/${p.slug}`),
 ]);
 
@@ -30,7 +31,7 @@ const EXTERNAL = new Set(
     ...projects.map((p) => p.repoUrl),
     ...experience.map((e) => e.url ?? ""),
     ...achievements.flatMap((a) => [a.proof?.href ?? "", ...a.evidence.map((e) => e.href ?? "")]),
-    ...certifications.map((c) => c.verifyUrl),
+    ...certifications.flatMap((c) => [c.verifyUrl, c.credentialUrl ?? ""]),
   ]
     .filter((u) => /^https:\/\//.test(u))
     .map(norm),
