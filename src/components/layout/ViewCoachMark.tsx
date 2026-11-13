@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { arrow, autoUpdate, computePosition, flip, offset, shift } from "@floating-ui/dom";
 import { getView, setView, VIEW_EVENT } from "@/lib/viewMode";
 
 export const COACH_KEY = "sree:coach:view";
@@ -68,6 +67,10 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
     const box = boxRef.current;
     const tip = arrowRef.current;
     if (!ref || !box || !tip) return;
+    let stop = () => {};
+    let cancelled = false;
+    void import("@floating-ui/dom").then(({ arrow, autoUpdate, computePosition, flip, offset, shift }) => {
+      if (cancelled) return;
     const update = () =>
       computePosition(ref, box, {
         placement: "bottom",
@@ -81,8 +84,13 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
         const opposite = { top: "bottom", bottom: "top", left: "right", right: "left" }[s];
         Object.assign(tip.style, { left: a?.x != null ? `${a.x}px` : "", top: a?.y != null ? `${a.y}px` : "", right: "", bottom: "", [opposite]: "-6px" });
       });
-    // animationFrame: follow the island exactly while its width springs.
-    return autoUpdate(ref, box, update, { animationFrame: true });
+      // animationFrame: follow the island exactly while its width springs.
+      stop = autoUpdate(ref, box, update, { animationFrame: true });
+    });
+    return () => {
+      cancelled = true;
+      stop();
+    };
   }, [open, suspended]);
 
   // Close on Escape, on switching views, and once the visitor scrolls on.
