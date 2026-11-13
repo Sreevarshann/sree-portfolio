@@ -80,7 +80,7 @@ add({
   href: "/contact",
   label: "Contact",
   blurb: "Email is the best way to reach him; LinkedIn and GitHub are linked too.",
-  text: `The best way to contact Sree is email: ${profile.email}. LinkedIn: ${profile.links.linkedin}. GitHub: ${profile.links.github}. Google Scholar: ${profile.links.scholar}. A resume PDF is at ${profile.resumePath}. He is based in Boston, Massachusetts. Phone numbers are not shared publicly; use email.`,
+  text: `The best way to contact Sree is email: ${profile.email}. LinkedIn: ${profile.links.linkedin}. GitHub: ${profile.links.github}. Google Scholar: ${profile.links.scholar}. Tableau Public profile (his public data visualizations): ${profile.links.tableau}. A resume PDF is at ${profile.resumePath}. He is based in Boston, Massachusetts. Phone numbers are not shared publicly; use email.`,
 });
 
 for (const e of experience) {

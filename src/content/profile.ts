@@ -13,6 +13,7 @@ export const profile = {
     linkedin: "https://www.linkedin.com/in/sreevarshansathiyamurthy/",
     github: "https://github.com/Sreevarshann",
     scholar: "https://scholar.google.com/citations?user=ENfDDDQAAAAJ&hl=en",
+    tableau: "https://public.tableau.com/app/profile/sreevarshan.sathiyamurthy/vizzes",
   },
   resumePath: "/Sreevarshan-Sathiyamurthy-Resume.pdf",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://sree-portfolio.vercel.app",
