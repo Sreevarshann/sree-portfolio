@@ -77,6 +77,8 @@ export function PlotlyFigure({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const ctrlRef = useRef<PlotController | null>(null);
+  // Counts completed renders; each data-state change plays a brief sweep.
+  const [updates, setUpdates] = useState(0);
   const [state, setState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [near, setNear] = useState(false);
   const [themeTick, setThemeTick] = useState(0);
@@ -129,7 +131,10 @@ export function PlotlyFigure({
     ctrl
       .render(fig.data, layout, { responsive: false, displayModeBar: false, displaylogo: false, scrollZoom: false })
       .then((ok) => {
-        if (ok && !stale) setState("ready");
+        if (ok && !stale) {
+          setState("ready");
+          setUpdates((n) => n + 1);
+        }
       })
       .catch((err) => {
         if (stale || ctrl.disposed) return;
@@ -145,6 +150,7 @@ export function PlotlyFigure({
   return (
     <div className="relative" style={{ minHeight: height }}>
       <div ref={ref} role="img" aria-label={label} className="w-full" style={{ height }} />
+      {updates > 1 && <span key={updates} className="chart-sweep" aria-hidden="true" />}
       {state !== "ready" && (
         <div className="absolute inset-0 flex items-center justify-center text-sm text-fg-muted" aria-hidden={state !== "error"}>
           {state === "error" ? "The chart couldn't load. The data table below has the same numbers." : (
