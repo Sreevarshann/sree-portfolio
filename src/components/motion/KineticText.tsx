@@ -6,7 +6,7 @@ type Segment = string | { text: string; className?: string };
 
 /**
  * Kinetic headline: characters rise out of a mask with a stagger.
- * Screen readers get the plain sentence via aria-label.
+ * Screen readers get the plain sentence from a visually hidden copy (valid on any element, unlike aria-label on a paragraph).
  */
 export function KineticText({
   as: Tag = "h1",
@@ -80,7 +80,8 @@ export function KineticText({
   });
 
   return (
-    <Tag ref={ref} className={`${trigger === "css" ? "kinetic-css" : "kinetic"} ${className}`} aria-label={label}>
+    <Tag ref={ref} className={`${trigger === "css" ? "kinetic-css" : "kinetic"} ${className}`}>
+      <span className="sr-only">{label}</span>
       <span aria-hidden="true">{render}</span>
       {children}
     </Tag>

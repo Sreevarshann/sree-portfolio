@@ -3,7 +3,7 @@ import { ChatView } from "@/components/ask/ChatView";
 
 export const metadata: Metadata = {
   title: "Sree AI",
-  description: "An AI assistant that answers questions about Sree's experience, projects and skills using only verified portfolio content.",
+  description: "An AI assistant that answers questions about Sreevarshan Sathiyamurthy's experience, projects and skills using only verified portfolio content.",
   alternates: { canonical: "/ask" },
 };
 

@@ -6,7 +6,7 @@ import { BrandIcon } from "@/components/ui/BrandIcon";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Email Sree at sreevarshan.dev@gmail.com, or find him on LinkedIn, GitHub and Google Scholar.",
+  description: "Contact Sreevarshan Sathiyamurthy by email at sreevarshan.dev@gmail.com, or on LinkedIn, GitHub and Google Scholar.",
   alternates: { canonical: "/contact" },
 };
 
@@ -28,7 +28,7 @@ export default function ContactPage() {
             {profile.email}
           </a>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href={`mailto:${profile.email}`} className="btn btn-primary" data-magnetic>Write an email <span className="arrow" aria-hidden="true">→</span></a>
+            <a href={`mailto:${profile.email}`} className="btn btn-primary">Write an email <span className="arrow" aria-hidden="true">→</span></a>
             <CopyEmail email={profile.email} />
           </div>
         </div>

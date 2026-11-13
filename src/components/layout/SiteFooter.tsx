@@ -51,7 +51,7 @@ export function SiteFooter() {
         <p className="mono">
           {profile.coordinates.lat}, {profile.coordinates.lng} · <BostonClock />
         </p>
-        <p className="mono sm:mr-[190px] xl:mr-[150px]">© 2026 {profile.name}. Designed and engineered by Sree.</p>
+        <p className="mono sm:mr-[190px] xl:mr-[150px]">© 2026 {profile.name}. Designed and engineered by me.</p>
       </div>
     </footer>
   );

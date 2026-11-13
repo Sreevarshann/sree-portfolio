@@ -84,7 +84,7 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--success)]" />
             </span>
-            {profile.name} · Boston, MA
+            Boston, MA · AI, data &amp; software
           </p>
           <p className="eyebrow mono hidden lg:block" aria-label="Boston coordinates">
             <Coordinates />
@@ -95,11 +95,14 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
           </div>
         </div>
         <div className="hero-line mt-5 h-px w-full bg-gradient-to-r from-accent via-line-strong to-transparent" aria-hidden="true" />
+        <h1 className="hero-fade mt-8 text-[clamp(1.5rem,3.6vw,2.6rem)] font-medium leading-tight tracking-[-0.035em] text-fg md:mt-10" style={{ ["--enter-delay" as string]: "0.08s" }}>
+          Sreevarshan Sathiyamurthy
+        </h1>
 
-        <div className="mt-10 grid items-center gap-10 md:mt-14 lg:grid-cols-[minmax(0,1fr)_clamp(220px,22vw,330px)] lg:gap-14">
+        <div className="mt-4 grid items-center gap-10 md:mt-6 lg:grid-cols-[minmax(0,1fr)_clamp(220px,22vw,330px)] lg:gap-14">
           <div className="relative">
             <KineticText
-              as="h1"
+              as="p"
               className="display hero-title relative z-[1] max-w-[13ch] text-[clamp(3.1rem,10.5vw,9.6rem)] lg:text-[clamp(4rem,7.4vw,8.6rem)]"
               delay={0.1}
               trigger="css"
@@ -114,14 +117,14 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-[1.2fr_1fr] md:items-end">
           <div className="hero-fade max-w-xl" style={{ ["--enter-delay" as string]: "0.6s" }}>
             <p className="lede">
-              I&apos;m <strong className="font-medium text-fg">Sree</strong>, an engineer in Boston working across AI agents, data pipelines and full-stack products. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev. Now finishing an M.S. in Data Analytics Engineering at Northeastern.
+              I&apos;m <strong className="font-medium text-fg">Sreevarshan</strong> (Sree for short), an engineer in Boston working across AI agents, data pipelines and full-stack products. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
             </p>
             <div className="mt-6">
               <RoleTicker />
             </div>
           </div>
           <div className="hero-fade flex flex-wrap gap-3 md:justify-end" style={{ ["--enter-delay" as string]: "0.7s" }}>
-            <Link href="/projects" className="btn btn-primary" data-magnetic>
+            <Link href="/projects" className="btn btn-primary">
               View projects <span className="arrow" aria-hidden="true">→</span>
             </Link>
             <button type="button" onClick={() => openChat()} className="btn btn-ghost group">

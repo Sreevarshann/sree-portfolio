@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
     title: `${p.name} — ${p.tagline}`,
     description: p.oneLiner,
     alternates: { canonical: `/projects/${p.slug}` },
-    openGraph: { title: `${p.name} · Sree`, description: p.oneLiner, images: [{ url: p.screenshots[0].src }] },
+    openGraph: { title: `${p.name} · Sreevarshan Sathiyamurthy`, description: p.oneLiner, images: [{ url: p.screenshots[0].src }] },
   };
 }
 
