@@ -43,8 +43,12 @@ const CASES: { name: string; turns: Turn[]; mustCite?: string[] }[] = [
   { name: "skills", turns: [{ role: "user", content: "What are his strongest technical skills?" }] },
 ];
 
+// Groq's free tier allows a few thousand tokens per minute; space requests out.
+const PAUSE_MS = Number(process.env.ASK_AI_LIVE_PAUSE_MS ?? 25_000);
+
 describe.skipIf(!BASE)("Ask My AI live evaluation", () => {
   it.each(CASES)("$name", async ({ turns, mustCite }) => {
+    await new Promise((r) => setTimeout(r, PAUSE_MS));
     const { map, answer, fallback } = await ask(turns);
     expect(fallback, "the model answered (no fallback)").toBeUndefined();
     const cited = resolveCitations(answer, map);
@@ -56,5 +60,5 @@ describe.skipIf(!BASE)("Ask My AI live evaluation", () => {
     const ctx = groundingText(retrieveConversation(turns).chunks);
     expect(unsupportedClaims(answer, ctx), answer).toEqual([]);
     console.log(`\n### ${turns.at(-1)!.content}\n${answer}\n→ cited: ${cited.map((c) => `${c.n} ${c.label}`).join(", ")}`);
-  }, 60_000);
+  }, 120_000);
 });
