@@ -11,6 +11,10 @@ test("navigation reaches every section (desktop nav or mobile menu)", async ({ p
       await expect(menu).toBeVisible();
       await menu.getByRole("link", { name: label, exact: true }).click();
       await expect(menu).toBeHidden();
+    } else if (["Education", "Certifications", "Lab", "Contact"].includes(label)) {
+      // V7: secondary destinations live in the island's More menu.
+      await page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: /^More/ }).click();
+      await page.locator("#more-menu").getByRole("link", { name: label, exact: true }).click();
     } else {
       await page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: label, exact: true }).click();
     }

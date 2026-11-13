@@ -25,7 +25,8 @@ async function marqueeMetrics(page: Page) {
 
 test.describe("V5 hero", () => {
   test("shows the full name, availability, intro and company identities", async ({ page }) => {
-    await page.goto("/");
+    // V7: the hero's company row is part of Detailed View (Quick View has the experience snapshot).
+    await page.goto("/?view=detailed");
     await expect(page.locator("h1")).toHaveText("Sreevarshan Sathiyamurthy");
     await expect(page.getByText("Available for full-time opportunities")).toBeVisible();
     await expect(page.locator("main").getByText(/a Boston-based engineer building AI agents, data platforms and full-stack applications/)).toBeVisible();
@@ -138,7 +139,7 @@ test.describe("V5 technology marquee", () => {
 
   test("usage index links each tool to where it was used", async ({ page }) => {
     await page.goto("/");
-    await page.getByText("Where I've Used These Technologies").click();
+    await page.getByText("Explore My Stack").click();
     const index = page.locator(".tech-index");
     await expect(index.getByRole("link", { name: "Sree AI (this site)" })).toHaveAttribute("href", "/ask");
     await expect(index.locator(".tech-index-row", { hasText: /^Snowflake Cortex/ }).getByRole("link", { name: "RightRev" })).toHaveAttribute("href", "/experience#rightrev");

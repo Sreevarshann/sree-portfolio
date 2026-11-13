@@ -104,10 +104,10 @@ test("Sree AI greets with the four starter prompts and opens with Ctrl+K", async
   await expect(panel).toBeVisible();
   // The chat bundle is lazy-loaded on first open; allow for a cold load under parallel test runs.
   await expect(panel.getByText("Hey! I'm Sree's AI assistant. Ask me about his experience, projects, achievements, or what he's building.")).toBeVisible({ timeout: 15_000 });
-  for (const q of ["Who is Sree?", "What did he build at RightRev?", "What is his most impressive project?", "What did he achieve at the Singapore AUV Challenge?"]) {
+  for (const q of ["Who is Sree?", "What has he built?", "What are his biggest achievements?", "How can I contact him?"]) {
     await expect(panel.getByRole("button", { name: new RegExp(q.replace("?", "\\?")) })).toBeVisible();
   }
-  await panel.getByRole("button", { name: /What is his most impressive project\?/ }).click();
+  await panel.getByRole("button", { name: /What has he built\?/ }).click();
   await expect(panel.getByText(/can't write an answer right now/)).toBeVisible();
   await panel.getByRole("button", { name: "Close Sree AI" }).click();
   await expect(panel).toBeHidden();

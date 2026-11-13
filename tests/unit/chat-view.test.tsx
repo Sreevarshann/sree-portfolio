@@ -51,7 +51,7 @@ describe("ChatView", () => {
         <ChatView variant="page" />
       </AskSreeProvider>,
     );
-    const suggestion = screen.getByRole("button", { name: /What did he build at RightRev/ });
+    const suggestion = screen.getByRole("button", { name: /What has he built\?/ });
     await userEvent.click(suggestion);
     await waitFor(() => expect(screen.getByText("Snowflake Cortex")).toBeInTheDocument());
     expect(screen.getByRole("link", { name: "RightRev" })).toHaveAttribute("href", "/experience#rightrev");
@@ -64,7 +64,7 @@ describe("ChatView", () => {
     expect(screen.getByRole("button", { name: "Copy response" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.messages.at(-1)).toEqual({ role: "user", content: "What did he build at RightRev?" });
+    expect(body.messages.at(-1)).toEqual({ role: "user", content: "What has he built?" });
   });
 
   it("sends with Enter, keeps Shift+Enter for new lines, and enforces the length limit", async () => {
