@@ -98,7 +98,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
   }, []);
 
   return (
-    <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-28" aria-label="Introduction">
+    <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-28" aria-label="Introduction" data-nav-section="hero" data-view-anchor="hero">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_70%_40%,var(--accent-soft),transparent_70%)]" />
         <div className="hero-atmos absolute inset-0" />
@@ -114,9 +114,8 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
             <Coordinates />
           </p>
         </div>
-        <div className="hero-line mt-5 h-px w-full bg-gradient-to-r from-accent via-line-strong to-transparent" aria-hidden="true" />
 
-        <div className="mt-8 grid gap-12 md:mt-10 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
+        <div className="mt-10 grid gap-12 md:mt-12 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
           <div className="min-w-0">
             <h1 className="hero-fade hero-name" style={{ ["--enter-delay" as string]: "0.08s" }}>
               Sreevarshan Sathiyamurthy
@@ -148,7 +147,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
           </div>
         </div>
 
-        <div className="hero-fade mt-14 grid gap-10 border-t border-line pt-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-end" style={{ ["--enter-delay" as string]: "0.75s" }}>
+        <div className="hero-fade hero-bottom mt-14 grid gap-10 border-t border-line pt-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-end" style={{ ["--enter-delay" as string]: "0.75s" }}>
           <dl className="hero-facts">
             <div>
               <dt className="eyebrow">Based in</dt>
@@ -163,7 +162,9 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
               <dd>M.S. Data Analytics Engineering, Northeastern University</dd>
             </div>
           </dl>
-          <Companies />
+          <div className="v-detailed">
+            <Companies />
+          </div>
         </div>
       </div>
     </section>

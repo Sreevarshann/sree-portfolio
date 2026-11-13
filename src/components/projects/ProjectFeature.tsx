@@ -16,10 +16,24 @@ function signalPath(project: Project) {
 }
 
 /** Alternating editorial composition: large preview + narrative column. */
-export function ProjectFeature({ project, index, priority = false, headingLevel = 3 }: { project: Project; index: number; priority?: boolean; headingLevel?: 2 | 3 }) {
+export function ProjectFeature({
+  project,
+  index,
+  priority = false,
+  headingLevel = 3,
+  variant = "full",
+}: {
+  project: Project;
+  index: number;
+  priority?: boolean;
+  headingLevel?: 2 | 3;
+  /** "quick": name, one line, screenshot, up to four technologies and one action. */
+  variant?: "full" | "quick";
+}) {
+  const quick = variant === "quick";
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const flip = index % 2 === 1;
-  const secondary = project.screenshots[3] ?? project.screenshots[2];
+  const secondary = quick ? undefined : project.screenshots[3] ?? project.screenshots[2];
   const path = signalPath(project);
   const num = String(index + 1).padStart(2, "0");
   return (
@@ -66,8 +80,8 @@ export function ProjectFeature({ project, index, priority = false, headingLevel 
           </Link>
         </Heading>
         <p className="mt-3 text-lg text-fg-soft">{project.tagline}</p>
-        <p className="mt-5 leading-relaxed text-fg-muted">{project.oneLiner}</p>
-        {path.length > 2 && (
+        {!quick && <p className="mt-5 leading-relaxed text-fg-muted">{project.oneLiner}</p>}
+        {!quick && path.length > 2 && (
           <div className="signal-path mt-6" aria-label={`Main data path: ${path.join(" to ")}`} role="img">
             <span className="signal-line" aria-hidden="true"><span className="signal-pulse" /></span>
             <ol className="relative flex justify-between gap-2" aria-hidden="true">
@@ -81,13 +95,13 @@ export function ProjectFeature({ project, index, priority = false, headingLevel 
           </div>
         )}
         <ul className="mt-6 flex flex-wrap gap-1.5" aria-label="Key technologies">
-          {project.stack.flatMap((g) => g.items).filter((n) => iconFor(n)).slice(0, 5).map((n, i) => (
+          {project.stack.flatMap((g) => g.items).filter((n) => iconFor(n)).slice(0, quick ? 4 : 5).map((n, i) => (
             <li key={n} className="chip-rise" style={{ ["--i" as string]: i } as React.CSSProperties}>
               <TechChip name={n} />
             </li>
           ))}
         </ul>
-        <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-line pt-5">
+        {!quick && <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-line pt-5">
           {project.metrics.map((m) => (
             <div key={m.label}>
               <dt className="sr-only">{m.label}</dt>
@@ -95,14 +109,17 @@ export function ProjectFeature({ project, index, priority = false, headingLevel 
               <dd className="mt-1 text-xs leading-snug text-fg-muted">{m.label}</dd>
             </div>
           ))}
-        </dl>
+        </dl>}
         <div className="mt-7 flex flex-wrap gap-3">
           <Link href={`/projects/${project.slug}`} className="btn btn-primary">
-            Case study <span className="arrow" aria-hidden="true">→</span>
+            {quick ? "Explore project" : "Case study"} <span className="arrow" aria-hidden="true">→</span>
+            {quick && <span className="sr-only">: {project.name}</span>}
           </Link>
-          <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
-            GitHub ↗
-          </a>
+          {!quick && (
+            <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+              GitHub ↗
+            </a>
+          )}
         </div>
       </div>
     </article>

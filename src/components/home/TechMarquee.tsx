@@ -86,7 +86,7 @@ export function TechMarquee() {
 }
 
 /**
- * "Where I've Used These Technologies": a compact technical index under the
+ * "Explore My Stack": a compact technical index (where each tool was used) under the
  * marquee. Native <details> (works without JS); the panel's height animates
  * to its exact content size via ::details-content where supported, and
  * toggles instantly elsewhere. Balanced CSS columns keep short categories from
@@ -97,7 +97,7 @@ export function TechCatalog() {
   return (
     <details className="tech-index">
       <summary className="tech-index-summary">
-        <span>Where I&apos;ve Used These Technologies</span>
+        <span>Explore My Stack</span>
         <svg className="tech-index-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
           <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

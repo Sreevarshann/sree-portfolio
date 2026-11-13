@@ -9,7 +9,7 @@ export function SectionHead({
   href,
   hrefLabel,
 }: {
-  index: string;
+  index?: string;
   eyebrow: string;
   title: string;
   accent?: string;
@@ -18,11 +18,11 @@ export function SectionHead({
 }) {
   return (
     <>
-    <div className="rule-draw -mt-px mb-14 h-px w-full bg-gradient-to-r from-accent via-line-strong to-transparent md:mb-20" aria-hidden="true" />
-    <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+    <div className="rule-draw -mt-px mb-10 h-px w-full bg-gradient-to-r from-accent via-line-strong to-transparent md:mb-12" aria-hidden="true" />
+    <div className="mb-[var(--space-head)] flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
       <div>
         <p className="eyebrow flex items-center gap-3" data-reveal>
-          <span className="text-accent">{index}</span>
+          {index && <span className="text-accent">{index}</span>}
           <span className="h-px w-10 bg-line-strong" aria-hidden="true" />
           {eyebrow}
         </p>
