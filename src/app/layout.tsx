@@ -5,6 +5,7 @@ import { profile } from "@/content/profile";
 import { SiteNav } from "@/components/layout/SiteNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { MotionRuntime } from "@/components/motion/MotionRuntime";
+import { AnimationGovernor } from "@/components/motion/AnimationGovernor";
 import { AskSreeProvider } from "@/components/ask/AskSreeProvider";
 import { AskSreeLauncher } from "@/components/ask/AskSreeLauncher";
 import { themeScript, viewScript } from "@/components/layout/themeScript";
@@ -111,6 +112,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <AskSreeLauncher />
         </AskSreeProvider>
         <MotionRuntime />
+        <AnimationGovernor />
         {onVercel && (
           <>
             <Analytics />

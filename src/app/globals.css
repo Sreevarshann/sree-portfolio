@@ -2102,3 +2102,9 @@ html[data-view="quick"] .hero-facts { grid-template-columns: repeat(auto-fit, mi
   padding: 7px;
   border-radius: 14px;
 }
+
+/* Looping decorations pause while scrolled out of view (AnimationGovernor). */
+[data-offscreen],
+[data-offscreen] * {
+  animation-play-state: paused !important;
+}
