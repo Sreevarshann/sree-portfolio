@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { useAskSree } from "./AskSreeProvider";
+import { SUGGESTED_QUESTIONS } from "@/lib/ai/protocol";
 
-const picks = ["Who is Sree?", "What has he built?", "What did he do at RightRev?", "Why work with Sree?"];
+const picks = SUGGESTED_QUESTIONS;
 
 export function AskSreePromo() {
   const { send, openChat } = useAskSree();

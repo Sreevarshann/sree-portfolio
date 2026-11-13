@@ -15,6 +15,10 @@ export type KnowledgeChunk = {
   title: string;
   section: string;
   href: string;
+  /** Short page name shown on source chips and fallback cards. */
+  label: string;
+  /** One clean sentence shown on fallback cards (never raw chunk text). */
+  blurb: string;
   text: string;
 };
 
@@ -26,6 +30,8 @@ add({
   title: "Who Sreevarshan (Sree, SS) is",
   section: "About",
   href: "/about",
+  label: "About Sree",
+  blurb: `Boston-based engineer building intelligent systems, data platforms and software products.`,
   text: [
     `${profile.name} (preferred name: ${profile.displayName}) is based in ${profile.location}.`,
     `"Sreevarshan Sathiyamurthy", "Sreevarshan", "Sree" and "SS" all refer to the same person. SS is his monogram on this website.`,
@@ -44,7 +50,9 @@ add({
   title: "Contact",
   section: "Contact",
   href: "/contact",
-  text: `The best way to contact Sree is email: ${profile.email} (mailto:${profile.email}). LinkedIn: ${profile.links.linkedin}. GitHub: ${profile.links.github}. Google Scholar: ${profile.links.scholar}. A resume PDF is at ${profile.resumePath}. He is based in Boston, Massachusetts. Phone numbers are not shared publicly; use email.`,
+  label: "Contact",
+  blurb: "Email is the best way to reach him; LinkedIn and GitHub are linked too.",
+  text: `The best way to contact Sree is email: ${profile.email}. LinkedIn: ${profile.links.linkedin}. GitHub: ${profile.links.github}. Google Scholar: ${profile.links.scholar}. A resume PDF is at ${profile.resumePath}. He is based in Boston, Massachusetts. Phone numbers are not shared publicly; use email.`,
 });
 
 for (const e of experience) {
@@ -53,6 +61,8 @@ for (const e of experience) {
     title: `${e.role} at ${e.company}`,
     section: "Experience",
     href: `/experience#${e.slug}`,
+    label: e.company,
+    blurb: e.summary,
     text: [
       `${e.role} at ${e.company}, ${e.period}, ${e.location}.`,
       e.summary,
@@ -70,6 +80,8 @@ for (const ed of education) {
     title: ed.institution,
     section: "Education",
     href: "/education",
+    label: ed.institution,
+    blurb: `${ed.degree} in ${ed.field}.`,
     text: `${ed.degree} in ${ed.field} at ${ed.institution}${ed.college ? `, studied at its affiliated college ${ed.college}` : ""}, ${ed.location}. ${ed.gpaLabel} ${ed.gpa}. ${ed.date}. ${ed.notes.join(" ")}`,
   });
 }
@@ -79,6 +91,8 @@ add({
   title: "Certifications",
   section: "Certifications",
   href: "/certifications",
+  label: "Certifications",
+  blurb: certifications.map((c) => c.name).join(", ") + ".",
   text: certifications
     .map((c) => `${c.name} — ${c.issuer} (${c.kind}).${c.note ? " " + c.note : ""} Verification: ${c.verifyUrl}.`)
     .join(" "),
@@ -90,6 +104,8 @@ for (const a of achievements) {
     title: `${a.event}: ${a.result}`,
     section: "Achievements",
     href: `/achievements#${a.slug}`,
+    label: a.event,
+    blurb: a.summary,
     text: [
       `${a.event} — ${a.result}${a.rank.field ? ` among ${a.rank.field}` : ""}. Project: ${a.project}.`,
       a.summary,
@@ -106,11 +122,13 @@ add({
   title: "Event Processing & Monitoring Dashboard (resume project)",
   section: "Projects",
   href: "/projects",
+  label: "Projects",
+  blurb: "A resume project: an event simulator and monitoring dashboard.",
   text: "Listed on Sree's resume: a Python simulator and dashboard for 143K synthetic transaction events, validated with 11 passing unit tests and 5 passing CI jobs. A React and TypeScript dashboard, Django API and Go event worker on AWS EC2 with Amazon Aurora provisioned via Terraform is a PLANNED extension and has not been built. This item does not have a case-study page on the portfolio.",
 });
 
 for (const p of projects) {
-  const base = { section: "Projects", href: `/projects/${p.slug}` };
+  const base = { section: "Projects", href: `/projects/${p.slug}`, label: p.name, blurb: p.oneLiner };
   add({
     ...base,
     id: `proj-${p.slug}-overview`,
@@ -157,6 +175,8 @@ for (const c of skillClusters) {
     title: `Skills — ${c.title}`,
     section: "About",
     href: "/about#skills",
+    label: "Skills map",
+    blurb: c.blurb,
     text: `${c.title}: ${c.blurb} ${c.skills
       .map((s) => `${s.name} (used in: ${s.usedIn.map((u) => evidenceLabels[u]?.label ?? u).join(", ")})`)
       .join("; ")}.`,
@@ -168,6 +188,8 @@ add({
   title: "Portfolio pages",
   section: "Site",
   href: "/",
+  label: "Home",
+  blurb: "Every page on the portfolio.",
   text: "Portfolio pages: /about (story, values, skills map), /experience (work history), /projects (catalog with case studies at /projects/<slug>), /achievements (Singapore AUV Challenge, Google MLOps Expo), /education, /certifications, /lab (interactive Plotly charts from project results), /contact, /ask (full-page Sree AI).",
 });
 

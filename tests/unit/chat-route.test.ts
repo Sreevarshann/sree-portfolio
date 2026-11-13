@@ -66,22 +66,61 @@ describe("/api/chat", () => {
     expect(res.status).toBe(403);
   });
 
-  it("returns a clearly labelled search fallback when no API key is configured", async () => {
+  it("returns structured page links, not raw search text, when no API key is configured", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
     const { res, events } = await call(ask("What did Sree work on at RightRev?"));
     expect(res.status).toBe(200);
     const fb = events.find((e) => e.type === "fallback");
-    expect(fb && fb.type === "fallback" && fb.text).toMatch(/isn't connected/);
-    expect(fb && fb.type === "fallback" && fb.sources.some((s) => s.href.includes("rightrev"))).toBe(true);
+    if (fb?.type !== "fallback") throw new Error("no fallback event");
+    expect(fb.reason).toBe("unavailable");
+    expect(fb.links[0].href).toBe("/experience#rightrev");
+    expect(new Set(fb.links.map((l) => l.href)).size).toBe(fb.links.length);
+    expect(JSON.stringify(fb)).not.toMatch(/mailto:|AI model offline/);
+    expect(events.find((e) => e.type === "suggestions")).toBeTruthy();
     expect(streamImpl).not.toHaveBeenCalled();
   });
 
-  it("streams model output with sources first and redacts phone-like numbers", async () => {
+  it("answers 'Who is Sree?' from the profile, not unrelated projects or contact details", async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
-    streamImpl.mockReturnValue(fakeStream(["Sree built Cortex agents. Call +1 (61", "7) 555-0100 now."]));
+    streamImpl.mockReturnValue(fakeStream(["Sreevarshan is a Boston-based engineer. See [his story](/about)."]));
+    const { events } = await call(ask("Who is Sree?"));
+    const ctx = streamImpl.mock.calls[0][0].messages.at(-1).content as string;
+    expect(ctx.indexOf('id="profile"') === -1 ? ctx.indexOf("Who Sreevarshan") : 0).toBeGreaterThanOrEqual(0);
+    expect(ctx).toMatch(/<source index="1" title="Who Sreevarshan/);
+    expect(ctx).not.toMatch(/Event Processing/);
+    expect(ctx).not.toMatch(/title="Contact"/);
+    const src = events.find((e) => e.type === "sources");
+    expect(src?.type === "sources" && src.sources).toEqual([{ title: "About Sree", href: "/about", section: "About" }]);
+  });
+
+  it("sends the conversation so follow-ups resolve, with context for the latest turn only", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    streamImpl.mockReturnValue(fakeStream(["Python, Snowflake and MCP."]));
+    await call({
+      messages: [
+        { role: "user", content: "What did he build at RightRev?" },
+        { role: "assistant", content: "Snowflake Cortex agents." },
+        { role: "user", content: "What stack did he use there?" },
+      ],
+    });
+    const msgs = streamImpl.mock.calls[0][0].messages;
+    expect(msgs).toHaveLength(3);
+    expect(msgs[0].content).toBe("What did he build at RightRev?");
+    expect(msgs[2].content).toMatch(/<source index="1" title="Software & Data Engineer Intern at RightRev|<source index="1" title="[^"]*RightRev/);
+    expect(msgs[2].content).toMatch(/Retrieval matched this question to: RightRev/);
+  });
+
+  it("streams model output, cites only linked pages, suggests follow-ups and redacts phone-like numbers", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    streamImpl.mockReturnValue(fakeStream(["Sree built [Cortex agents](/experience#rightrev). Call +1 (61", "7) 555-0100 now."]));
     const { events } = await call(ask("What did Sree work on at RightRev?"));
-    expect(events[0].type).toBe("sources");
+    expect(events[0].type).toBe("delta");
     const text = events.filter((e) => e.type === "delta").map((e) => (e.type === "delta" ? e.text : "")).join("");
-    expect(text).toBe("Sree built Cortex agents. Call [redacted] now.");
+    expect(text).toBe("Sree built [Cortex agents](/experience#rightrev). Call [redacted] now.");
+    const src = events.find((e) => e.type === "sources");
+    expect(src?.type === "sources" && src.sources.map((s) => s.href)).toEqual(["/experience#rightrev"]);
+    const sug = events.find((e) => e.type === "suggestions");
+    expect(sug?.type === "suggestions" && sug.items.length).toBe(3);
     expect(events.at(-1)?.type).toBe("done");
 
     const params = streamImpl.mock.calls[0][0];
@@ -92,14 +131,51 @@ describe("/api/chat", () => {
     expect(params.max_tokens).toBeLessThanOrEqual(2000);
   });
 
-  it("falls back to search results when the model errors before output", async () => {
+  it("falls back to page links when the model errors before output, and logs a safe label", async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
     streamImpl.mockImplementation(() => {
       throw new Error("boom");
     });
     const { events } = await call(ask("Tell me about the Singapore AUV Challenge"));
     const fb = events.find((e) => e.type === "fallback");
-    expect(fb && fb.type === "fallback" && fb.text).toMatch(/temporarily unavailable/);
+    expect(fb?.type === "fallback" && fb.links[0].href).toBe("/achievements#sauvc");
+    expect(log.mock.calls.flat().join(" ")).not.toMatch(/test-key/);
+  });
+
+  it("marks provider overload as busy so the client can suggest retrying", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const { APIError } = (await import("@anthropic-ai/sdk")) as unknown as { APIError: new (s: number) => Error };
+    streamImpl.mockImplementation(() => {
+      throw new APIError(529);
+    });
+    const { events } = await call(ask("Who is Sree?"));
+    const fb = events.find((e) => e.type === "fallback");
+    expect(fb?.type === "fallback" && fb.reason).toBe("busy");
+  });
+
+  it("reports an interrupted stream as an error, keeping what was already sent", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    streamImpl.mockReturnValue({
+      async *[Symbol.asyncIterator]() {
+        yield { type: "content_block_delta", delta: { type: "text_delta", text: "Sreevarshan is an engineer based in Boston who builds data systems and " } };
+        throw new Error("socket hang up");
+      },
+      finalMessage: async () => ({ stop_reason: "end_turn" }),
+    });
+    const { events } = await call(ask("Who is Sree?"));
+    expect(events.some((e) => e.type === "delta")).toBe(true);
+    const err = events.find((e) => e.type === "error");
+    expect(err?.type === "error" && err.code).toBe("interrupted");
+    expect(events.at(-1)?.type).toBe("done");
+  });
+
+  it("does not expose the model id from the health check", async () => {
+    const { GET } = await import("@/app/api/chat/route");
+    const body = await GET().json();
+    expect(body).toEqual({ ok: true, configured: false });
   });
 
   it("rate limits bursts from one client", async () => {

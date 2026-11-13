@@ -6,10 +6,18 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { MAX_INPUT, useAskSree, type ChatMessage } from "./AskSreeProvider";
-import { MORE_QUESTIONS, SUGGESTED_QUESTIONS } from "@/lib/ai/protocol";
+import { MORE_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
+import { normalizeMarkdown } from "@/lib/ai/markdown";
+import { profile } from "@/content/profile";
 
-export const GREETING = "Hey, I'm Sree's AI. Ask me about his experience, projects, or what he's been building.";
-export const SUBTITLE = "My digital twin — ask about my work, projects, and experience.";
+export const GREETING = "Hey! I'm Sree's AI assistant. Ask me about his experience, projects, achievements, or what he's building.";
+export const SUBTITLE = "Answers from Sree's portfolio";
+
+const FALLBACK_COPY: Record<FallbackReason, string> = {
+  unavailable: "I can't write an answer right now — my connection to the language model is down. These pages from the portfolio cover your question:",
+  busy: "I'm getting a lot of questions at the moment, so I couldn't write an answer. Try again in a few seconds, or start with these pages:",
+  budget: "I've reached today's answer limit. These pages from the portfolio cover your question:",
+};
 
 function MdLink({ href = "", children, ...rest }: ComponentProps<"a">) {
   if (href.startsWith("/") || href.startsWith("#")) {
@@ -66,11 +74,55 @@ function CopyButton({ text }: { text: string }) {
 
 function Typing() {
   return (
-    <span className="inline-flex items-center gap-1 py-2" aria-label="Sree AI is thinking">
+    <span className="inline-flex items-center gap-1 py-2">
       {[0, 1, 2].map((i) => (
-        <span key={i} className="typing-dot h-1.5 w-1.5 rounded-full bg-accent" style={{ animationDelay: `${i * 0.16}s` }} />
+        <span key={i} aria-hidden="true" className="typing-dot h-1.5 w-1.5 rounded-full bg-accent" style={{ animationDelay: `${i * 0.16}s` }} />
       ))}
+      <span className="ml-1.5 text-[0.8rem] text-fg-muted">Thinking…</span>
     </span>
+  );
+}
+
+function FallbackCard({ reason, links }: { reason: FallbackReason; links: { title: string; href: string; blurb: string }[] }) {
+  return (
+    <div className="rounded-[18px] rounded-tl-[6px] bg-[var(--glass-lo)] px-4 py-3 ring-1 ring-line" data-fallback={reason}>
+      <p className="text-[0.95rem] leading-relaxed text-fg">{FALLBACK_COPY[reason]}</p>
+      {links.length > 0 && (
+        <ul className="mt-3 space-y-1.5">
+          {links.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} className="group block rounded-xl px-2.5 py-2 -mx-2.5 transition-colors hover:bg-accent-soft">
+                <span className="text-[0.9rem] font-medium text-fg underline decoration-accent/40 underline-offset-4 group-hover:decoration-accent">{l.title}</span>
+                <span className="mt-0.5 block text-[0.8rem] leading-snug text-fg-muted line-clamp-2">{l.blurb}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-3 text-[0.8rem] text-fg-muted">
+        Or email Sree at <a href={`mailto:${profile.email}`} className="text-accent underline underline-offset-4">{profile.email}</a>.
+      </p>
+    </div>
+  );
+}
+
+function Suggestions({ items }: { items: string[] }) {
+  const { send, busy } = useAskSree();
+  return (
+    <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Suggested follow-up questions">
+      {items.map((q) => (
+        <li key={q}>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => send(q)}
+            className="rounded-full border border-line bg-[var(--glass-lo)] px-3 py-1.5 text-left text-[0.8rem] text-fg-soft transition-colors hover:border-accent hover:bg-accent-soft hover:text-fg disabled:opacity-50"
+          >
+            {q}
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -92,15 +144,12 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
         <SreeMark size={28} state={streaming ? "thinking" : "idle"} />
       </div>
       <div className="min-w-0 flex-1">
-        {m.fallback && (
-          <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-line px-2.5 py-1 text-[0.7rem] text-fg-muted">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--warn)]" aria-hidden="true" /> Search results · AI model offline
-          </p>
-        )}
-        {m.content ? (
+        {m.fallback ? (
+          <FallbackCard reason={m.fallback.reason} links={m.fallback.links} />
+        ) : m.content ? (
           <div className={`md ${streaming ? "caret" : ""}`}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: MdLink }}>
-              {m.content}
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: MdLink }} skipHtml>
+              {normalizeMarkdown(m.content)}
             </ReactMarkdown>
           </div>
         ) : streaming ? (
@@ -112,10 +161,10 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
             {m.error ?? "Something went wrong."}
           </p>
         )}
-        {!!m.sources?.length && !streaming && (
-          <div className="mt-3">
-            <p className="eyebrow !text-[0.6rem]">Sources</p>
-            <ul className="mt-1.5 flex flex-wrap gap-1.5">
+        {!!m.sources?.length && !streaming && !m.fallback && (
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <p className="text-[0.68rem] text-fg-muted">Sources</p>
+            <ul className="flex flex-wrap gap-1.5" aria-label="Sources">
               {m.sources.map((s) => (
                 <li key={s.href + s.title}>
                   {s.href.startsWith("/") ? (
@@ -128,17 +177,18 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
             </ul>
           </div>
         )}
-        {!streaming && (m.content || m.status === "error") && (
+        {!streaming && (m.content || m.status === "error" || m.fallback) && (
           <div className="-ml-2 mt-2 flex gap-0.5">
-            {m.content && <CopyButton text={m.content} />}
+            {m.content && !m.fallback && <CopyButton text={m.content} />}
             {isLast && (
-              <IconButton label="Retry" onClick={retry} disabled={busy}>
+              <IconButton label={m.fallback || m.status === "error" ? "Try again" : "Retry"} onClick={retry} disabled={busy}>
                 <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M13 8a5 5 0 11-1.5-3.6M13 2.5V5h-2.5" /></svg>
-                Retry
+                {m.fallback || m.status === "error" ? "Try again" : "Retry"}
               </IconButton>
             )}
           </div>
         )}
+        {isLast && !streaming && !!m.suggestions?.length && <Suggestions items={m.suggestions} />}
       </div>
     </div>
   );
@@ -173,7 +223,6 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
       <div className="flex items-center gap-3 px-4 pb-3 pt-4">
         <div className="relative">
           <SreeMark size={40} state={busy ? "thinking" : "idle"} />
-          <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[var(--bg)] bg-[var(--success)]" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-[1.02rem] font-semibold tracking-[-0.015em]">Sree AI</h2>
@@ -304,8 +353,8 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
           )}
         </div>
         <p className="mt-2 flex justify-between gap-3 px-2 text-[0.66rem] text-fg-muted">
-          <span>AI assistant · may be wrong, can&apos;t make commitments for Sree</span>
-          <span className="mono hidden tabular-nums sm:inline">{draft.length > 0 ? `${draft.length}/${MAX_INPUT}` : "Enter ↵ · Shift+Enter newline"}</span>
+          <span>AI answers can be wrong — check important details with Sree.</span>
+          {draft.length > MAX_INPUT * 0.8 && <span className="mono tabular-nums">{draft.length}/{MAX_INPUT}</span>}
         </p>
       </form>
       <style>{`

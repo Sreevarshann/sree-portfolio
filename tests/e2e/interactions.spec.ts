@@ -39,19 +39,24 @@ test("Sree AI opens, answers with an honest fallback without a key, and closes w
   await expect(input).toBeFocused({ timeout: 15_000 });
   await input.fill("What did Sree work on at RightRev?");
   await input.press("Enter");
-  await expect(panel.getByText("Search results · AI model offline")).toBeVisible();
-  await expect(panel.getByRole("link", { name: /Software & Data Engineer Intern at RightRev/ }).first()).toBeVisible();
-  await expect(panel.getByRole("button", { name: "Copy response" })).toBeVisible();
+  await expect(panel.getByText(/can't write an answer right now/)).toBeVisible();
+  await expect(panel.getByText(/AI model offline|Search results/)).toHaveCount(0);
+  await expect(panel.getByRole("link", { name: /RightRev/ }).first()).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Try again" })).toBeVisible();
+  await expect(panel.getByRole("list", { name: "Suggested follow-up questions" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(panel).toBeHidden();
 });
 
 test("suggested question runs from the full-page Ask view; clear resets", async ({ page }) => {
   await page.goto("/ask");
-  await page.getByRole("button", { name: "How can I contact Sree?" }).click();
-  await expect(page.getByRole("link", { name: "sreevarshan.dev@gmail.com" }).first()).toBeVisible();
+  await page.getByRole("button", { name: "How can I contact him?" }).click();
+  const mail = page.getByRole("link", { name: "sreevarshan.dev@gmail.com" });
+  await expect(mail.first()).toBeVisible();
+  await expect(mail.first()).toHaveAttribute("href", "mailto:sreevarshan.dev@gmail.com");
+  await expect(page.getByText(/\(mailto:/)).toHaveCount(0);
   await page.getByRole("button", { name: "Clear conversation" }).click();
-  await expect(page.getByText(/Hey, I'm Sree's AI/)).toBeVisible();
+  await expect(page.getByText(/Hey! I'm Sree's AI assistant/)).toBeVisible();
   await expect(page.getByRole("button", { name: /Who is Sree\?/ })).toBeVisible();
 });
 
@@ -62,7 +67,8 @@ test("chat API validates input and labels fallback answers", async ({ request })
   expect(ok.status()).toBe(200);
   const events = (await ok.text()).trim().split("\n").map((l) => JSON.parse(l));
   expect(events[0].type).toBe("fallback");
-  expect(events[0].text).toContain("Certifications");
+  expect(events[0].reason).toBe("unavailable");
+  expect(events[0].links[0]).toMatchObject({ title: "Certifications", href: "/certifications" });
 });
 
 test("Lab charts load Plotly, respond to filters and offer data tables", async ({ page }) => {
