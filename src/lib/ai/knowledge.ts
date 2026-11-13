@@ -68,7 +68,7 @@ for (const ed of education) {
     title: ed.institution,
     section: "Education",
     href: "/education",
-    text: `${ed.degree} in ${ed.field} at ${ed.institution} (${ed.location}). GPA ${ed.gpa}. ${ed.date}. ${ed.notes.join(" ")}`,
+    text: `${ed.degree} in ${ed.field} at ${ed.institution}${ed.affiliation ? ` (affiliated to ${ed.affiliation})` : ""}, ${ed.location}. GPA ${ed.gpa}. ${ed.date}. ${ed.notes.join(" ")}`,
   });
 }
 

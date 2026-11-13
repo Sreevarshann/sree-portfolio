@@ -71,6 +71,7 @@ const personJsonLd = {
   address: { "@type": "PostalAddress", addressLocality: "Boston", addressRegion: "MA", addressCountry: "US" },
   alumniOf: [
     { "@type": "CollegeOrUniversity", name: "Northeastern University" },
+    { "@type": "CollegeOrUniversity", name: "Sri Sairam Engineering College" },
     { "@type": "CollegeOrUniversity", name: "Anna University" },
   ],
   sameAs: [profile.links.linkedin, profile.links.github, profile.links.scholar],

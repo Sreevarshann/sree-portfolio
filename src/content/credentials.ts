@@ -1,5 +1,24 @@
+export type InstitutionLogo = {
+  light: string;
+  dark: string;
+  width: number;
+  height: number;
+  alt: string;
+  url: string;
+  /** Rendered height in px. */
+  h: number;
+  /** Full-colour logos that rely on a white ground sit on a white plate in both themes. */
+  plate?: boolean;
+  /** Which layouts show this logo: "wide" ≥ 640px, "compact" < 640px. */
+  show: "all" | "wide" | "compact";
+  /** Optional caption above the logo, e.g. "Affiliated to". */
+  label?: string;
+};
+
 export type Education = {
   institution: string;
+  /** University the college is affiliated to, when different from the institution. */
+  affiliation?: string;
   degree: string;
   field: string;
   gpa: string;
@@ -7,7 +26,7 @@ export type Education = {
   status: "in-progress" | "completed";
   location: string;
   url: string;
-  logo: { light: string; dark: string; width: number; height: number; alt: string };
+  logos: InstitutionLogo[];
   notes: string[];
 };
 
@@ -21,36 +40,32 @@ export const education: Education[] = [
     status: "in-progress",
     location: "Boston, Massachusetts",
     url: "https://www.northeastern.edu",
-    logo: {
-      light: "/logos/northeastern-light-bg.png",
-      dark: "/logos/northeastern-dark-bg.png",
-      width: 1200,
-      height: 389,
-      alt: "Northeastern University logo",
-    },
+    logos: [
+      { light: "/logos/northeastern-light-bg.png", dark: "/logos/northeastern-dark-bg.png", width: 1200, height: 389, alt: "Northeastern University logo", url: "https://www.northeastern.edu", h: 76, show: "wide" },
+      { light: "/logos/northeastern-seal.png", dark: "/logos/northeastern-seal-dark-bg.png", width: 480, height: 480, alt: "Northeastern University seal", url: "https://www.northeastern.edu", h: 104, show: "compact" },
+    ],
     notes: [
       "Graduate study in data engineering, analytics and machine learning systems.",
       "Coursework labs in MLOps published on GitHub: Airflow, Docker, Streamlit, data labelling and experiment tracking.",
     ],
   },
   {
-    institution: "Anna University",
+    institution: "Sri Sairam Engineering College",
+    affiliation: "Anna University, Chennai",
     degree: "Bachelor of Engineering",
     field: "Electronics and Communication Engineering",
     gpa: "3.5 / 4.0",
     date: "Completed May 2024",
     status: "completed",
-    location: "Chennai, India",
-    url: "https://www.annauniv.edu",
-    logo: {
-      light: "/logos/anna-university.png",
-      dark: "/logos/anna-university.png",
-      width: 631,
-      height: 78,
-      alt: "Anna University, Chennai logo",
-    },
+    location: "West Tambaram, Chennai, India",
+    url: "https://www.sairam.edu.in",
+    logos: [
+      { light: "/logos/sairam-college-wide.png", dark: "/logos/sairam-college-wide.png", width: 1000, height: 317, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 64, plate: true, show: "wide" },
+      { light: "/logos/sairam-college-stacked.png", dark: "/logos/sairam-college-stacked.png", width: 383, height: 359, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 112, plate: true, show: "compact" },
+      { light: "/logos/anna-university.png", dark: "/logos/anna-university.png", width: 631, height: 78, alt: "Anna University, Chennai logo", url: "https://www.annauniv.edu", h: 28, plate: true, show: "all", label: "Affiliated to" },
+    ],
     notes: [
-      "Undergraduate engineering in electronics, signals and communication systems.",
+      "Undergraduate engineering in electronics, signals and communication systems at Sri Sairam Engineering College, an affiliated college of Anna University.",
       "Applied it to autonomous underwater vehicle perception and control (Singapore AUV Challenge, 6th of 320+ teams).",
     ],
   },

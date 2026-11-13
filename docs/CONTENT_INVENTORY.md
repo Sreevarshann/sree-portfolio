@@ -10,7 +10,7 @@ Evidence for every factual claim on the site. Audited November 2026.
 | Resume PDF hyperlinks | Google Scholar URL, certificate document links |
 | Public GitHub repositories (README, docs/, CI) | Projects, features, architecture, tests, metrics, screenshots |
 | Official websites | RightRev logo (rightrev.com), Anna University logo (annauniv.edu), SAUVC site (sauvc.org) |
-| Supplied by Sree | Northeastern University, Flare Innovations and Sri Sairam Techno Incubator Foundation logos (backgrounds removed; dark-theme variants recolour only the neutral ink, brand colours unchanged) |
+| Supplied by Sree | Northeastern University (logo and seal), Sri Sairam Engineering College (wide and stacked), Flare Innovations and Sri Sairam Techno Incubator Foundation logos (backgrounds removed; dark-theme variants recolour only the neutral ink, brand colours unchanged) |
 
 ## Personal details
 
@@ -23,7 +23,7 @@ Evidence for every factual claim on the site. Audited November 2026.
 
 ## Experience, education, achievements
 
-All bullet points match the resume. Wording was tightened, not embellished. Company names follow the resume ("Flare Innovation"); the supplied logo reads "Flare Innovations".
+The B.E. was earned at **Sri Sairam Engineering College**, an affiliated college of Anna University (confirmed by Sree); the site names both. All bullet points match the resume. Wording was tightened, not embellished. Company names follow the resume ("Flare Innovation"); the supplied logo reads "Flare Innovations".
 
 ## Certifications
 
