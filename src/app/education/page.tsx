@@ -27,7 +27,7 @@ function InstitutionMark({ logo, fallback }: { logo: InstitutionLogo; fallback: 
 
 export const metadata: Metadata = {
   title: "Education",
-  description: "M.S. Data Analytics Engineering, Northeastern University (GPA 3.95, expected Dec 2026). B.E. Electronics and Communication Engineering, Sri Sairam Engineering College, affiliated to Anna University (CGPA 8.7/10, 2024).",
+  description: "M.S. Data Analytics Engineering, Northeastern University (GPA 3.95, expected Dec 2026). B.E. Electronics and Communication Engineering, Anna University, through its affiliated Sri Sairam Engineering College (CGPA 8.7/10, 2024).",
   alternates: { canonical: "/education" },
 };
 
@@ -43,7 +43,7 @@ export default function EducationPage() {
                 <div className="flex flex-col justify-between gap-10 border-b border-line p-8 md:border-b-0 md:border-r md:p-10">
                   <div className="flex flex-col gap-6">
                     {e.logos.map((l) => (
-                      <InstitutionMark key={l.light + l.show} logo={l} fallback={l.label ? (e.affiliation ?? e.institution) : e.institution} />
+                      <InstitutionMark key={l.light + l.show} logo={l} fallback={l.label ? (e.college ?? e.institution) : e.institution} />
                     ))}
                   </div>
                   <div>
@@ -53,7 +53,7 @@ export default function EducationPage() {
                 </div>
                 <div className="p-8 md:p-10">
                   <h2 className="text-[clamp(1.8rem,3.2vw,2.5rem)] font-medium leading-tight tracking-[-0.035em]">{e.institution}</h2>
-                  {e.affiliation && <p className="mt-1 text-sm text-fg-muted">Affiliated to {e.affiliation}</p>}
+                  {e.college && <p className="mt-1 text-base text-fg-soft">{e.college} <span className="text-sm text-fg-muted">· affiliated college</span></p>}
                   <p className="mt-2 text-lg text-fg-soft">{e.degree} — {e.field}</p>
                   <dl className="mt-8 grid grid-cols-2 gap-6 text-sm">
                     <div><dt className="eyebrow">Dates</dt><dd className="mt-1">{e.date}</dd></div>

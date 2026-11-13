@@ -11,14 +11,14 @@ export type InstitutionLogo = {
   plate?: boolean;
   /** Which layouts show this logo: "wide" ≥ 640px, "compact" < 640px. */
   show: "all" | "wide" | "compact";
-  /** Optional caption above the logo, e.g. "Affiliated to". */
+  /** Optional caption above the logo, e.g. "Affiliated college". */
   label?: string;
 };
 
 export type Education = {
   institution: string;
-  /** University the college is affiliated to, when different from the institution. */
-  affiliation?: string;
+  /** Affiliated college where the degree was studied, when the university awards it. */
+  college?: string;
   degree: string;
   field: string;
   /** "value / scale", e.g. "3.95 / 4.0" or "8.7 / 10". */
@@ -54,8 +54,8 @@ export const education: Education[] = [
     ],
   },
   {
-    institution: "Sri Sairam Engineering College",
-    affiliation: "Anna University, Chennai",
+    institution: "Anna University",
+    college: "Sri Sairam Engineering College",
     degree: "Bachelor of Engineering",
     field: "Electronics and Communication Engineering",
     gpa: "8.7 / 10",
@@ -63,11 +63,11 @@ export const education: Education[] = [
     date: "Completed May 2024",
     status: "completed",
     location: "West Tambaram, Chennai, India",
-    url: "https://www.sairam.edu.in",
+    url: "https://www.annauniv.edu",
     logos: [
-      { light: "/logos/sairam-college-wide.png", dark: "/logos/sairam-college-wide.png", width: 1000, height: 317, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 64, plate: true, show: "wide" },
-      { light: "/logos/sairam-college-stacked.png", dark: "/logos/sairam-college-stacked.png", width: 383, height: 359, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 112, plate: true, show: "compact" },
-      { light: "/logos/anna-university.png", dark: "/logos/anna-university.png", width: 631, height: 78, alt: "Anna University, Chennai logo", url: "https://www.annauniv.edu", h: 28, plate: true, show: "all", label: "Affiliated to" },
+      { light: "/logos/anna-university.png", dark: "/logos/anna-university.png", width: 631, height: 78, alt: "Anna University, Chennai logo", url: "https://www.annauniv.edu", h: 36, plate: true, show: "all" },
+      { light: "/logos/sairam-college-wide.png", dark: "/logos/sairam-college-wide.png", width: 1000, height: 317, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 64, plate: true, show: "wide", label: "Affiliated college" },
+      { light: "/logos/sairam-college-stacked.png", dark: "/logos/sairam-college-stacked.png", width: 383, height: 359, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 112, plate: true, show: "compact", label: "Affiliated college" },
     ],
     notes: [
       "Undergraduate engineering in electronics, signals and communication systems at Sri Sairam Engineering College, an affiliated college of Anna University.",
