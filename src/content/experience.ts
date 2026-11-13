@@ -7,7 +7,8 @@ export type Experience = {
   period: string;
   location: string;
   url?: string;
-  logo?: { light: string; dark: string; width: number; height: number };
+  /** `display` is the rendered height in px (logos have very different proportions). */
+  logo?: { light: string; dark: string; width: number; height: number; display: number };
   monogram: string;
   /** One-line framing written for the portfolio. */
   summary: string;
@@ -33,6 +34,7 @@ export const experience: Experience[] = [
       dark: "/logos/rightrev-dark-bg.svg",
       width: 232,
       height: 50,
+      display: 24,
     },
     monogram: "RR",
     summary:
@@ -61,6 +63,7 @@ export const experience: Experience[] = [
     end: "2024-08",
     period: "Jan 2024 – Aug 2024",
     location: "Chennai, India",
+    logo: { light: "/logos/flare-innovations-light-bg.png", dark: "/logos/flare-innovations-dark-bg.png", width: 900, height: 490, display: 64 },
     monogram: "FI",
     summary:
       "Pipelines and dashboards for IoT operations data, with quality checks that stopped bad records before reporting.",
@@ -86,6 +89,7 @@ export const experience: Experience[] = [
     end: "2022-10",
     period: "Jun 2022 – Oct 2022",
     location: "Chennai, India",
+    logo: { light: "/logos/sri-sairam-light-bg.png", dark: "/logos/sri-sairam-dark-bg.png", width: 170, height: 172, display: 80 },
     monogram: "SS",
     summary:
       "Perception and control for an autonomous underwater vehicle, from simulation to the pool.",

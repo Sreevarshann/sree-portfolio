@@ -6,9 +6,9 @@ import { TechChip } from "@/components/ui/TechChip";
 function CompanyMark({ e }: { e: (typeof experience)[number] }) {
   if (e.logo)
     return (
-      <span className="inline-flex h-8 items-center">
-        <LogoImage variant="light" src={e.logo.light} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="h-6 w-auto" />
-        <LogoImage variant="dark" src={e.logo.dark} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="h-6 w-auto" />
+      <span className="inline-flex items-center" style={{ height: Math.max(32, e.logo.display) }}>
+        <LogoImage variant="light" src={e.logo.light} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: e.logo.display }} />
+        <LogoImage variant="dark" src={e.logo.dark} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: e.logo.display }} />
       </span>
     );
   // Typographic identifier — deliberately not an imitation of any official logo.

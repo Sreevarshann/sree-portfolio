@@ -22,11 +22,11 @@ export const education: Education[] = [
     location: "Boston, Massachusetts",
     url: "https://www.northeastern.edu",
     logo: {
-      light: "/logos/neu-black.png",
-      dark: "/logos/neu-white.png",
-      width: 800,
-      height: 71,
-      alt: "Northeastern University wordmark",
+      light: "/logos/northeastern-light-bg.png",
+      dark: "/logos/northeastern-dark-bg.png",
+      width: 1200,
+      height: 389,
+      alt: "Northeastern University logo",
     },
     notes: [
       "Graduate study in data engineering, analytics and machine learning systems.",

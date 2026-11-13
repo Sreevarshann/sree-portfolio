@@ -16,6 +16,7 @@ export function LogoImage({
   fallback,
   className = "",
   variant = "both",
+  style,
 }: {
   src: string;
   alt: string;
@@ -24,6 +25,7 @@ export function LogoImage({
   fallback: string;
   className?: string;
   variant?: "both" | "light" | "dark";
+  style?: React.CSSProperties;
 }) {
   const [failed, setFailed] = useState(false);
   const themeClass = variant === "light" ? "only-light" : variant === "dark" ? "only-dark" : "";
@@ -34,5 +36,5 @@ export function LogoImage({
       </span>
     );
   }
-  return <Image src={src} alt={alt} width={width} height={height} className={`${themeClass} ${className}`} onError={() => setFailed(true)} />;
+  return <Image src={src} alt={alt} width={width} height={height} className={`${themeClass} ${className}`} style={style} onError={() => setFailed(true)} />;
 }
