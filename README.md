@@ -22,7 +22,7 @@ Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · GSAP + Sc
 
 ```bash
 npm install
-cp .env.example .env.local   # add ANTHROPIC_API_KEY to enable AI answers
+cp .env.example .env.local   # add GROQ_API_KEY to enable AI answers
 npm run dev
 ```
 

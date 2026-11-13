@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:groq": "playwright test -c playwright.groq.config.ts",
     "privacy": "node scripts/privacy-check.mjs",
     "check": "npm run lint && npm run typecheck && npm run test && npm run privacy"
   },
