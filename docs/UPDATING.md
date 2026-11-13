@@ -41,11 +41,19 @@ Add to `certifications` in `src/content/credentials.ts`. Use `kind: "Training"` 
 
 ## Portrait
 
-Put the approved photo in `public/portrait/` as `sree.webp`, `sree.avif`, `sree.jpg` or `sree.png` (4:5 crop, ≥1200×1500). Optional `public/portrait/focus.json` — `{ "x": 50, "y": 30 }` — sets the focal point. Strip EXIF location data first. Rebuild; the placeholder is replaced everywhere.
+The home hero portrait switches from an illustrated version to the photograph. Add `portrait-illustrated.webp` and `portrait-real.webp` (any of avif/webp/jpg/png, same 4:5 crop) to `public/images/profile/` — see the README there. No code changes; the build detects them. Until both exist the hero shows its placeholder; with one, that image is shown alone. The About page uses the photograph.
+
+## Tools & Technologies
+
+The marquee and its "Where I've used each one" list come from `src/content/technologies.ts`. Each tool is `hands-on` (with `usedIn` evidence ids: roles, projects, `this-site`, `sree-ai`, `lab` or `resume`) or `exploring` (no evidence yet). Moving a tool from exploring to hands-on means adding where it was used. Logos: `public/tech-icons.svg` (sprite), `public/tech/*.svg` (multicolour) — regenerate with `scripts/build-tech-icons.mjs`; sources and licenses in `public/tech/LICENSES.md`.
+
+## Last updated
+
+The footer's "Last updated · Month Year" is the month the production build ran (Boston time), set in `next.config.ts`. Set `SITE_UPDATED_AT` (ISO date) in the build environment to pin a different date.
 
 ## Brand icons
 
-Technology and issuer marks come from Simple Icons (CC0) and are stored as one sprite, `public/brand-icons.svg`, with titles and colors in `src/content/brandIcons.ts`. To add one, add a `<symbol id="slug">` to the sprite, an entry to `brandIcons.ts`, and (if the display name differs) an alias in `src/components/ui/BrandIcon.tsx`. Brands without a licensed mark (LinkedIn, AWS, Flare Innovation, Sri Sairam Techno Incubator) use typographic treatments — don't approximate their logos.
+Technology and issuer marks come from Simple Icons (CC0) and are stored as one sprite, `public/brand-icons.svg`, with titles and colors in `src/content/brandIcons.ts`. To add one, add a `<symbol id="slug">` to the sprite, an entry to `brandIcons.ts`, and (if the display name differs) an alias in `src/components/ui/BrandIcon.tsx`. Brands without a mark in that sprite (LinkedIn, Flare Innovation, Sri Sairam Techno Incubator, and AWS on credential pages) use typographic treatments or their official logo files — don't approximate logos. The Tools & Technologies marquee has its own sprite (see above), which includes LobeHub's MIT-licensed AWS and OpenAI marks.
 
 ## Theme or brand colors
 

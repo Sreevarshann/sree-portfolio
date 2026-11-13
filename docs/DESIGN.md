@@ -118,3 +118,11 @@ A 4:5 editorial frame with an offset back plate, mask reveal, slow zoom-out and 
 | Harbor light | Footer contour line | Single dash travelling a path |
 
 All motion respects `prefers-reduced-motion`. The WebGL hero field only starts on capable devices (no Save-Data, ≥4 GB device memory, and not a ≤4-core touch device); others keep static contours.
+
+## V5 — personal hero, portrait and toolkit
+
+- **Hero:** an availability pill ("Available for full-time opportunities", breathing green dot, static under reduced motion) sits in the hero's top row, never in the navigation island. The name stays the `h1`; the headline is unchanged; a two-sentence first-person intro, a facts row (Boston · AI/Data/Software · Northeastern) and the three employer logos (linking to their experience entries) replace the old stat strip and role ticker.
+- **Portrait print:** `PortraitSwap` is a slightly rotated photographic print (mat, blue tape, mono caption, serif annotation). With both assets it starts illustrated and reveals the photograph through a circular `clip-path` that grows from the pointer; touch and keyboard toggle it (`aria-pressed`); reduced motion crossfades. Without assets it shows a pixel-mosaic placeholder — no face, no generated image.
+- **Tools & Technologies:** two CSS marquee rows in opposite directions. Each track holds the same group twice and each group carries its trailing gap as padding, so `translateX(-50%)` is exact at any width, zoom or font; nothing is measured. Edges fade with `mask-image`. JS only eases `playbackRate` toward 0.08 on hover and pauses off-screen rows. Duplicates are `aria-hidden`; reduced motion shows one wrapped, still list. Hands-on tools have solid tiles; exploring tools dashed.
+- **Scroll-out:** the hero's recede-on-scroll now runs only at ≥1024px; on phones the portrait and facts below the fold stay fully legible.
+- **Footer:** "Last updated · Month Year" from the build time.
