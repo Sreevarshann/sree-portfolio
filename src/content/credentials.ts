@@ -21,7 +21,10 @@ export type Education = {
   affiliation?: string;
   degree: string;
   field: string;
+  /** "value / scale", e.g. "3.95 / 4.0" or "8.7 / 10". */
   gpa: string;
+  /** How the grade is named on the transcript: "GPA" or "CGPA". */
+  gpaLabel: "GPA" | "CGPA";
   date: string;
   status: "in-progress" | "completed";
   location: string;
@@ -36,6 +39,7 @@ export const education: Education[] = [
     degree: "Master of Science",
     field: "Data Analytics Engineering",
     gpa: "3.95 / 4.0",
+    gpaLabel: "GPA",
     date: "Expected December 2026",
     status: "in-progress",
     location: "Boston, Massachusetts",
@@ -54,7 +58,8 @@ export const education: Education[] = [
     affiliation: "Anna University, Chennai",
     degree: "Bachelor of Engineering",
     field: "Electronics and Communication Engineering",
-    gpa: "3.5 / 4.0",
+    gpa: "8.7 / 10",
+    gpaLabel: "CGPA",
     date: "Completed May 2024",
     status: "completed",
     location: "West Tambaram, Chennai, India",

@@ -27,7 +27,7 @@ function InstitutionMark({ logo, fallback }: { logo: InstitutionLogo; fallback: 
 
 export const metadata: Metadata = {
   title: "Education",
-  description: "M.S. Data Analytics Engineering, Northeastern University (GPA 3.95, expected Dec 2026). B.E. Electronics and Communication Engineering, Sri Sairam Engineering College, affiliated to Anna University (GPA 3.5, 2024).",
+  description: "M.S. Data Analytics Engineering, Northeastern University (GPA 3.95, expected Dec 2026). B.E. Electronics and Communication Engineering, Sri Sairam Engineering College, affiliated to Anna University (CGPA 8.7/10, 2024).",
   alternates: { canonical: "/education" },
 };
 
@@ -48,7 +48,7 @@ export default function EducationPage() {
                   </div>
                   <div>
                     <p className="mono text-sm text-accent-fg">{String(i + 1).padStart(2, "0")} · {e.status === "in-progress" ? "In progress" : "Completed"}</p>
-                    <p className="mt-2 text-[clamp(3rem,7vw,5rem)] font-medium leading-none tracking-[-0.05em]">{e.gpa.split(" ")[0]}<span className="text-[0.4em] text-fg-muted"> / 4.0 GPA</span></p>
+                    <p className="mt-2 text-[clamp(3rem,7vw,5rem)] font-medium leading-none tracking-[-0.05em]">{e.gpa.split(" / ")[0]}<span className="text-[0.4em] text-fg-muted"> / {e.gpa.split(" / ")[1]} {e.gpaLabel}</span></p>
                   </div>
                 </div>
                 <div className="p-8 md:p-10">
