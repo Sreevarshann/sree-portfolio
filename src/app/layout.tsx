@@ -18,7 +18,9 @@ const serif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
   style: "italic",
-  display: "swap",
+  // "optional": the preloaded face is used when ready at first paint and never
+  // swapped in later, so the hero headline can't re-wrap (layout shift).
+  display: "optional",
 });
 
 /** Vercel serves the analytics scripts; skip them in local and CI builds. */
