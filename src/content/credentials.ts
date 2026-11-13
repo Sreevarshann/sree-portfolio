@@ -84,6 +84,10 @@ export type Certification = {
   note?: string;
   verifyUrl: string;
   verifyLabel: string;
+  /** Official credential page (e.g. Credly) for third-party verification. */
+  credentialUrl?: string;
+  /** Public-safe copy of the certificate PDF served from /public. */
+  pdf?: string;
   issuerMark: string;
   /** Simple Icons slug for the issuer, when a licensed mark exists. */
   issuerIcon?: string;
@@ -94,8 +98,11 @@ export const certifications: Certification[] = [
     name: "Google Data Analytics Professional Certificate",
     issuer: "Google",
     kind: "Professional certificate",
-    verifyUrl: "https://drive.google.com/file/d/1sF5mPbxL7W--bid7-71LwjQE3Nz3JFLP/view?usp=sharing",
-    verifyLabel: "View certificate (PDF)",
+    // Credly badge issued via Coursera; the PDF is Credly's own export of it (reviewed: name, date, issuer, verify link only).
+    credentialUrl: "https://www.credly.com/badges/baf259bc-66bf-44cc-ba50-85b92f12c31f",
+    pdf: "/certificates/google-data-analytics-professional-certificate.pdf",
+    verifyUrl: "/certificates/google-data-analytics-professional-certificate.pdf",
+    verifyLabel: "View PDF",
     issuerMark: "G",
     issuerIcon: "google",
   },

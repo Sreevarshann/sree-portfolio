@@ -14,7 +14,12 @@ function Logo({ tech }: { tech: Tech }) {
         height="24"
         aria-hidden="true"
         fill="currentColor"
-        style={{ ["--cl" as string]: ink(logo.color), ["--cd" as string]: ink(logo.darkColor ?? logo.color) }}
+        style={{
+          ["--cl" as string]: ink(logo.color),
+          ["--cd" as string]: ink(logo.darkColor ?? logo.color),
+          // The official JavaScript mark: black letters through a yellow square.
+          ...(logo.backdrop ? { background: `linear-gradient(${logo.backdrop}, ${logo.backdrop}) center / 86% 86% no-repeat` } : {}),
+        }}
       >
         <use href={`/tech-icons.svg#${logo.id}`} />
       </svg>

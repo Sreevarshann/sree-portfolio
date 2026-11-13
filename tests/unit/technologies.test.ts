@@ -39,6 +39,11 @@ describe("technology catalog", () => {
     expect(JSON.stringify(technologies)).not.toMatch(/exploring|hands-on/i);
   });
 
+  it("uses a real mark for every product; only RAG (a technique) is typographic", () => {
+    expect(technologies.filter((t) => t.logo.kind === "text").map((t) => t.id)).toEqual(["rag"]);
+    for (const id of ["sql", "dbt", "powerbi", "tableau"]) expect(technologies.find((t) => t.id === id)?.logo.kind, id).toBe("file");
+  });
+
   it("includes the requested AI tools with recognizable marks", () => {
     for (const id of ["claude", "openai", "gemini", "huggingface"]) {
       const t = technologies.find((x) => x.id === id);

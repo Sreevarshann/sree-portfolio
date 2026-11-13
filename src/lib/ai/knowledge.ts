@@ -129,7 +129,7 @@ add({
   label: "Certifications",
   blurb: certifications.map((c) => c.name).join(", ") + ".",
   text: certifications
-    .map((c) => `${c.name} — ${c.issuer} (${c.kind}).${c.note ? " " + c.note : ""} Verification: ${c.verifyUrl}.`)
+    .map((c) => `${c.name} — ${c.issuer} (${c.kind}).${c.note ? " " + c.note : ""}${c.credentialUrl ? " Verifiable on Credly." : ""} Verification: ${c.verifyUrl}.`)
     .join(" "),
 });
 
