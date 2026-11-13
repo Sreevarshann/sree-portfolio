@@ -6,7 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { MAX_INPUT, useAskSree, type ChatMessage } from "./AskSreeProvider";
-import { MORE_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
+import { DETAILED_QUESTIONS, MORE_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
+import { useViewMode } from "@/lib/viewMode";
 import { normalizeMarkdown } from "@/lib/ai/markdown";
 import { renderCitationMarkers, resolveCitations, stripCitationMarkers, type Citation } from "@/lib/ai/citations";
 import type { SourceRef } from "@/lib/ai/protocol";
@@ -222,6 +223,8 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
 }
 
 export function ChatView({ variant, onClose }: { variant: "floating" | "page"; onClose?: () => void }) {
+  // Starter prompts follow the homepage presentation; any question still works.
+  const view = useViewMode();
   const { messages, busy, send, stop, clear, draft, setDraft } = useAskSree();
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
@@ -296,7 +299,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
               <p className="rounded-[20px] rounded-tl-[6px] bg-[var(--glass-lo)] px-4 py-3 text-[0.98rem] leading-relaxed text-fg ring-1 ring-line">{GREETING}</p>
             </div>
             <ul className="mt-5 grid grid-cols-2 gap-2" aria-label="Suggested questions">
-              {SUGGESTED_QUESTIONS.map((q, i) => (
+              {(view === "detailed" ? DETAILED_QUESTIONS : SUGGESTED_QUESTIONS).map((q, i) => (
                 <li key={q} className="msg-in" style={{ animationDelay: `${120 + i * 60}ms` }}>
                   <button
                     type="button"
