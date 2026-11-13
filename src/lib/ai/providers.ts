@@ -92,7 +92,8 @@ export function groqProvider(apiKey: string, model: string, baseURL = "https://a
         messages: [{ role: "system", content: system }, ...messages],
         stream: true,
         max_completion_tokens: maxTokens,
-        temperature: 0.4,
+        // Low temperature: answers should restate the portfolio, not improvise.
+        temperature: 0.2,
         // gpt-oss reasons before answering: keep it short and out of the response.
         ...(reasoningModel ? { reasoning_effort: "low", include_reasoning: false } : {}),
       });
