@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------
-   Design tokens — "Harbor Contour"
+   Design tokens - "Harbor Contour"
    Dark is the default. Light is designed separately, not inverted.
 ------------------------------------------------------------------- */
 :root {
@@ -35,7 +35,7 @@
   --mark-glow: #3d7dff;
   --radius: 14px;
   --radius-lg: 22px;
-  /* Motion tokens — every transition in the site draws from these. */
+  /* Motion tokens - every transition in the site draws from these. */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-emph: cubic-bezier(0.2, 0, 0, 1);
@@ -1210,7 +1210,7 @@ a:focus-visible > .ss-mark .ss-rule {
 /* ------------------------------------------------------------------ achievements choreography
    Static markup is the final state. When [data-in] lands (InView), the field
    plays out the competition: every team appears, the field narrows to the
-   qualifiers, then the shortlist, then the final placing — in step with the
+   qualifiers, then the shortlist, then the final placing - in step with the
    funnel bars and the rank counter. */
 @media (prefers-reduced-motion: no-preference) {
   .team-field[data-armed]:not([data-in]) circle { opacity: 0; }
@@ -1644,30 +1644,72 @@ a:focus-visible > .ss-mark .ss-rule {
   padding-bottom: 0;
 }
 
-/* "Where I've Used These Technologies" */
+/* "Explore My Stack": the index under the marquee. */
 .tech-index {
-  border-top: 1px solid var(--line);
   interpolate-size: allow-keywords;
 }
-.tech-index-summary {
-  display: flex;
+/* The trigger: a compact liquid-glass pill with a chevron. */
+.stack-pill {
+  display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  min-height: 52px;
+  min-height: 44px;
+  padding: 0 0.55rem 0 1.15rem;
+  border-radius: 999px;
   cursor: pointer;
   list-style: none;
-  font-size: 0.95rem;
-  color: var(--fg-soft);
-  transition: color var(--dur-s) var(--ease-out);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  background: color-mix(in oklab, var(--bg-elev) 72%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  backdrop-filter: blur(12px) saturate(1.3);
+  box-shadow:
+    inset 0 0 0 1px var(--line-strong),
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 8px 22px -14px rgb(0 0 0 / 0.55);
+  transition:
+    box-shadow var(--dur-s) var(--ease-out),
+    background-color var(--dur-s) var(--ease-out),
+    transform var(--dur-m) var(--ease-spring);
+  user-select: none;
 }
-.tech-index-summary::-webkit-details-marker { display: none; }
-.tech-index-summary:hover { color: var(--fg); }
-.tech-index-summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
-.tech-index-chevron {
+:root[data-theme="light"] .stack-pill {
+  background: color-mix(in oklab, #fff 80%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line-strong), 0 8px 20px -14px rgb(15 23 42 / 0.3);
+}
+.stack-pill::-webkit-details-marker { display: none; }
+.stack-pill::marker { content: ""; }
+.stack-pill:hover {
+  background: color-mix(in oklab, var(--accent) 10%, var(--bg-elev));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--accent) 55%, var(--line-strong)),
+    0 10px 26px -14px color-mix(in oklab, var(--accent) 60%, transparent);
+}
+.stack-pill:active { transform: scale(0.97); transition-duration: var(--dur-xs); }
+.stack-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.stack-pill-chevron {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
   color: var(--accent-fg);
-  transition: transform var(--dur-m) var(--ease-spring-soft);
+  background: var(--accent-soft);
+  transition: transform var(--dur-m) var(--ease-spring-soft), background-color var(--dur-s) var(--ease-out);
 }
-.tech-index[open] .tech-index-chevron { transform: rotate(180deg); }
+.stack-pill:hover .stack-pill-chevron { background: color-mix(in oklab, var(--accent) 22%, transparent); }
+.tech-index[open] .stack-pill-chevron { transform: rotate(180deg); }
+.tech-index[open] .stack-pill {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 45%, var(--line-strong)), inset 0 1px 0 rgb(255 255 255 / 0.07);
+}
+.stack-pill-open { display: none; }
+.tech-index[open] .stack-pill-open { display: inline; }
+.tech-index[open] .stack-pill-closed { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .stack-pill, .stack-pill-chevron { transition: none; }
+}
 /* Content-sized height animation: block-size 0 → auto, then it rests at auto. */
 @media (prefers-reduced-motion: no-preference) {
   .tech-index::details-content {
@@ -1802,7 +1844,7 @@ a:focus-visible > .ss-mark .ss-rule {
 /* ================================================================== V7 */
 /* ------------------------------------------------ Quick / Detailed views
    html[data-view] is set before paint (viewScript); blocks for the other view
-   are display:none — out of layout and of the accessibility tree. */
+   are display:none - out of layout and of the accessibility tree. */
 html[data-view="quick"] .v-detailed,
 html[data-view="detailed"] .v-quick {
   display: none !important;
@@ -1938,10 +1980,35 @@ html[data-view="detailed"] .view-switch-thumb { transform: translateX(100%); }
 .coach-body { margin-top: 0.25rem; font-size: 0.83rem; line-height: 1.45; color: var(--fg-soft); }
 .coach-actions { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
 .coach-actions .btn { height: 34px; padding: 0 14px; font-size: 0.82rem; }
+.coach[data-state="positioning"] { visibility: hidden; }
 @media (prefers-reduced-motion: no-preference) {
   .coach[data-state="open"] { animation: coach-in var(--dur-l) var(--ease-spring-soft) both; }
+  .coach[data-state="closing"] { animation: coach-out 220ms var(--ease-out) forwards; }
 }
 @keyframes coach-in { from { opacity: 0; transform: translateY(-6px) scale(0.97); } }
+@keyframes coach-out { to { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+.coach-close {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin: -3px -5px 0 0;
+  border-radius: 999px;
+  color: var(--fg-muted);
+  transition: background-color var(--dur-s) var(--ease-out), color var(--dur-s) var(--ease-out);
+}
+.coach-close:hover { background: var(--accent-soft); color: var(--fg); }
+.coach-close:focus-visible, .coach-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.coach-action {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color var(--dur-s) var(--ease-out);
+}
+.coach-action:hover { color: var(--fg); }
 /* Phones: a compact mark that ends above the hero headline. */
 @media (max-width: 639.98px) {
   .coach { padding: 11px 12px 11px; border-radius: 16px; }

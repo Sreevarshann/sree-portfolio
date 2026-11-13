@@ -62,7 +62,7 @@ test.describe("Quick View (default)", () => {
     await page.locator("#tools").scrollIntoViewIfNeeded();
     await expect.poll(() => page.$$eval(".marquee-track", (ts) => ts.map((t) => t.getAnimations()[0]?.playState))).toEqual(["running", "running"]);
     await expect(page.locator(".tech-index")).not.toHaveAttribute("open", "");
-    await expect(page.locator(".tech-index summary")).toHaveText("Explore My Stack");
+    await expect(page.locator(".tech-index summary")).toHaveText("Explore My Stack", { useInnerText: true });
   });
 });
 
@@ -128,14 +128,15 @@ test.describe("view switch", () => {
 
 test.describe("onboarding coach mark", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
+  const coachOf = (page: Page) => page.getByRole("dialog", { name: "Want the full portfolio?" });
 
   for (const width of WIDTHS) {
     test(`points at the switch and stays on screen at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
-      const coach = page.getByRole("dialog", { name: "Want the full story?" });
+      const coach = coachOf(page);
       await expect(coach).toBeVisible({ timeout: 15_000 });
-      await page.waitForTimeout(700);
+      await page.waitForTimeout(500); // entrance animation; still well inside the 3 s window
       const [box, arrow, sw] = await page.evaluate(() => {
         const r = (el: Element) => el.getBoundingClientRect().toJSON() as DOMRect;
         return [r(document.querySelector(".coach")!), r(document.querySelector(".coach-arrow")!), r(document.getElementById("view-switch")!)];
@@ -146,59 +147,89 @@ test.describe("onboarding coach mark", () => {
       const arrowX = arrow.left + arrow.width / 2;
       expect(arrowX, "arrow points at the switch").toBeGreaterThanOrEqual(sw.left);
       expect(arrowX).toBeLessThanOrEqual(sw.right);
-      // It never covers the hero headline or the AI launcher.
       // It never covers the hero headline (true rectangle intersection).
       const h = (await page.locator(".hero-title").boundingBox())!;
       const ix = Math.max(0, Math.min(box.right, h.x + h.width) - Math.max(box.left, h.x));
       const iy = Math.max(0, Math.min(box.bottom, h.y + h.height) - Math.max(box.top, h.y));
       expect(ix * iy, "coach overlaps the headline").toBe(0);
-      const launcher = await page.locator('button[aria-controls="ask-sree-panel"]').boundingBox().catch(() => null);
-      if (launcher) expect(box.bottom < launcher.y || box.top > launcher.y + launcher.height).toBe(true);
       await expect(page.getByRole("group", { name: "Portfolio view" })).toHaveAttribute("aria-describedby", "view-coach-body");
+      await expect(coach).toContainText("Click here to switch to Detailed View and explore my complete experience, projects, and technical work.");
     });
   }
 
-  test("Dismiss hides it for good and returns focus to the switch", async ({ page }) => {
+  test("disappears on its own about 3 seconds after it becomes visible, and never returns", async ({ page }) => {
     await page.goto("/");
-    const coach = page.getByRole("dialog", { name: "Want the full story?" });
+    const coach = coachOf(page);
+    await expect(coach).toBeVisible({ timeout: 15_000 });
+    const shownAt = Date.now();
+    await expect(coach).toBeHidden({ timeout: 6_000 });
+    const elapsed = Date.now() - shownAt;
+    expect(elapsed, "stays at least ~3 s").toBeGreaterThanOrEqual(2_600);
+    expect(elapsed, "then closes").toBeLessThanOrEqual(4_500);
+    await page.reload();
+    await page.waitForTimeout(4_500);
+    await expect(page.locator(".coach")).toHaveCount(0);
+  });
+
+  test("the close button dismisses it immediately; it is not shown again", async ({ page }) => {
+    await page.goto("/");
+    const coach = coachOf(page);
     await expect(coach).toBeVisible({ timeout: 15_000 });
     await coach.getByRole("button", { name: "Dismiss" }).click();
-    await expect(coach).toBeHidden();
-    await expect(page.getByRole("button", { name: "Quick View" })).toBeFocused();
+    await expect(coach).toBeHidden({ timeout: 1_000 });
     await page.reload();
-    await page.waitForTimeout(4000);
-    await expect(coach).toBeHidden();
+    await page.waitForTimeout(4_500);
+    await expect(page.locator(".coach")).toHaveCount(0);
   });
 
-  test("Explore details switches to Detailed View", async ({ page }) => {
+  test("clicking the hint switches to Detailed View", async ({ page }) => {
     await page.goto("/");
-    const coach = page.getByRole("dialog", { name: "Want the full story?" });
-    await coach.getByRole("button", { name: "Explore details" }).click({ timeout: 15_000 });
+    const coach = coachOf(page);
+    await coach.getByRole("button", { name: /Click here to switch to Detailed View/ }).click({ timeout: 15_000 });
     await expect.poll(() => view(page)).toBe("detailed");
     await expect(coach).toBeHidden();
-    await expect(page.getByRole("button", { name: "Detailed View" })).toBeFocused();
   });
 
-  test("Escape closes it, and focus is never trapped", async ({ page }) => {
+  test("using the switch dismisses it, and the switch keeps working", async ({ page }) => {
     await page.goto("/");
-    const coach = page.getByRole("dialog", { name: "Want the full story?" });
+    const coach = coachOf(page);
     await expect(coach).toBeVisible({ timeout: 15_000 });
-    await coach.getByRole("button", { name: "Explore details" }).focus();
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
+    await page.getByRole("button", { name: "Detailed View", exact: true }).click();
+    await expect(coach).toBeHidden({ timeout: 1_000 });
+    await expect.poll(() => view(page)).toBe("detailed");
+    await page.getByRole("button", { name: "Quick View", exact: true }).click();
+    await expect.poll(() => view(page)).toBe("quick");
+  });
+
+  test("Escape closes it; it never takes or traps focus", async ({ page }) => {
+    await page.goto("/");
+    const coach = coachOf(page);
+    await expect(coach).toBeVisible({ timeout: 15_000 });
     expect(await page.evaluate(() => document.getElementById("view-coach")?.contains(document.activeElement))).toBe(false);
     await page.keyboard.press("Escape");
-    await expect(coach).toBeHidden();
+    await expect(coach).toBeHidden({ timeout: 1_000 });
   });
 
-  test("respects reduced motion and the light theme", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce", colorScheme: "light" });
+  for (const scheme of ["dark", "light"] as const) {
+    test(`is legible in the ${scheme} theme, and still on screen on a phone`, async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto("/");
+      const coach = page.locator(".coach");
+      await expect(coach).toBeVisible({ timeout: 15_000 });
+      const r = await coach.evaluate((el) => ({ ...el.getBoundingClientRect().toJSON(), fg: getComputedStyle(el.querySelector(".coach-title")!).color, bg: getComputedStyle(el).backgroundColor }));
+      expect(r.fg).not.toBe(r.bg);
+      expect(r.left).toBeGreaterThanOrEqual(0);
+      expect(r.right).toBeLessThanOrEqual(375);
+    });
+  }
+
+  test("respects reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     const coach = page.locator(".coach");
     await expect(coach).toBeVisible({ timeout: 15_000 });
     expect(await coach.evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
-    const [fg, bg] = await coach.evaluate((el) => [getComputedStyle(el.querySelector(".coach-title")!).color, getComputedStyle(el).backgroundColor]);
-    expect(fg).not.toBe(bg);
   });
 
   test("does not appear on other pages or in Detailed View", async ({ page }) => {
@@ -208,6 +239,54 @@ test.describe("onboarding coach mark", () => {
     await page.goto("/?view=detailed");
     await page.waitForTimeout(3500);
     await expect(page.locator(".coach")).toHaveCount(0);
+  });
+});
+
+test.describe("Explore My Stack", () => {
+  for (const scheme of ["dark", "light"] as const) {
+    test(`pill opens and closes the index; chevron and label follow (${scheme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto("/");
+      const pill = page.locator(".tech-index summary");
+      await pill.scrollIntoViewIfNeeded();
+      await expect(pill).toHaveAccessibleName("Explore My Stack");
+      await expect(pill).toHaveAttribute("aria-controls", "tech-index-body");
+      const before = await page.locator("#tech-index-body").innerHTML();
+      const box = (await pill.boundingBox())!;
+      expect(box.height).toBeGreaterThanOrEqual(44); // comfortable touch target
+      expect(box.width).toBeLessThan(260); // compact, not a full-width bar
+      const rot = () => page.$eval(".stack-pill-chevron", (el) => getComputedStyle(el).transform);
+      expect(await rot()).toMatch(/none|matrix\(1, 0, 0, 1/);
+      await pill.click();
+      await expect(page.locator(".tech-index")).toHaveAttribute("open", "");
+      await expect(pill).toHaveAccessibleName("Hide My Stack");
+      await expect.poll(rot).toMatch(/matrix\(-1, /);
+      await expect(page.locator("#tech-index-body")).toBeVisible();
+      expect(await page.locator("#tech-index-body").innerHTML()).toBe(before); // content unchanged
+      await pill.click();
+      await expect(page.locator(".tech-index")).not.toHaveAttribute("open", "");
+      await expect(pill).toHaveAccessibleName("Explore My Stack");
+      // Keyboard works too.
+      await pill.focus();
+      await page.keyboard.press("Enter");
+      await expect(page.locator(".tech-index")).toHaveAttribute("open", "");
+    });
+  }
+
+  test("no extra space around the collapsed trigger", async ({ page }) => {
+    for (const width of [375, 768, 1440, 2560]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      const r = await page.evaluate(() => {
+        const idx = document.querySelector(".tech-index")!.getBoundingClientRect();
+        const pill = document.querySelector(".tech-index summary")!.getBoundingClientRect();
+        const next = (document.querySelector("#tools")!.nextElementSibling as HTMLElement);
+        return { slack: idx.height - pill.height, gap: next.getBoundingClientRect().top - idx.bottom };
+      });
+      expect(r.slack, `index wraps the pill at ${width}`).toBeLessThanOrEqual(1);
+      // The next section starts right after the index; its own top padding is the only gap.
+      expect(Math.abs(r.gap), `next section follows at ${width}`).toBeLessThanOrEqual(1.5);
+    }
   });
 });
 
@@ -225,7 +304,7 @@ test.describe("navigation", () => {
     test(`homepage sections highlight their owner (${v})`, async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(`/?view=${v}`);
-      await expect(page.getByRole("link", { name: "Sreevarshan Sathiyamurthy — Home" })).toHaveAttribute("aria-current", "page");
+      await expect(page.getByRole("link", { name: "Sreevarshan Sathiyamurthy - Home" })).toHaveAttribute("aria-current", "page");
       const primary = page.getByRole("navigation", { name: "Primary" });
       for (const [sel, name, kind] of homeCases) {
         await scrollToSection(page, sel);
@@ -328,7 +407,7 @@ test.describe("Tableau Public", () => {
     const contact = visible(page, "Contact").getByRole("link", { name: /^Tableau Public/ });
     await expect(contact).toHaveAttribute("href", TABLEAU);
     await expect(contact).toHaveAttribute("target", "_blank");
-    await expect(contact).toHaveAccessibleName(/Tableau Public — explore my data visualizations/);
+    await expect(contact).toHaveAccessibleName(/Tableau Public\s?: explore my data visualizations/);
     await expect(page.locator("#tools").getByRole("link", { name: /View my Tableau work/ })).toHaveAttribute("href", TABLEAU);
     await expect(page.locator("footer").getByRole("link", { name: /Tableau Public/ })).toHaveAttribute("href", TABLEAU);
     expect((await request.get("/tech/tableau.svg")).status()).toBe(200);
