@@ -83,6 +83,15 @@ describe("claim validation", () => {
     expect(kinds).toEqual(expect.arrayContaining(["term:Kubernetes", "term:Kafka", "vague:standard web technologies"]));
   });
 
+  it("never offers undocumented tools as facts, and flags them when an answer claims them (real production answer)", async () => {
+    const { knowledge, factsOf } = await import("@/lib/ai/knowledge");
+    const usage = factsOf(knowledge.find((c) => c.id === "tech-usage")!).join("\n");
+    for (const t of ["LangChain", "Gemini", "PyTorch", "Kubernetes", "MongoDB", "Supabase", "Tableau", "Matplotlib"]) expect(usage).not.toContain(t);
+    const ctx = ctxFor("What are his strongest technical skills?");
+    const answer = "Intelligent-system engineering – building AI agents, RAG and evaluation pipelines, using Snowflake Cortex, Model Context Protocol, LangGraph and LangChain [ S2 ].";
+    expect(unsupportedClaims(answer, ctx)).toContainEqual({ kind: "term", value: "LangChain" });
+  });
+
   it("flags figures that the context does not contain", () => {
     const ctx = ctxFor("What did he build at RightRev?");
     expect(unsupportedClaims("He migrated 18 agents and audited 200+ views [S1].", ctx)).toEqual([]);

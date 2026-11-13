@@ -167,17 +167,13 @@ add({
   label: "Tools & technologies",
   blurb: "The technologies he uses and where he used each one.",
   text: `Tools and technologies, skills, tech stack: ${technologies.map((t) => t.name).join(", ")}.`,
-  facts: [
-    ...TECH_CATEGORIES.flatMap((cat) =>
-      technologies
-        .filter((t) => t.category === cat)
-        .map((t) =>
-          t.usedIn.length
-            ? `${t.name} (${cat}): used at/in ${t.usedIn.map((id) => techEvidence[id]?.label ?? id).join(", ")}.`
-            : `${t.name} (${cat}): listed in his toolkit; no documented work or project usage.`, // see NO_USAGE in validate.ts
-        ),
-    ),
-  ],
+  // Only tools with a documented usage context are facts. Tools without one are
+  // not mentioned at all: listing them (even as "not used") let the model claim them.
+  facts: TECH_CATEGORIES.flatMap((cat) =>
+    technologies
+      .filter((t) => t.category === cat && t.usedIn.length > 0)
+      .map((t) => `${t.name} (${cat}): used at/in ${t.usedIn.map((id) => techEvidence[id]?.label ?? id).join(", ")}.`),
+  ),
 });
 
 add({
