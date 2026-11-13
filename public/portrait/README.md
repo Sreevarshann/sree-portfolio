@@ -1,18 +1,8 @@
-# Portrait
+# Portrait (legacy location)
 
-Drop your approved photo here as **one** of:
+New portraits go in **`public/images/profile/`** — see the README there
+(`portrait-real.*` and `portrait-illustrated.*`).
 
-- `sree.avif`
-- `sree.webp`
-- `sree.jpg` / `sree.jpeg`
-- `sree.png`
-
-That's all — the site detects it at build time and replaces the placeholder in
-the home hero and on the About page. No code changes needed.
-
-Recommendations
-
-- Portrait orientation, at least 1200 × 1500 px (4:5 crop is used).
-- Optional focal point: create `focus.json` next to the photo, e.g.
-  `{ "x": 50, "y": 30 }` (percent from left / top) to control the crop.
-- Remove EXIF location data before committing.
+A photo at `public/portrait/sree.{avif,webp,jpg,jpeg,png}` is still used as
+the photograph if `public/images/profile/portrait-real.*` is absent.
+Optional `focus.json` here (`{ "x": 50, "y": 30 }`) still sets the crop.
