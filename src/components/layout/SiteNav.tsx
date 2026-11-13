@@ -5,10 +5,13 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { ViewSwitch } from "./ViewSwitch";
-import { COACH_BODY_ID, ViewCoachMark } from "./ViewCoachMark";
+import dynamic from "next/dynamic";
 import { MORE_KEYS, MORE_NAV, PRIMARY_NAV, type NavKey } from "@/lib/nav";
 import { useActiveNav } from "@/lib/useActiveNav";
-import { computePosition, autoUpdate, offset, flip, shift } from "@floating-ui/dom";
+
+// Neither the coach mark nor Floating UI is needed for first paint: load them on demand.
+const ViewCoachMark = dynamic(() => import("./ViewCoachMark").then((m) => m.ViewCoachMark), { ssr: false });
+const COACH_BODY_ID = "view-coach-body";
 import { useAskSree } from "@/components/ask/AskSreeProvider";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { Monogram } from "@/components/ui/Monogram";
@@ -192,9 +195,14 @@ export function SiteNav() {
     const btn = moreBtnRef.current;
     const panel = morePanelRef.current;
     if (!btn || !panel) return;
-    const stop = autoUpdate(btn, panel, () => {
-      computePosition(btn, panel, { placement: "bottom-end", strategy: "fixed", middleware: [offset(14), flip(), shift({ padding: 12 })] }).then(({ x, y }) => {
-        Object.assign(panel.style, { left: `${x}px`, top: `${y}px` });
+    let stop = () => {};
+    let cancelled = false;
+    void import("@floating-ui/dom").then(({ autoUpdate, computePosition, flip, offset, shift }) => {
+      if (cancelled) return;
+      stop = autoUpdate(btn, panel, () => {
+        computePosition(btn, panel, { placement: "bottom-end", strategy: "fixed", middleware: [offset(14), flip(), shift({ padding: 12 })] }).then(({ x, y }) => {
+          Object.assign(panel.style, { left: `${x}px`, top: `${y}px` });
+        });
       });
     });
     const onKey = (e: KeyboardEvent) => {
@@ -210,6 +218,7 @@ export function SiteNav() {
     window.addEventListener("keydown", onKey);
     window.addEventListener("pointerdown", onDown);
     return () => {
+      cancelled = true;
       stop();
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("pointerdown", onDown);

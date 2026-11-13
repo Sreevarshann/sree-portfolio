@@ -121,8 +121,8 @@ test.describe("view switch", () => {
   test("back/forward keeps the chosen view", async ({ page }) => {
     await page.goto("/?view=detailed");
     await page.goto("/projects");
-    await page.goBack();
-    await expect.poll(() => view(page)).toBe("detailed");
+    await page.goBack({ waitUntil: "load" });
+    await expect.poll(() => view(page).catch(() => null)).toBe("detailed");
   });
 });
 
