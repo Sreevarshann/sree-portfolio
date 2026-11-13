@@ -30,6 +30,10 @@ Tracking parameters from the share links (including a member ID) are stripped. T
 | Phone | **omitted everywhere** | private |
 | Work authorization line | **omitted** from site and public PDF | needs explicit approval before publishing |
 
+## Name and voice
+
+Full name: Sreevarshan Sathiyamurthy; preferred short name: Sree; monogram: SS. The site speaks in the first person; Sree AI speaks about him in the third person and treats all three names as the same person. The About copy is a condensed restatement of the resume; it adds no new facts.
+
 ## Experience, education, achievements
 
 The B.E. was earned at **Sri Sairam Engineering College**, an affiliated college of Anna University (confirmed by Sree); the site names both. All bullet points match the resume. Wording was tightened, not embellished. Company names follow the resume ("Flare Innovation"); the supplied logo reads "Flare Innovations".
