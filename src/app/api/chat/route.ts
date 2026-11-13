@@ -1,9 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { ChatSource, StreamEvent } from "@/lib/ai/protocol";
+import type { FallbackReason, StreamEvent } from "@/lib/ai/protocol";
 import { chatRequestSchema, checkRate, clientKey, createStreamRedactor, normalizeHistory, sameOrigin } from "@/lib/ai/guard";
-import { retrieveForConversation } from "@/lib/ai/retrieve";
+import { retrieveConversation } from "@/lib/ai/retrieve";
+import { suggestFollowUps } from "@/lib/ai/intent";
 import { SYSTEM_PROMPT, buildUserTurn } from "@/lib/ai/prompt";
-import type { KnowledgeChunk } from "@/lib/ai/knowledge";
+import { citedSources, fallbackLinks } from "@/lib/ai/sources";
 
 export const maxDuration = 60;
 
@@ -16,27 +17,23 @@ const SUPPORTS_FALLBACKS = /^claude-(opus-5|sonnet-5-5|fable-5)/.test(MODEL) && 
 const encoder = new TextEncoder();
 const line = (e: StreamEvent) => encoder.encode(JSON.stringify(e) + "\n");
 
-function toSources(chunks: KnowledgeChunk[]): ChatSource[] {
-  const seen = new Set<string>();
-  const out: ChatSource[] = [];
-  for (const c of chunks) {
-    if (c.id === "site-map" || seen.has(c.href)) continue;
-    seen.add(c.href);
-    out.push({ title: c.title.split(" — ")[0], href: c.href, section: c.section });
+/** Maps a provider error to a log label and a user-facing fallback reason; never includes secrets. */
+function classify(err: unknown): { label: string; reason: FallbackReason } {
+  if (err instanceof Anthropic.APIError) {
+    const type = (err as { type?: string }).type ?? "";
+    const status = err.status;
+    const label =
+      status === 401 ? "authentication_error (check ANTHROPIC_API_KEY)"
+      : status === 402 ? "billing_error (check API credits/billing)"
+      : status === 403 ? "permission_error (key lacks access)"
+      : status === 404 ? `not_found_error (check ASK_SREE_MODEL=${MODEL})`
+      : status === 429 ? "rate_limit_error"
+      : status === 529 ? "overloaded_error"
+      : `${status ?? "network"} ${type}`.trim();
+    return { label, reason: status === 429 || status === 529 ? "busy" : "unavailable" };
   }
-  return out.slice(0, 4);
-}
-
-/** Honest non-AI fallback: the most relevant portfolio sections, clearly labelled. */
-function searchFallback(chunks: KnowledgeChunk[], reason: string) {
-  const top = chunks.filter((c) => c.id !== "site-map").slice(0, 3);
-  const bullets = top
-    .map((c) => {
-      const excerpt = c.text.length > 220 ? c.text.slice(0, 220).replace(/\s+\S*$/, "") + "…" : c.text;
-      return `- **[${c.title}](${c.href})** — ${excerpt}`;
-    })
-    .join("\n");
-  return `${reason} Here are the most relevant parts of the portfolio for your question:\n\n${bullets || "- [About Sree](/about)"}\n\nYou can also email Sree at [sreevarshan.dev@gmail.com](mailto:sreevarshan.dev@gmail.com).`;
+  const name = (err as Error)?.name ?? "unknown";
+  return { label: name === "APIConnectionTimeoutError" ? "timeout" : name, reason: "unavailable" };
 }
 
 function ndjson(events: StreamEvent[], status = 200, extra: Record<string, string> = {}) {
@@ -64,15 +61,18 @@ export async function POST(req: Request) {
   }
 
   const history = normalizeHistory(parsed.data.messages);
-  const userTurns = history.filter((m) => m.role === "user").map((m) => m.content);
-  const chunks = retrieveForConversation(userTurns, 6);
-  const sources = toSources(chunks);
+  const latest = history[history.length - 1].content;
+  const { chunks, analysis } = retrieveConversation(history, 6);
+  const suggestions = suggestFollowUps(analysis, latest);
+  const fallback = (reason: FallbackReason): StreamEvent[] => [
+    { type: "fallback", reason, links: fallbackLinks(chunks) },
+    { type: "suggestions", items: suggestions },
+    { type: "done" },
+  ];
 
   const rate = checkRate(await clientKey(req));
   if (!rate.ok) {
-    if (rate.reason === "budget") {
-      return ndjson([{ type: "fallback", sources, text: searchFallback(chunks, "Sree AI has reached today's usage budget, so the AI model is paused.") }, { type: "done" }]);
-    }
+    if (rate.reason === "budget") return ndjson(fallback("budget"));
     return ndjson(
       [{ type: "error", code: "rate_limited", message: `You're asking quickly — please wait ${rate.retryAfter < 120 ? `${rate.retryAfter} seconds` : "a while"} and try again.` }],
       429,
@@ -82,7 +82,8 @@ export async function POST(req: Request) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return ndjson([{ type: "fallback", sources, text: searchFallback(chunks, "The AI model isn't connected right now.") }, { type: "done" }]);
+    console.error("[ask-sree] ANTHROPIC_API_KEY is not set for this deployment; serving page links instead of an answer");
+    return ndjson(fallback("unavailable"));
   }
 
   const client = new Anthropic({
@@ -93,7 +94,9 @@ export async function POST(req: Request) {
   });
 
   const messages: Anthropic.Beta.BetaMessageParam[] = history.map((m, i) =>
-    i === history.length - 1 ? { role: "user", content: buildUserTurn(m.content, chunks) } : { role: m.role, content: m.content },
+    i === history.length - 1
+      ? { role: "user", content: buildUserTurn(m.content, chunks, analysis.entities.map((e) => e.label).join(", ") || undefined) }
+      : { role: m.role, content: m.content },
   );
 
   const abort = new AbortController();
@@ -104,7 +107,7 @@ export async function POST(req: Request) {
       const send = (e: StreamEvent) => controller.enqueue(line(e));
       const redactor = createStreamRedactor();
       let emitted = false;
-      send({ type: "sources", sources });
+      let answer = "";
       try {
         const s = client.beta.messages.stream(
           {
@@ -122,6 +125,7 @@ export async function POST(req: Request) {
             const out = redactor.push(ev.delta.text);
             if (out) {
               emitted = true;
+              answer += out;
               send({ type: "delta", text: out });
             }
           }
@@ -129,6 +133,7 @@ export async function POST(req: Request) {
         const tail = redactor.flush();
         if (tail) {
           emitted = true;
+          answer += tail;
           send({ type: "delta", text: tail });
         }
         const final = await s.finalMessage();
@@ -137,19 +142,22 @@ export async function POST(req: Request) {
         } else if (final.stop_reason === "max_tokens") {
           send({ type: "delta", text: "\n\n_(Answer trimmed for length — ask a follow-up for more detail.)_" });
         }
+        const sources = citedSources(answer, chunks);
+        if (sources.length) send({ type: "sources", sources });
+        send({ type: "suggestions", items: suggestions });
         send({ type: "done" });
       } catch (err) {
         if (abort.signal.aborted) {
           // Client stopped generation; nothing more to send.
         } else {
-          const status = err instanceof Anthropic.APIError ? err.status : undefined;
-          console.error("[ask-sree] model error", status ?? (err as Error)?.name);
+          const { label, reason } = classify(err);
+          console.error(`[ask-sree] model error: ${label}`);
           if (!emitted) {
-            send({ type: "fallback", sources, text: searchFallback(chunks, "The AI model is temporarily unavailable.") });
+            for (const e of fallback(reason)) send(e);
           } else {
-            send({ type: "error", code: "upstream", message: "The answer was interrupted. Try again in a moment." });
+            send({ type: "error", code: "interrupted", message: "The answer was cut off. Try again in a moment." });
+            send({ type: "done" });
           }
-          send({ type: "done" });
         }
       } finally {
         try {
@@ -172,5 +180,5 @@ export async function POST(req: Request) {
 }
 
 export function GET() {
-  return Response.json({ ok: true, model: MODEL, configured: Boolean(process.env.ANTHROPIC_API_KEY) }, { headers: { "Cache-Control": "no-store" } });
+  return Response.json({ ok: true, configured: Boolean(process.env.ANTHROPIC_API_KEY) }, { headers: { "Cache-Control": "no-store" } });
 }

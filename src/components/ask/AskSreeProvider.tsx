@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { ChatSource, StreamEvent } from "@/lib/ai/protocol";
+import type { ChatLink, ChatSource, FallbackReason, StreamEvent } from "@/lib/ai/protocol";
 
 export type ChatMessage = {
   id: string;
@@ -10,8 +10,10 @@ export type ChatMessage = {
   status?: "streaming" | "done" | "stopped" | "error";
   error?: string;
   sources?: ChatSource[];
-  /** True when the reply came from search results because the model was unavailable. */
-  fallback?: boolean;
+  /** Set when no written answer was possible: why, and the pages to read instead. */
+  fallback?: { reason: FallbackReason; links: ChatLink[] };
+  /** Follow-up questions offered under the answer. */
+  suggestions?: string[];
 };
 
 type Ctx = {
@@ -30,7 +32,7 @@ type Ctx = {
 };
 
 const AskCtx = createContext<Ctx | null>(null);
-const STORAGE_KEY = "ask-sree:v1";
+const STORAGE_KEY = "ask-sree:v2";
 export const MAX_INPUT = 1000;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -107,9 +109,10 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
               continue;
             }
             if (ev.type === "sources") patch(assistantId, (m) => ({ ...m, sources: ev.sources }));
+            else if (ev.type === "suggestions") patch(assistantId, (m) => ({ ...m, suggestions: ev.items }));
             else if (ev.type === "delta") patch(assistantId, (m) => ({ ...m, content: m.content + ev.text }));
             else if (ev.type === "fallback")
-              patch(assistantId, (m) => ({ ...m, content: ev.text, sources: ev.sources, fallback: true, status: "done" }));
+              patch(assistantId, (m) => ({ ...m, content: "", fallback: { reason: ev.reason, links: ev.links }, status: "done" }));
             else if (ev.type === "error") {
               gotDone = true;
               patch(assistantId, (m) => ({ ...m, status: "error", error: ev.message }));
@@ -127,7 +130,7 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
           patch(assistantId, (m) => ({
             ...m,
             status: "error",
-            error: "Couldn't reach Sree AI. Check your connection and try again.",
+            error: "I couldn't connect. Check your connection and try again.",
           }));
           console.error(err);
         }
