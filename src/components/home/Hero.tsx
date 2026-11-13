@@ -7,14 +7,13 @@ import { KineticText } from "@/components/motion/KineticText";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { useAskSree } from "@/components/ask/AskSreeProvider";
 import { profile } from "@/content/profile";
-import { Portrait } from "@/components/ui/Portrait";
-import type { PortraitAsset } from "@/lib/portrait";
+import type { PortraitPair } from "@/lib/portrait";
 import { ContourEcho } from "@/components/ui/ContourEcho";
-import { TiltStage } from "@/components/projects/TiltStage";
+import { LogoImage } from "@/components/ui/LogoImage";
+import { experience } from "@/content/experience";
+import { PortraitSwap } from "./PortraitSwap";
 
 const ContourField = dynamic(() => import("./ContourField").then((m) => m.ContourField), { ssr: false });
-
-const roles = ["AI Engineer", "Data Engineer", "Software Engineer"];
 
 function Coordinates() {
   const ref = useRef<HTMLSpanElement>(null);
@@ -40,26 +39,44 @@ function Coordinates() {
   );
 }
 
-function RoleTicker() {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = window.setInterval(() => setI((v) => (v + 1) % roles.length), 2600);
-    return () => window.clearInterval(id);
-  }, []);
+/** Small green status: understated breathing ring, static under reduced motion. */
+function Availability() {
   return (
-    <ul className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm" aria-label="Roles">
-      {roles.map((r, idx) => (
-        <li key={r} className="flex items-center gap-3">
-          {idx > 0 && <span className="h-1 w-1 rounded-full bg-line-strong" aria-hidden="true" />}
-          <span className={`transition-colors duration-700 ${idx === i ? "text-fg" : "text-fg-muted"}`}>{r}</span>
-        </li>
-      ))}
-    </ul>
+    <p className="availability">
+      <span className="availability-dot" aria-hidden="true" />
+      <span>Available for full-time opportunities</span>
+    </p>
   );
 }
 
-export function Hero({ portrait }: { portrait: PortraitAsset }) {
+/** Logo heights tuned by eye so the three marks carry similar visual weight. */
+const COMPANY_HEIGHT: Record<string, number> = { rightrev: 22, "flare-innovation": 42, "sri-sairam-techno-incubator": 46 };
+
+function Companies() {
+  return (
+    <div className="hero-companies">
+      <p className="eyebrow">Experience</p>
+      <ul className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4">
+        {experience.map((e, i) => (
+          <li key={e.slug} className="company-mark" style={{ ["--i" as string]: i }}>
+            <Link href={`/experience#${e.slug}`} className="company-link" aria-label={`${e.company} — ${e.role}`} title={`${e.role} · ${e.period}`}>
+              {e.logo ? (
+                <>
+                  <LogoImage variant="light" src={e.logo.light} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: COMPANY_HEIGHT[e.slug] ?? 28 }} />
+                  <LogoImage variant="dark" src={e.logo.dark} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: COMPANY_HEIGHT[e.slug] ?? 28 }} />
+                </>
+              ) : (
+                <span className="text-sm font-semibold">{e.company}</span>
+              )}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export function Hero({ portraits }: { portraits: PortraitPair }) {
   const { openChat } = useAskSree();
   const [field, setField] = useState(false);
 
@@ -90,82 +107,64 @@ export function Hero({ portrait }: { portrait: PortraitAsset }) {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-bg" />
       </div>
 
-      <div className="container-x flex flex-1 flex-col justify-center pb-10" data-scroll-out>
-        <div className="hero-fade flex items-end justify-between gap-3 lg:flex-wrap lg:items-center" style={{ ["--enter-delay" as string]: "0.05s" }}>
-          <p className="eyebrow flex items-center gap-3">
-            <span className="relative flex h-2 w-2" aria-hidden="true">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--success)]" />
-            </span>
-            Boston, MA · AI, data &amp; software
-          </p>
+      <div className="container-x flex flex-1 flex-col justify-center pb-12" data-scroll-out>
+        <div className="hero-fade flex items-center justify-between gap-3" style={{ ["--enter-delay" as string]: "0.05s" }}>
+          <Availability />
           <p className="eyebrow mono hidden lg:block" aria-label="Boston coordinates">
             <Coordinates />
           </p>
-          {/* Phones and tablets: a small editorial tile in the name row. */}
-          <div className="lg:hidden">
-            <Portrait asset={portrait} size="sm" priority />
-          </div>
         </div>
         <div className="hero-line mt-5 h-px w-full bg-gradient-to-r from-accent via-line-strong to-transparent" aria-hidden="true" />
-        <h1 className="hero-fade mt-8 text-[clamp(1.5rem,3.6vw,2.6rem)] font-medium leading-tight tracking-[-0.035em] text-fg md:mt-10" style={{ ["--enter-delay" as string]: "0.08s" }}>
-          Sreevarshan Sathiyamurthy
-        </h1>
 
-        <div className="mt-4 grid items-center gap-10 md:mt-6 lg:grid-cols-[minmax(0,1fr)_clamp(220px,22vw,330px)] lg:gap-14">
-          <div className="relative">
+        <div className="mt-8 grid gap-12 md:mt-10 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
+          <div className="min-w-0">
+            <h1 className="hero-fade hero-name" style={{ ["--enter-delay" as string]: "0.08s" }}>
+              Sreevarshan Sathiyamurthy
+            </h1>
             <KineticText
               as="p"
-              className="display hero-title relative z-[1] max-w-[13ch] text-[clamp(3.1rem,10.5vw,9.6rem)] lg:text-[clamp(4rem,7.4vw,8.6rem)]"
+              className="display hero-title relative z-[1] mt-5 max-w-[14ch] text-[clamp(2.9rem,9.4vw,8.4rem)] lg:text-[clamp(3.6rem,6.6vw,7.8rem)]"
               delay={0.1}
               trigger="css"
               segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems — from data to interface."]}
             />
-          </div>
-          <div className="hidden lg:block" data-parallax="0.18">
-            <TiltStage>
-              <Portrait asset={portrait} priority />
-            </TiltStage>
-          </div>
-        </div>
-
-        <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-[1.2fr_1fr] md:items-end">
-          <div className="hero-fade max-w-xl" style={{ ["--enter-delay" as string]: "0.6s" }}>
-            <p className="lede">
-              I&apos;m <strong className="font-medium text-fg">Sreevarshan</strong> (Sree for short), an engineer in Boston working across AI agents, data pipelines and full-stack products. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
+            <p className="hero-fade lede mt-8 max-w-[44rem]" style={{ ["--enter-delay" as string]: "0.55s" }}>
+              Hi, I&apos;m <strong className="font-medium text-fg">Sree</strong> — a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
             </p>
-            <div className="mt-6">
-              <RoleTicker />
+            <div className="hero-fade mt-8 flex flex-wrap gap-3" style={{ ["--enter-delay" as string]: "0.65s" }}>
+              <Link href="/projects" className="btn btn-primary">
+                View projects <span className="arrow" aria-hidden="true">→</span>
+              </Link>
+              <button type="button" onClick={() => openChat()} className="btn btn-ghost group">
+                <SreeMark size={22} /> Ask My AI
+              </button>
+              <a href={profile.resumePath} target="_blank" rel="noopener" className="btn btn-ghost">
+                Resume
+              </a>
             </div>
           </div>
-          <div className="hero-fade flex flex-wrap gap-3 md:justify-end" style={{ ["--enter-delay" as string]: "0.7s" }}>
-            <Link href="/projects" className="btn btn-primary">
-              View projects <span className="arrow" aria-hidden="true">→</span>
-            </Link>
-            <button type="button" onClick={() => openChat()} className="btn btn-ghost group">
-              <SreeMark size={22} /> Ask My AI
-            </button>
-            <a href={profile.resumePath} target="_blank" rel="noopener" className="btn btn-ghost">
-              Resume
-            </a>
+          <div className="hero-fade mx-auto mb-6 w-[min(76vw,320px)] lg:mx-0 lg:mb-0 lg:w-full" data-parallax="0.12" style={{ ["--enter-delay" as string]: "0.35s" }}>
+            <PortraitSwap pair={portraits} priority />
           </div>
         </div>
-      </div>
 
-      <div className="container-x hero-fade pb-8">
-        <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
-          {[
-            { k: "Recently", v: "RightRev", d: "18 AI agents migrated to production" },
-            { k: "Studying", v: "Northeastern", d: "M.S. Data Analytics Engineering · 3.95" },
-            { k: "Placed", v: "6th of 320+", d: "Singapore AUV Challenge" },
-          ].map((f) => (
-            <div key={f.k} className="bg-[color-mix(in_oklab,var(--bg)_88%,transparent)] px-5 py-4 backdrop-blur">
-              <dt className="eyebrow">{f.k}</dt>
-              <dd className="mt-1.5 text-lg font-medium tracking-[-0.02em]">{f.v}</dd>
-              <dd className="text-sm text-fg-muted">{f.d}</dd>
+        <div className="hero-fade mt-14 grid gap-10 border-t border-line pt-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-end" style={{ ["--enter-delay" as string]: "0.75s" }}>
+          <dl className="hero-facts">
+            <div>
+              <dt className="eyebrow">Based in</dt>
+              <dd>Boston, Massachusetts</dd>
             </div>
-          ))}
-        </dl>
+            <div>
+              <dt className="eyebrow">Engineering</dt>
+              <dd>AI · Data · Software</dd>
+            </div>
+            <div>
+              <dt className="eyebrow">Studying</dt>
+              <dd>M.S. Data Analytics Engineering, Northeastern University</dd>
+            </div>
+          </dl>
+          <Companies />
+        </div>
       </div>
     </section>
   );

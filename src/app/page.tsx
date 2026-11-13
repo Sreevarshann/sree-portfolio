@@ -8,10 +8,11 @@ import { ExperienceTimeline } from "@/components/experience/ExperienceTimeline";
 import { AskSreePromo } from "@/components/ask/AskSreePromo";
 import { LabTeaser } from "@/components/lab/LabTeaser";
 import { LinkedInProof } from "@/components/ui/LinkedInProof";
+import { TechMarquee, TechCatalog } from "@/components/home/TechMarquee";
 import { projects } from "@/content/projects";
 import { achievements } from "@/content/credentials";
 import { profile } from "@/content/profile";
-import { getPortrait } from "@/lib/portrait";
+import { getPortraitPair } from "@/lib/portrait";
 
 const featured = ["aegis-ai", "nexus-ai", "sourceatlas", "tunelab"]
   .map((s) => projects.find((p) => p.slug === s)!)
@@ -20,7 +21,7 @@ const featured = ["aegis-ai", "nexus-ai", "sourceatlas", "tunelab"]
 export default function Home() {
   return (
     <>
-      <Hero portrait={getPortrait()} />
+      <Hero portraits={getPortraitPair()} />
 
       <section className="container-x section" aria-label="Approach">
         <p className="eyebrow mb-10" data-reveal>
@@ -37,8 +38,29 @@ export default function Home() {
         <Capabilities />
       </section>
 
+      <section className="section tools-section" aria-label="Tools and technologies">
+        <div className="container-x">
+          <SectionHead index="01" eyebrow="Toolkit" title="Tools &" accent="technologies." />
+          <p className="mt-6 max-w-xl text-fg-soft" data-reveal>
+            The technologies I use to build, experiment and ship — each one linked to where I&apos;ve used it.
+          </p>
+        </div>
+        <div className="mt-14">
+          <TechMarquee />
+        </div>
+        <div className="container-x mt-8">
+          <p className="tech-legend">
+            <span><span className="tech-legend-swatch" aria-hidden="true" /> Used in work or projects</span>
+            <span><span className="tech-legend-swatch tech-legend-swatch-dashed" aria-hidden="true" /> Exploring</span>
+          </p>
+          <div className="mt-8">
+            <TechCatalog />
+          </div>
+        </div>
+      </section>
+
       <section className="container-x section" aria-label="Selected work">
-        <SectionHead index="01" eyebrow="Selected work" title="Systems built" accent="end to end." href="/projects" hrefLabel="All projects" />
+        <SectionHead index="02" eyebrow="Selected work" title="Systems built" accent="end to end." href="/projects" hrefLabel="All projects" />
         <div className="mt-20 space-y-28 md:space-y-40">
           {featured.map((p, i) => (
             <ProjectFeature key={p.slug} project={p} index={i} />
@@ -47,14 +69,14 @@ export default function Home() {
       </section>
 
       <section className="container-x section" aria-label="Experience">
-        <SectionHead index="02" eyebrow="Experience" title="Where I've" accent="shipped." href="/experience" hrefLabel="Full experience" />
+        <SectionHead index="03" eyebrow="Experience" title="Where I've" accent="shipped." href="/experience" hrefLabel="Full experience" />
         <div className="mt-16">
           <ExperienceTimeline compact />
         </div>
       </section>
 
       <section className="container-x section" aria-label="Achievements">
-        <SectionHead index="03" eyebrow="Recognition" title="Results under" accent="pressure." href="/achievements" hrefLabel="Achievements" />
+        <SectionHead index="04" eyebrow="Recognition" title="Results under" accent="pressure." href="/achievements" hrefLabel="Achievements" />
         <div className="mt-16 grid gap-6 md:grid-cols-2">
           {achievements.map((a) => (
             <div
@@ -87,7 +109,7 @@ export default function Home() {
       </section>
 
       <section className="container-x section" aria-label="Lab">
-        <SectionHead index="04" eyebrow="Lab" title="Results you can" accent="explore." href="/lab" hrefLabel="Open the Lab" />
+        <SectionHead index="05" eyebrow="Lab" title="Results you can" accent="explore." href="/lab" hrefLabel="Open the Lab" />
         <div className="mt-16">
           <LabTeaser />
         </div>
@@ -99,7 +121,7 @@ export default function Home() {
 
       <section className="contact-close container-x section relative border-t border-line" aria-label="Contact">
         <div className="contact-glow" aria-hidden="true" />
-        <p className="eyebrow" data-reveal><span className="text-accent">05</span> — Contact</p>
+        <p className="eyebrow" data-reveal><span className="text-accent">06</span> — Contact</p>
         <h2 className="display mt-8 max-w-[14ch] text-[clamp(2.8rem,8vw,7rem)]" data-reveal>
           Let&apos;s build something <span className="serif-accent text-accent-fg">worth trusting.</span>
         </h2>
