@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { ChatLink, ChatSource, FallbackReason, StreamEvent } from "@/lib/ai/protocol";
+import type { ChatLink, ChatSource, FallbackReason, SourceRef, StreamEvent } from "@/lib/ai/protocol";
 
 export type ChatMessage = {
   id: string;
@@ -10,6 +10,8 @@ export type ChatMessage = {
   status?: "streaming" | "done" | "stopped" | "error";
   error?: string;
   sources?: ChatSource[];
+  /** Sources this answer may cite by id; markers render against it. */
+  sourceMap?: SourceRef[];
   /** Set when no written answer was possible: why, and the pages to read instead. */
   fallback?: { reason: FallbackReason; links: ChatLink[] };
   /** Follow-up questions offered under the answer. */
@@ -32,7 +34,7 @@ type Ctx = {
 };
 
 const AskCtx = createContext<Ctx | null>(null);
-const STORAGE_KEY = "ask-sree:v2";
+const STORAGE_KEY = "ask-sree:v3";
 export const MAX_INPUT = 1000;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -108,7 +110,8 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
             } catch {
               continue;
             }
-            if (ev.type === "sources") patch(assistantId, (m) => ({ ...m, sources: ev.sources }));
+            if (ev.type === "sourceMap") patch(assistantId, (m) => ({ ...m, sourceMap: ev.items }));
+            else if (ev.type === "sources") patch(assistantId, (m) => ({ ...m, sources: ev.sources }));
             else if (ev.type === "suggestions") patch(assistantId, (m) => ({ ...m, suggestions: ev.items }));
             else if (ev.type === "delta") patch(assistantId, (m) => ({ ...m, content: m.content + ev.text }));
             else if (ev.type === "fallback")

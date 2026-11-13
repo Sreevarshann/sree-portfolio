@@ -30,12 +30,17 @@ test("streams a real Groq-format answer with Markdown, one email link, sources a
 
   const answer = page.locator(".md").last();
   await expect(answer.locator("strong")).toHaveText("Sreevarshan Sathiyamurthy");
-  await expect(answer.getByRole("link", { name: "his RightRev internship" })).toHaveAttribute("href", "/experience#rightrev");
+  // Citations are numbered chips linked to verified sources; the answer itself has no page links.
+  // S1 is cited in two sentences, so its chip appears twice with the same number.
+  await expect(answer.getByRole("link", { name: "Source 1: About Sree" })).toHaveCount(2);
+  await expect(answer.getByRole("link", { name: "Source 1: About Sree" }).first()).toHaveAttribute("href", "/about");
+  await expect(answer.getByRole("link", { name: "Source 2: RightRev" })).toHaveAttribute("href", "/experience#rightrev");
+  await expect(answer).not.toContainText("[S");
   const mail = answer.getByRole("link", { name: "sreevarshan.dev@gmail.com" });
   await expect(mail).toHaveCount(1);
   await expect(mail).toHaveAttribute("href", "mailto:sreevarshan.dev@gmail.com");
   await expect(answer).not.toContainText("(mailto:");
-  await expect(page.getByRole("list", { name: "Sources" }).getByRole("link", { name: "RightRev" })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Sources" }).getByRole("link", { name: /RightRev/ })).toBeVisible();
   await expect(page.getByRole("list", { name: "Suggested follow-up questions" }).getByRole("button")).toHaveCount(3);
   await expect(page.locator("[data-fallback]")).toHaveCount(0);
 
@@ -45,7 +50,7 @@ test("streams a real Groq-format answer with Markdown, one email link, sources a
   expect(sent.model).toBe("openai/gpt-oss-120b");
   expect(sent.stream).toBe(true);
   expect(sent.messages[0].role).toBe("system");
-  expect(sent.messages.at(-1).content).toMatch(/<portfolio_context>[\s\S]*name="About Sree"/);
+  expect(sent.messages.at(-1).content).toMatch(/<portfolio_context>[\s\S]*<source id="S1" name="About Sree">\n- Full name: Sreevarshan Sathiyamurthy/);
 });
 
 test("keeps conversation history so follow-ups resolve", async ({ page, request }) => {
@@ -82,6 +87,6 @@ test("answers render in light theme too", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await ask(page, "Who is Sree?");
   await expect(page.getByRole("button", { name: "Copy response" })).toBeVisible({ timeout: 15_000 });
-  await expect(page.locator(".md").last()).toContainText("Boston-based engineer");
+  await expect(page.locator(".md").last()).toContainText("engineer based in Boston");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
 });

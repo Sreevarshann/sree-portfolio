@@ -122,6 +122,36 @@ describe("ChatView", () => {
     expect(body.messages).toEqual([{ role: "user", content: "Who is Sree?" }]);
   });
 
+  it("renders source-id citations as numbered, verified links and no model-written links", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        streamResponse([
+          { type: "sourceMap", items: [{ id: "S1", label: "About Sree", href: "/about" }, { id: "S2", label: "RightRev", href: "/experience#rightrev" }] },
+          { type: "delta", text: "He is a Boston-based engineer [S1]. He built Snowflake Cortex AI agents at RightRev [S2][S7]. Reach him at sreevarshan.dev@gmail.com. More at [his site](https://evil.example)." },
+          { type: "done" },
+        ]),
+      ),
+    );
+    const { container } = render(
+      <AskSreeProvider>
+        <ChatView variant="page" />
+      </AskSreeProvider>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Who is Sree?" }));
+    await waitFor(() => expect(screen.getByRole("link", { name: "Source 1: About Sree" })).toHaveAttribute("href", "/about"));
+    expect(screen.getByRole("link", { name: "Source 2: RightRev" })).toHaveAttribute("href", "/experience#rightrev");
+    expect(container.querySelector(".md")!.textContent).not.toMatch(/\[S\d\]/);
+    // Unknown id S7 adds nothing; the off-site link is shown as text only.
+    expect(container.querySelectorAll(".md .cite")).toHaveLength(2);
+    expect(screen.queryByRole("link", { name: "his site" })).toBeNull();
+    expect(screen.getByText("his site")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "sreevarshan.dev@gmail.com" })).toHaveAttribute("href", "mailto:sreevarshan.dev@gmail.com");
+    const sources = screen.getByRole("list", { name: "Sources" });
+    expect(sources).toHaveTextContent("1About Sree");
+    expect(sources).toHaveTextContent("2RightRev");
+  });
+
   it("never renders raw HTML from an answer", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(streamResponse([{ type: "delta", text: 'Hi <img src=x onerror="alert(1)"> <script>alert(1)</script>there' }, { type: "done" }])));
     const { container } = render(

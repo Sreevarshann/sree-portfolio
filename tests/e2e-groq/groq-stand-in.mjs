@@ -15,8 +15,8 @@ let last = null;
 const ANSWERS = [
   [/overload/i, null],
   [/cut ?off/i, "Sreevarshan is an engineer based in Boston who builds "],
-  [/there|stack/i, "At RightRev he worked mainly with:\n\n• Snowflake Cortex\n• SQL stored procedures\n• MCP\n\nMore in [the RightRev role](/experience#rightrev)."],
-  [/.*/, "**Sreevarshan Sathiyamurthy** (Sree) is a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently he built Snowflake Cortex AI agents and MCP integrations during [his RightRev internship](/experience#rightrev).\n\nYou can reach him at sreevarshan.dev@gmail.com (mailto:sreevarshan.dev@gmail.com)."],
+  [/there|stack/i, "At RightRev he worked with [S1]:\n\n• Snowflake Cortex\n• SQL stored procedures\n• MCP"],
+  [/.*/, "**Sreevarshan Sathiyamurthy** (Sree) is an engineer based in Boston, Massachusetts [S1]. Most recently he built Snowflake Cortex AI agents and MCP integrations as a Software & Data Engineer Intern at RightRev [S1][S2].\n\nYou can reach him at sreevarshan.dev@gmail.com (mailto:sreevarshan.dev@gmail.com)."],
 ];
 
 http
