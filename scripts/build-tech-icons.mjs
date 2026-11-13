@@ -3,13 +3,14 @@
  * marquee. Run from the repo root after installing the icon packages into a
  * scratch directory (they are not runtime or build dependencies):
  *
- *   npm i --prefix /tmp/icons simple-icons@16 devicon@2 @lobehub/icons-static-svg@1
+ *   npm i --prefix /tmp/icons simple-icons@16 devicon@2 @lobehub/icons-static-svg@1 @iconify-json/logos@1
  *   node scripts/build-tech-icons.mjs /tmp/icons/node_modules
  *
  * Sources and licenses (see public/tech/LICENSES.md):
  * - Simple Icons (CC0-1.0): single-path marks → public/tech-icons.svg sprite
  * - LobeHub icons (MIT): OpenAI, AWS, Gemini, Hugging Face, Azure
- * - Devicon (MIT): Microsoft SQL Server, Matplotlib
+ * - Devicon (MIT): Microsoft SQL Server, Matplotlib, Azure SQL Database (SQL tile)
+ * - Iconify "logos" set = Gil Barbara's SVG Logos (CC0): dbt, Power BI, Tableau
  * Brand marks remain trademarks of their owners and are shown only to name
  * the tools; none is redrawn or approximated here.
  */
@@ -23,6 +24,15 @@ const require = createRequire(path.join(mods, "noop.js"));
 const si = require("simple-icons");
 const lobe = (f) => fs.readFileSync(path.join(mods, "@lobehub/icons-static-svg/icons", f), "utf8");
 const devicon = (f) => fs.readFileSync(path.join(mods, "devicon/icons", f), "utf8");
+const iconifyLogos = JSON.parse(fs.readFileSync(path.join(mods, "@iconify-json/logos/icons.json"), "utf8"));
+/** A standalone SVG from the Iconify "logos" set (body + its own viewBox). */
+const logo = (name) => {
+  const icon = iconifyLogos.icons[name];
+  if (!icon) throw new Error(`@iconify-json/logos has no ${name}`);
+  const w = icon.width ?? iconifyLogos.width ?? 16;
+  const h = icon.height ?? iconifyLogos.height ?? 16;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">${icon.body}</svg>`;
+};
 
 /** Simple Icons slugs drawn into the sprite (fill = currentColor, colour set in CSS). */
 const SIMPLE = [
@@ -61,6 +71,10 @@ const standalone = {
   azure: lobe("azure-color.svg"),
   sqlserver: devicon("microsoftsqlserver/microsoftsqlserver-plain.svg"),
   matplotlib: devicon("matplotlib/matplotlib-original.svg"),
+  sql: devicon("azuresqldatabase/azuresqldatabase-original.svg"),
+  dbt: logo("dbt-icon"),
+  powerbi: logo("microsoft-power-bi"),
+  tableau: logo("tableau-icon"),
 };
 fs.mkdirSync(path.join(outDir, "tech"), { recursive: true });
 for (const [name, svg] of Object.entries(standalone)) {

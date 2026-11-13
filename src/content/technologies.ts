@@ -17,7 +17,8 @@ import { evidenceLabels } from "./skills";
  */
 export type TechLogo =
   /** `ink` = draw in the theme's text colour (black marks that vanish on dark). */
-  | { kind: "sprite"; id: string; color: string | "ink"; darkColor?: string | "ink" }
+  /** `backdrop` fills the mark's cut-out shapes (the JavaScript logo's letters are black on yellow). */
+  | { kind: "sprite"; id: string; color: string | "ink"; darkColor?: string | "ink"; backdrop?: string }
   | { kind: "file"; src: string }
   | { kind: "text"; mark: string };
 
@@ -47,7 +48,7 @@ export const evidence: Record<string, { label: string; href: string }> = {
   "aws-course": { label: "AWS Cloud Practitioner Essentials course", href: "/certifications" },
 };
 
-const s = (id: string, color: string | "ink", darkColor?: string | "ink"): TechLogo => ({ kind: "sprite", id, color, darkColor });
+const s = (id: string, color: string | "ink", darkColor?: string | "ink", backdrop?: string): TechLogo => ({ kind: "sprite", id, color, darkColor, backdrop });
 const f = (name: string): TechLogo => ({ kind: "file", src: `/tech/${name}.svg` });
 const t = (mark: string): TechLogo => ({ kind: "text", mark });
 
@@ -66,9 +67,9 @@ export const technologies: Tech[] = [
 
   // Languages & frontend
   { id: "python", name: "Python", category: "Languages & frontend", logo: s("python", "#3776AB", "#5B9BD5"), usedIn: ["flare-innovation", "sri-sairam-techno-incubator", "aegis-ai", "sourceatlas"] },
-  { id: "sql", name: "SQL", category: "Languages & frontend", logo: t("SQL"), usedIn: ["rightrev", "flare-innovation", "insightforge"] },
+  { id: "sql", name: "SQL", category: "Languages & frontend", logo: f("sql"), usedIn: ["rightrev", "flare-innovation", "insightforge"] },
   { id: "r", name: "R", category: "Languages & frontend", logo: s("r", "#276DC3", "#5B9BD5"), usedIn: [] },
-  { id: "javascript", name: "JavaScript", category: "Languages & frontend", logo: s("javascript", "#E8C900", "#F7DF1E"), usedIn: ["reviewpilot", "workmesh", "this-site"] },
+  { id: "javascript", name: "JavaScript", category: "Languages & frontend", logo: s("javascript", "#F7DF1E", "#F7DF1E", "#000"), usedIn: ["reviewpilot", "workmesh", "this-site"] },
   { id: "typescript", name: "TypeScript", category: "Languages & frontend", logo: s("typescript", "#3178C6", "#4B9BE8"), usedIn: ["reviewpilot", "workmesh", "nexus-ai", "this-site"] },
   { id: "react", name: "React", category: "Languages & frontend", logo: s("react", "#149ECA", "#61DAFB"), usedIn: ["reviewpilot", "workmesh", "aegis-ai", "this-site"] },
   { id: "nextjs", name: "Next.js", category: "Languages & frontend", logo: s("nextdotjs", "ink"), usedIn: ["reviewpilot", "workmesh", "sourceatlas", "this-site"] },
@@ -83,7 +84,7 @@ export const technologies: Tech[] = [
   // Data engineering
   { id: "spark", name: "Apache Spark · PySpark", category: "Data engineering", logo: s("apachespark", "#E25A1C"), usedIn: ["flare-innovation", "google-mlops-expo"] },
   { id: "airflow", name: "Apache Airflow", category: "Data engineering", logo: s("apacheairflow", "#017CEE", "#3C9BF0"), usedIn: ["google-mlops-expo", "coursework"] },
-  { id: "dbt", name: "dbt", category: "Data engineering", logo: t("dbt"), usedIn: ["aegis-ai"] },
+  { id: "dbt", name: "dbt", category: "Data engineering", logo: f("dbt"), usedIn: ["aegis-ai"] },
   { id: "snowflake", name: "Snowflake", category: "Data engineering", logo: s("snowflake", "#29B5E8"), usedIn: ["rightrev"] },
   { id: "pandas", name: "pandas", category: "Data engineering", logo: s("pandas", "#150458", "ink"), usedIn: ["aegis-ai", "insightforge"] },
   { id: "numpy", name: "NumPy", category: "Data engineering", logo: s("numpy", "#013243", "#4DABCF"), usedIn: ["insightforge"] },
@@ -110,8 +111,8 @@ export const technologies: Tech[] = [
 
   // Visualization
   { id: "plotly", name: "Plotly", category: "Visualization", logo: s("plotly", "#3F4F75", "#9A97FF"), usedIn: ["lab", "insightforge", "tunelab"] },
-  { id: "powerbi", name: "Power BI", category: "Visualization", logo: t("BI"), usedIn: ["flare-innovation"] },
-  { id: "tableau", name: "Tableau", category: "Visualization", logo: t("Tb"), usedIn: [] },
+  { id: "powerbi", name: "Power BI", category: "Visualization", logo: f("powerbi"), usedIn: ["flare-innovation"] },
+  { id: "tableau", name: "Tableau", category: "Visualization", logo: f("tableau"), usedIn: [] },
   { id: "matplotlib", name: "Matplotlib", category: "Visualization", logo: f("matplotlib"), usedIn: [] },
 ];
 
