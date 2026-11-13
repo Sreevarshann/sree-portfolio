@@ -13,7 +13,7 @@ Browser (ChatView)
            (follow-ups inherit the previous topic)
         4. Rate limit (per hashed IP: 8/min, 60/day) and daily budget
         5. No key / budget reached → fallback (page links, clearly not an AI answer)
-        6. Anthropic Messages API, streamed; text passes a phone-number redactor
+        6. Selected provider (Groq or Anthropic), streamed; text passes a phone-number redactor
         7. Events: delta… → sources (pages the answer linked) → suggestions → done
            (or fallback → suggestions → done, or error)
 ```
@@ -25,40 +25,49 @@ Browser (ChatView)
 - **Prompt** (`src/lib/ai/prompt.ts`): a stable, cacheable system prompt (identity, grounding, privacy, security, style). Retrieved text is wrapped in `<portfolio_context>` inside the user turn and declared to be data, not instructions.
 - **Guards** (`src/lib/ai/guard.ts`): validation, rate limiting, origin check, streaming-safe redaction.
 
-## Provider choice
+## Providers
 
-| Option | Notes |
-| --- | --- |
-| **Anthropic Claude (chosen)** | Strong instruction-following and refusal to invent facts; streaming; prompt caching for the stable system prompt; server-side refusal fallbacks; official TypeScript SDK. |
-| OpenAI / others | Comparable capability; no advantage for this workload and would add a second SDK. |
-| Self-hosted small model | Free per call but needs always-on GPU hosting, which doesn't fit Vercel. |
+The route is provider-agnostic (`src/lib/ai/providers.ts`): it builds the system prompt, retrieval context and conversation, and the selected provider streams text deltas back. Retrieval, citations, Markdown normalisation, phone redaction, rate limits and the fallback are the same for every provider.
 
-Default model: `claude-opus-5-5` at **low effort** with `max_tokens` 1,200 — accurate, conversational answers at about a few cents per question. For lower cost, set `ASK_SREE_MODEL=claude-haiku-5-5`. The model is configurable without code changes.
+| Provider | Default model | Notes |
+| --- | --- | --- |
+| **Groq (primary)** | `openai/gpt-oss-120b` | Free tier, very fast. OpenAI-compatible Chat Completions over server-sent events, called with `fetch` (no extra SDK). `reasoning_effort: "low"`, reasoning excluded from the response; only `delta.content` is streamed. Other production models such as `llama-3.3-70b-versatile` work via `ASK_SREE_MODEL`. |
+| Anthropic Claude | `claude-opus-5-5` | Official SDK, prompt caching, server-side refusal fallbacks (Opus 5/5.5, Sonnet 5.5, Fable; `ASK_SREE_FALLBACKS=off` disables). Paid. |
 
-Server-side refusal fallbacks (`fallbacks: "default"`) are enabled automatically for Opus 5/5.5, Sonnet 5.5 and Fable models; set `ASK_SREE_FALLBACKS=off` to disable.
+Selection: `ASK_SREE_PROVIDER=groq|anthropic`; if unset, Groq is used when `GROQ_API_KEY` exists, otherwise Anthropic.
+
+Groq specifics: one retry on a transient 5xx before any text; 429/498/503 map to the "busy" fallback; a stream that ends without `[DONE]` or a `finish_reason` is treated as interrupted (the partial answer stays and Try again is offered); `finish_reason: "length"` adds the "trimmed" note.
 
 ## Configuration
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `ANTHROPIC_API_KEY` | — | Enables AI answers. Server-side only. |
-| `ASK_SREE_MODEL` | `claude-opus-5-5` | Model ID |
+| `ASK_SREE_PROVIDER` | `groq` if `GROQ_API_KEY` is set, else `anthropic` | Which provider answers |
+| `GROQ_API_KEY` | — | Groq credentials. Server-side only. |
+| `ANTHROPIC_API_KEY` | — | Anthropic credentials (when that provider is selected). Server-side only. |
+| `ASK_SREE_MODEL` | provider default (above) | Model ID override |
 | `ASK_SREE_MAX_TOKENS` | `1200` | Output cap per answer |
 | `ASK_SREE_TIMEOUT_MS` | `45000` | Upstream timeout |
 | `ASK_SREE_RATE_PER_MINUTE` | `8` | Per visitor |
 | `ASK_SREE_RATE_PER_DAY` | `60` | Per visitor |
 | `ASK_SREE_DAILY_BUDGET` | `400` | Model calls per instance per day; after that the fallback is used |
+| `ASK_SREE_API_BASE_URL` | provider's API | Endpoint override (used by the end-to-end stand-in) |
 
-Also set a **monthly spend limit in the Anthropic Console** — the in-app budget is per serverless instance, so the console limit is the hard ceiling.
+The in-app budget is per serverless instance; the provider's own limits (Groq free-tier rate limits, or an Anthropic Console spend limit) are the hard ceiling.
 
-`GET /api/chat` returns `{ ok, configured }` for a quick health check (`configured: false` means `ANTHROPIC_API_KEY` is not set for that deployment).
+`GET /api/chat` returns `{ ok, configured }` for a quick health check (`configured: false` means the selected provider's key is not set for that deployment).
 
-### Turning on AI answers in production
+### Turning on AI answers in production (Groq)
 
-1. Create a key in the Anthropic Console (with a monthly spend limit and billing set up).
-2. Vercel → project → Settings → Environment Variables → add `ANTHROPIC_API_KEY`, scope **Production** (and Preview if wanted).
+1. Create an API key at console.groq.com (no card needed for the free tier).
+2. Vercel → project → Settings → Environment Variables → add `GROQ_API_KEY` and `ASK_SREE_PROVIDER` = `groq`, scope **Production** (and Preview if wanted).
 3. Redeploy (environment variables only apply to new deployments).
-4. Check `GET /api/chat` shows `configured: true`, then ask a question. Provider failures are logged to Vercel function logs as `[ask-sree] model error: <type>` (for example `authentication_error`, `billing_error`, `not_found_error`), never with the key.
+4. Check `GET /api/chat` shows `configured: true`, then ask a question. Provider failures are logged to Vercel function logs as `[ask-sree] groq model error: <type>` (for example `authentication_error (check GROQ_API_KEY)`, `rate_limit_error`, `not_found_error`), never with the key.
+
+## Tests for providers
+
+- `tests/unit/groq-provider.test.ts`: request shape, SSE parsing across chunk boundaries, reasoning never forwarded, stop reasons, HTTP error mapping, retry, truncated streams, and the route end to end with Groq (context, history, citations, redaction, fallbacks, health check).
+- `tests/e2e-groq/` (`npm run test:e2e:groq`, also in CI): the production build streams from a local Groq-compatible stand-in through the real UI — Markdown, one email link, sources, follow-ups, multi-turn history, busy fallback, interrupted streams, light theme, desktop and mobile. No real key is used.
 
 ## Safety properties
 
