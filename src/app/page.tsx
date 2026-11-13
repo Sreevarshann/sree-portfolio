@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Hero } from "@/components/home/Hero";
-import { ScrollStatement } from "@/components/home/ScrollStatement";
+import { ApproachStatement } from "@/components/home/ApproachStatement";
 import { Capabilities } from "@/components/home/Capabilities";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { ProjectFeature } from "@/components/projects/ProjectFeature";
@@ -36,17 +36,13 @@ export default function Home() {
     <>
       <Hero portraits={getPortraitPair()} />
 
+      <section className="container-x section section-tight" aria-label="Approach" data-nav-section="approach" data-view-anchor="approach">
+        <ApproachStatement />
+      </section>
+
       <section className="container-x section" aria-label="What I build" data-nav-section="build" data-view-anchor="build">
         <SectionHead eyebrow="What I build" title="Three disciplines," accent="one system." />
         <Capabilities />
-      </section>
-
-      <section className="container-x section v-detailed" aria-label="Approach" data-nav-section="approach">
-        <p className="eyebrow mb-8" data-reveal>Approach</p>
-        <ScrollStatement
-          text="An AI feature is only as good as the data it reads, the checks around it and the interface that explains it. I work across all three: the pipeline, the model and the product. And I measure the result before I call it done."
-          highlight={["data", "checks", "interface", "measure"]}
-        />
       </section>
 
       <section className="container-x section" aria-label="Selected work" data-nav-section="work" data-view-anchor="work">

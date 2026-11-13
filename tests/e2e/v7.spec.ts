@@ -49,7 +49,8 @@ test.describe("Quick View (default)", () => {
     await expect(visible(page, "Achievements")).toContainText("Google MLOps Expo");
     await expect(visible(page, "Contact").getByRole("link", { name: /sreevarshan\.dev@gmail\.com/ })).toHaveAttribute("href", "mailto:sreevarshan.dev@gmail.com");
     // Detailed-only sections are out of layout (display:none) and their charts never load.
-    for (const label of ["Approach", "Lab", "Sree AI"]) await expect(visible(page, label)).toBeHidden();
+    for (const label of ["Lab", "Sree AI"]) await expect(visible(page, label)).toBeHidden();
+    await expect(visible(page, "Approach")).toBeVisible(); // the short approach statement shows in both views
     await expect(page.locator(".js-plotly-plot")).toHaveCount(0);
     // The hero intro stays short.
     const intro = await page.locator(".hero-title + p, .lede").first().innerText();
@@ -128,6 +129,12 @@ test.describe("view switch", () => {
 
 test.describe("onboarding coach mark", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
+  // The hint is on screen for only 3 s. The hero's WebGL field (software GL in
+  // headless Chromium) is skipped here, as on Save-Data connections, so
+  // parallel CI load cannot stretch the assertions past that window.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true }));
+  });
   const coachOf = (page: Page) => page.getByRole("dialog", { name: "Want the full portfolio?" });
 
   for (const width of WIDTHS) {
@@ -372,19 +379,21 @@ test.describe("spacing", () => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(`/?view=${v}`);
         const r = await page.evaluate(() => {
-          const chapter = parseFloat(getComputedStyle(document.querySelector("main > section.section")!).paddingTop);
+          const chapter = parseFloat(getComputedStyle(document.querySelector("main > section.section:not(.section-tight)")!).paddingTop);
           const secs = [...document.querySelectorAll<HTMLElement>("main > section")].filter((s) => s.offsetParent !== null);
           const gaps = secs.slice(1).map((s, i) => {
             const prevBottom = secs[i].getBoundingClientRect().bottom;
             // Gap from the previous section's content to this section's first content.
-            return { label: s.getAttribute("aria-label"), gap: s.getBoundingClientRect().top - prevBottom, pad: parseFloat(getComputedStyle(s).paddingTop), pb: parseFloat(getComputedStyle(secs[i]).paddingBottom) };
+            return { label: s.getAttribute("aria-label"), tight: s.classList.contains("section-tight"), gap: s.getBoundingClientRect().top - prevBottom, pad: parseFloat(getComputedStyle(s).paddingTop), pb: parseFloat(getComputedStyle(secs[i]).paddingBottom) };
           });
           return { chapter, gaps, overflow: document.documentElement.scrollWidth - innerWidth };
         });
         for (const g of r.gaps) {
           expect(Math.abs(g.gap), `${g.label} adjacency at ${width}`).toBeLessThanOrEqual(1);
           expect(g.pb, `${g.label}'s neighbour adds no bottom padding at ${width}`).toBe(0);
-          expect(Math.abs(g.pad - r.chapter), `${g.label} uses the chapter gap at ${width}`).toBeLessThanOrEqual(1);
+          // The short Approach statement sits closer to the hero by design.
+          if (g.tight) expect(g.pad, `${g.label} uses the tight gap at ${width}`).toBeLessThan(r.chapter);
+          else expect(Math.abs(g.pad - r.chapter), `${g.label} uses the chapter gap at ${width}`).toBeLessThanOrEqual(1);
         }
         expect(r.overflow).toBeLessThanOrEqual(1);
       }
