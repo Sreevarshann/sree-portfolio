@@ -56,7 +56,7 @@ export function SiteFooter() {
         <p className="mono sm:mr-[190px] xl:mr-[150px]">© 2026 {profile.name}. Designed and engineered by me.</p>
       </div>
       {updated && (
-        <p className="container-x site-updated mono pb-24 text-[0.68rem] tracking-[0.04em] text-fg-muted/80 sm:pb-6">
+        <p className="container-x site-updated mono pb-24 text-[0.68rem] tracking-[0.04em] text-fg-muted sm:pb-6">
           Last updated · <time dateTime={updatedMonthISO()}>{updated}</time>
         </p>
       )}
