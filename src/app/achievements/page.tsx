@@ -43,22 +43,22 @@ export default function AchievementsPage() {
                   )}
                   <p className="mt-6 text-xl">{a.result}{a.rank.field ? ` · ${a.rank.field}` : ""}</p>
                   {a.stages && (
-                    <InView as="dl" className="funnel mt-8 space-y-2.5">
+                    <InView as="dl" className="funnel mt-8 space-y-1">
                       {a.stages.map((st, k) => {
                         const last = k === a.stages!.length - 1;
                         const top = parseInt(a.stages![0].value, 10);
                         return (
-                          <div key={st.label} className="funnel-row" style={{ ["--k" as string]: k } as React.CSSProperties}>
-                            <div className="flex items-baseline justify-between gap-3 text-sm">
-                              <dt className="text-fg-muted">{st.label}</dt>
-                              <dd className={`font-medium tabular-nums tracking-[-0.01em] ${last ? "text-accent-fg" : ""}`}>{st.value}</dd>
-                            </div>
-                            <div className="mt-1.5 h-1.5 rounded-full bg-[var(--line)]" aria-hidden="true">
-                              <div
-                                className={`funnel-bar h-full rounded-full ${last ? "bg-accent" : "bg-[color-mix(in_oklab,var(--accent)_45%,var(--line-strong))]"}`}
-                                style={{ width: last ? "6%" : barWidth(st.value, top) }}
-                              />
-                            </div>
+                          <div key={st.label} className="funnel-row relative flex items-baseline justify-between gap-3 pb-3.5 text-sm" style={{ ["--k" as string]: k } as React.CSSProperties}>
+                            <dt className="text-fg-muted">{st.label}</dt>
+                            <dd className={`font-medium tabular-nums tracking-[-0.01em] ${last ? "text-accent-fg" : ""}`}>
+                              {st.value}
+                              <span className="absolute inset-x-0 bottom-0 block h-1.5 rounded-full bg-[var(--line)]" aria-hidden="true">
+                                <span
+                                  className={`funnel-bar block h-full rounded-full ${last ? "bg-accent" : "bg-[color-mix(in_oklab,var(--accent)_45%,var(--line-strong))]"}`}
+                                  style={{ width: last ? "6%" : barWidth(st.value, top) }}
+                                />
+                              </span>
+                            </dd>
                           </div>
                         );
                       })}

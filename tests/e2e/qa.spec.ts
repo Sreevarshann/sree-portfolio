@@ -59,7 +59,8 @@ test("SAUVC rank counts down to 6th and the funnel keeps the real numbers", asyn
   await rank.scrollIntoViewIfNeeded();
   await expect(rank).toContainText("6", { timeout: 5000 });
   await page.waitForTimeout(2200);
-  await expect(rank.locator("span[aria-hidden]").first()).toHaveText("6");
+  await expect(rank.locator(".rank-final").first()).toHaveText("6");
+  await expect(rank.locator(".rank-final").first()).toBeVisible();
   await expect(rank.locator(".sr-only")).toHaveText("6th place");
   const funnel = page.locator("dl.funnel");
   for (const v of ["320+", "130+", "20", "6th"]) await expect(funnel.getByText(v, { exact: true })).toBeVisible();
