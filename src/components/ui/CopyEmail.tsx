@@ -18,7 +18,7 @@ export function CopyEmail({ email }: { email: string }) {
         window.setTimeout(() => setState("idle"), 1800);
       }}
     >
-      <span aria-live="polite">{state === "done" ? "Copied ✓" : state === "fail" ? "Copy failed — select the address" : "Copy address"}</span>
+      <span aria-live="polite">{state === "done" ? "Copied ✓" : state === "fail" ? "Copy failed. Select the address" : "Copy address"}</span>
     </button>
   );
 }

@@ -59,7 +59,7 @@ function Companies() {
       <ul className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4">
         {experience.map((e, i) => (
           <li key={e.slug} className="company-mark" style={{ ["--i" as string]: i }}>
-            <Link href={`/experience#${e.slug}`} className="company-link" aria-label={`${e.company} — ${e.role}`} title={`${e.role} · ${e.period}`}>
+            <Link href={`/experience#${e.slug}`} className="company-link" aria-label={`${e.company}: ${e.role}`} title={`${e.role} · ${e.period}`}>
               {e.logo ? (
                 <>
                   <LogoImage variant="light" src={e.logo.light} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: COMPANY_HEIGHT[e.slug] ?? 28 }} />
@@ -80,7 +80,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
   const { openChat } = useAskSree();
   const [field, setField] = useState(false);
 
-  // Start the WebGL field once the main thread is idle, after first paint —
+  // Start the WebGL field once the main thread is idle, after first paint -
   // and only on devices that can run it comfortably. Others keep the static
   // contour layer, which is always painted underneath.
   useEffect(() => {
@@ -125,10 +125,10 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
               className="display hero-title relative z-[1] mt-5 max-w-[14ch] text-[clamp(2.9rem,9.4vw,8.4rem)] lg:text-[clamp(3.6rem,6.6vw,7.8rem)]"
               delay={0.1}
               trigger="css"
-              segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems — from data to interface."]}
+              segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems, from data to interface."]}
             />
             <p className="hero-fade lede mt-8 max-w-[44rem]" style={{ ["--enter-delay" as string]: "0.55s" }}>
-              Hi, I&apos;m <strong className="font-medium text-fg">Sree</strong> — a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
+              Hi, I&apos;m <strong className="font-medium text-fg">Sree</strong>, a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
             </p>
             <div className="hero-fade mt-8 flex flex-wrap gap-3" style={{ ["--enter-delay" as string]: "0.65s" }}>
               <Link href="/projects" className="btn btn-primary">

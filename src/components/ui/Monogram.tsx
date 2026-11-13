@@ -1,5 +1,5 @@
 /**
- * The SS monogram — Sreevarshan Sathiyamurthy's personal mark. Two capitals
+ * The SS monogram - Sreevarshan Sathiyamurthy's personal mark. Two capitals
  * set in the site's sans with optical kerning, inside a hairline ring; on
  * hover the letters open up and an accent rule draws in underneath.
  */

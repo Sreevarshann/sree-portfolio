@@ -15,7 +15,7 @@ export function LinkedInProof({ href, label, compact = false }: { href: string; 
         <Image src="/logos/linkedin-in.png" alt="" width={96} height={82} style={{ height: compact ? 13 : 16, width: "auto" }} aria-hidden="true" />
       </span>
       View on LinkedIn
-      <span className="sr-only"> — {label}, opens in a new tab</span>
+      <span className="sr-only">: {label}, opens in a new tab</span>
       <svg
         width="12"
         height="12"

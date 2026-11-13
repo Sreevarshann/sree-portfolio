@@ -244,7 +244,7 @@ function entitiesFromAnswer(text: string): Entity[] {
     const chunk = knowledge.find((c) => c.href === href && c.id !== "site-map");
     if (!chunk) continue;
     const base = chunk.id.replace(/-(overview|features|engineering|results)$/, "");
-    const a = analyze(chunk.title.split(" — ")[0]);
+    const a = analyze(chunk.title.split(" - ")[0]);
     const e = a.entities.find((x) => x.id === base);
     if (e && !out.find((x) => x.id === e.id)) out.push(e);
   }

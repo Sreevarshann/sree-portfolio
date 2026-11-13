@@ -26,7 +26,7 @@ const serif = Instrument_Serif({
 /** Vercel serves the analytics scripts; skip them in local and CI builds. */
 const onVercel = process.env.VERCEL === "1";
 
-const title = "Sreevarshan Sathiyamurthy — AI, Data & Software Engineer";
+const title = "Sreevarshan Sathiyamurthy - AI, Data & Software Engineer";
 const description =
   "Sreevarshan Sathiyamurthy (Sree) builds intelligent systems, data infrastructure and full-stack software in Boston. Experience at RightRev with Snowflake Cortex AI agents and MCP; M.S. Data Analytics Engineering at Northeastern.";
 

@@ -82,7 +82,7 @@ export function SiteNav() {
   /*
    * Island geometry. The capsule is sized by its content (width: max-content)
    * and capped at the viewport. Its min-width animates between two measured
-   * targets — the full bar and the exact compact content width — so it lands
+   * targets - the full bar and the exact compact content width - so it lands
    * precisely without overflowing. If the links ever need more room than the
    * viewport allows (long translations, browser zoom), the island switches to
    * its menu layout instead of overflowing.
@@ -259,7 +259,7 @@ export function SiteNav() {
           data-active={activeKey === "home" || undefined}
           aria-current={isHome && activeKey === "home" ? "page" : undefined}
           className="island-brand group flex shrink-0 items-center rounded-full"
-          aria-label="Sreevarshan Sathiyamurthy — Home"
+          aria-label="Sreevarshan Sathiyamurthy - Home"
         >
           <Monogram size={40} className="island-mono" />
           <span className="collapse-x island-name" aria-hidden="true">
@@ -330,7 +330,7 @@ export function SiteNav() {
             type="button"
             onClick={() => openChat()}
             className="ai-pill group inline-flex h-10 shrink-0 items-center rounded-full pl-1.5 text-sm font-medium text-fg"
-            aria-label="Ask My AI — open Sree AI"
+            aria-label="Ask My AI - open Sree AI"
           >
             <SreeMark size={28} />
             <span className="collapse-x ai-label" aria-hidden="true">

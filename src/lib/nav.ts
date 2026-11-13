@@ -3,7 +3,7 @@ import { profile } from "@/content/profile";
 /**
  * The single navigation registry. Every destination, the primary/More split,
  * which route owns which item, and which homepage section maps to which item
- * are defined here — never inferred from titles or substrings.
+ * are defined here - never inferred from titles or substrings.
  */
 export type NavKey = "home" | "about" | "experience" | "projects" | "achievements" | "education" | "certifications" | "lab" | "contact" | "ask";
 

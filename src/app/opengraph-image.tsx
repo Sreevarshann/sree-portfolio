@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Sreevarshan Sathiyamurthy — AI, Data & Software Engineer in Boston";
+export const alt = "Sreevarshan Sathiyamurthy - AI, Data & Software Engineer in Boston";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -25,7 +25,7 @@ export default function OpengraphImage() {
             <div style={{ fontSize: 40, color: "#c3cad6", marginTop: 18 }}>AI Engineer · Data Engineer · Software Engineer</div>
           </div>
         </div>
-        <div style={{ display: "flex", fontSize: 28, color: "#a9c8ff" }}>Intelligent systems — from data to interface. Boston, MA.</div>
+        <div style={{ display: "flex", fontSize: 28, color: "#a9c8ff" }}>Intelligent systems, from data to interface. Boston, MA.</div>
       </div>
     ),
     size,

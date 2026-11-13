@@ -47,7 +47,7 @@ test.describe("V6 technology index", () => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
       const closed = await layout(page);
-      await page.getByText("Explore My Stack").click();
+      await page.locator(".tech-index summary").click();
       await settle(page);
       const open = await layout(page);
       // The body renders exactly its content: no extra reserved height.
@@ -65,7 +65,7 @@ test.describe("V6 technology index", () => {
 
   test("rapid repeated toggling settles to the natural open and closed heights", async ({ page }) => {
     await page.goto("/");
-    const summary = page.getByText("Explore My Stack");
+    const summary = page.locator(".tech-index summary");
     await summary.scrollIntoViewIfNeeded();
     const closed = await layout(page);
     for (let i = 0; i < 7; i++) await summary.click({ delay: 10 });
@@ -85,8 +85,8 @@ test.describe("V6 technology index", () => {
     const tools = page.locator(".tools-section");
     await expect(tools).not.toContainText("Used in work or projects");
     await expect(tools).not.toContainText(/exploring/i);
-    await expect(tools.locator("summary")).toHaveText("Explore My Stack");
-    await page.getByText("Explore My Stack").click();
+    await expect(tools.locator("summary")).toHaveText("Explore My Stack", { useInnerText: true });
+    await page.locator(".tech-index summary").click();
     const rows = tools.locator(".tech-index-row");
     expect(await rows.count()).toBeGreaterThan(30);
     for (const row of await rows.all()) await expect(row.locator(".tech-index-where a").first()).toBeVisible();
@@ -99,7 +99,7 @@ test.describe("V6 technology index", () => {
     test(`index is readable in ${scheme} theme`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: scheme });
       await page.goto("/");
-      await page.getByText("Explore My Stack").click();
+      await page.locator(".tech-index summary").click();
       const [name, where] = await page.$eval(".tech-index-row", (r) => [getComputedStyle(r.querySelector(".tech-index-name")!).color, getComputedStyle(r.querySelector(".tech-index-where")!).color]);
       expect(name).not.toBe(where); // names and context are visually distinct
     });
@@ -122,7 +122,7 @@ test.describe("V6 LinkedIn links", () => {
       expect(visible).toBe("View on LinkedIn");
       await expect(link).toHaveAttribute("target", "_blank");
       await expect(link).toHaveAttribute("rel", /noopener/);
-      await expect(link).toHaveAccessibleName(/^View on LinkedIn — SAUVC result post, opens in a new tab$/);
+      await expect(link).toHaveAccessibleName(/^View on LinkedIn\s?: SAUVC result post, opens in a new tab$/);
       await expect(page.getByText(/Proof on LinkedIn|View proof on LinkedIn/)).toHaveCount(0);
     });
   }

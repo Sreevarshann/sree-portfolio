@@ -11,7 +11,7 @@ function CompanyMark({ e }: { e: (typeof experience)[number] }) {
         <LogoImage variant="dark" src={e.logo.dark} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: e.logo.display }} />
       </span>
     );
-  // Typographic identifier — deliberately not an imitation of any official logo.
+  // Typographic identifier - deliberately not an imitation of any official logo.
   return (
     <span className="type-mark inline-flex items-center gap-3">
       <span className="relative inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-[10px] bg-gradient-to-br from-[var(--surface-2)] to-[var(--bg)] text-[0.78rem] font-semibold tracking-[-0.02em] text-fg ring-1 ring-line-strong">

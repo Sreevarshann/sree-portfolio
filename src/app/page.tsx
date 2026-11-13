@@ -17,7 +17,7 @@ import { profile } from "@/content/profile";
 import { getPortraitPair } from "@/lib/portrait";
 
 const pick = (slugs: string[]) => slugs.map((s) => projects.find((p) => p.slug === s)!).filter(Boolean);
-/** Quick View: one project per discipline — data/ML, AI agents, full-stack product. */
+/** Quick View: one project per discipline - data/ML, AI agents, full-stack product. */
 const quickProjects = pick(["aegis-ai", "nexus-ai", "workmesh"]);
 /** Detailed View: the four full cinematic stages. */
 const detailedProjects = pick(["aegis-ai", "nexus-ai", "sourceatlas", "tunelab"]);
@@ -44,7 +44,7 @@ export default function Home() {
       <section className="container-x section v-detailed" aria-label="Approach" data-nav-section="approach">
         <p className="eyebrow mb-8" data-reveal>Approach</p>
         <ScrollStatement
-          text="An AI feature is only as good as the data it reads, the checks around it and the interface that explains it. I work across all three — the pipeline, the model and the product — and I measure the result before I call it done."
+          text="An AI feature is only as good as the data it reads, the checks around it and the interface that explains it. I work across all three: the pipeline, the model and the product. And I measure the result before I call it done."
           highlight={["data", "checks", "interface", "measure"]}
         />
       </section>
@@ -158,7 +158,7 @@ export default function Home() {
             {/* eslint-disable-next-line @next/next/no-img-element -- 1 KB static brand SVG */}
             <img src="/tech/tableau.svg" alt="" width={18} height={18} className="h-[18px] w-[18px]" />
             Tableau Public <span aria-hidden="true">↗</span>
-            <span className="sr-only"> — explore my data visualizations (opens in a new tab)</span>
+            <span className="sr-only">: explore my data visualizations (opens in a new tab)</span>
           </a>
         </div>
       </section>

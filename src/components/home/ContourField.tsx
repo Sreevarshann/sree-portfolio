@@ -48,7 +48,7 @@ export function ContourField({ className = "" }: { className?: string }) {
     if (!parent) return;
     // A fresh canvas per mount: React Strict Mode (dev) mounts, unmounts and
     // remounts effects, and a canvas whose context was released cannot get a
-    // new one — Chrome then paints it as an opaque white box over the hero.
+    // new one - Chrome then paints it as an opaque white box over the hero.
     const canvas = document.createElement("canvas");
     canvas.setAttribute("aria-hidden", "true");
     canvas.className = "block h-full w-full transition-opacity duration-[1200ms]";

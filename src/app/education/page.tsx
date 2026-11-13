@@ -54,7 +54,7 @@ export default function EducationPage() {
                 <div className="p-8 md:p-10">
                   <h2 className="text-[clamp(1.8rem,3.2vw,2.5rem)] font-medium leading-tight tracking-[-0.035em]">{e.institution}</h2>
                   {e.college && <p className="mt-1 text-base text-fg-soft">{e.college} <span className="text-sm text-fg-muted">· affiliated college</span></p>}
-                  <p className="mt-2 text-lg text-fg-soft">{e.degree} — {e.field}</p>
+                  <p className="mt-2 text-lg text-fg-soft">{e.degree} in {e.field}</p>
                   <dl className="mt-8 grid grid-cols-2 gap-6 text-sm">
                     <div><dt className="eyebrow">Dates</dt><dd className="mt-1">{e.date}</dd></div>
                     <div><dt className="eyebrow">Location</dt><dd className="mt-1">{e.location}</dd></div>

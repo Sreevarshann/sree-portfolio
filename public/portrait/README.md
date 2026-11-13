@@ -1,6 +1,6 @@
 # Portrait (legacy location)
 
-New portraits go in **`public/images/profile/`** — see the README there
+New portraits go in **`public/images/profile/`**. See the README there
 (`portrait-real.*` and `portrait-illustrated.*`).
 
 A photo at `public/portrait/sree.{avif,webp,jpg,jpeg,png}` is still used as

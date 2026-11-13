@@ -54,7 +54,7 @@ export async function POST(req: Request) {
   if (!rate.ok) {
     if (rate.reason === "budget") return ndjson(fallback("budget"));
     return ndjson(
-      [{ type: "error", code: "rate_limited", message: `You're asking quickly — please wait ${rate.retryAfter < 120 ? `${rate.retryAfter} seconds` : "a while"} and try again.` }],
+      [{ type: "error", code: "rate_limited", message: `You're asking quickly. Please wait ${rate.retryAfter < 120 ? `${rate.retryAfter} seconds` : "a while"} and try again.` }],
       429,
       { "Retry-After": String(rate.retryAfter) },
     );
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         if (stop === "refusal" && !emitted) {
           send({ type: "delta", text: "I can't help with that one, but I'm happy to answer questions about Sree's experience, projects and skills." });
         } else if (stop === "length") {
-          send({ type: "delta", text: "\n\n_(Answer trimmed for length — ask a follow-up for more detail.)_" });
+          send({ type: "delta", text: "\n\n_(Answer trimmed for length. Ask a follow-up for more detail.)_" });
         }
         const cited = resolveCitations(answer, sourceMap);
         if (cited.length) send({ type: "sources", sources: cited.map((c) => ({ id: c.id, title: c.label, href: c.href, section: chunks[Number(c.id.slice(1)) - 1]?.section ?? "" })) });

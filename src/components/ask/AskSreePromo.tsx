@@ -25,7 +25,7 @@ export function AskSreePromo() {
             Questions? Ask an assistant that <span className="serif-accent text-accent-fg">only knows what&apos;s verified.</span>
           </h2>
           <p className="mt-5 max-w-xl leading-relaxed text-fg-soft">
-            Sree AI answers from the resume, case studies and public repositories on this site, cites the pages it used, and says so when it doesn&apos;t know. It&apos;s an assistant — it can&apos;t make commitments on my behalf.
+            Sree AI answers from the resume, case studies and public repositories on this site, cites the pages it used, and says so when it doesn&apos;t know. It&apos;s an assistant, so it can&apos;t make commitments on my behalf.
           </p>
         </div>
       </div>

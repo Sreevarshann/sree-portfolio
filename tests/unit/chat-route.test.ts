@@ -87,7 +87,7 @@ describe("/api/chat", () => {
     const ctx = streamImpl.mock.calls[0][0].messages.at(-1).content as string;
     expect(ctx).toMatch(/<source id="S1" name="About Sree">\n- Full name: Sreevarshan Sathiyamurthy\. Preferred name: Sree\./);
     expect(ctx).toMatch(/- Based in Boston, Massachusetts\./);
-    expect(ctx).toMatch(/- Most recent role: Software & Data Engineer Intern at RightRev, Jan 2026 – Jul 2026/);
+    expect(ctx).toMatch(/- Most recent role: Software & Data Engineer Intern at RightRev, Jan 2026 - Jul 2026/);
     // Internal chunk titles and page paths are not in the context: the model has nothing to turn into links.
     expect(ctx).not.toContain("Who Sreevarshan (Sree, SS) is");
     expect(ctx).not.toMatch(/page="/);

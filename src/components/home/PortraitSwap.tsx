@@ -133,7 +133,7 @@ function PortraitPlaceholder() {
     }
   }
   return (
-    <div className="pswap-placeholder" role="img" aria-label="Portrait placeholder — photo coming soon">
+    <div className="pswap-placeholder" role="img" aria-label="Portrait placeholder: photo coming soon">
       <svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full text-accent" aria-hidden="true">
         <g className="pswap-mosaic">{cells}</g>
         {Array.from({ length: 9 }, (_, i) => (

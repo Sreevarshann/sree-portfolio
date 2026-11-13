@@ -66,7 +66,7 @@ export function TuneLabExperience() {
       }
       table={{
         head: ["Run", "Test exact match", "Held-out exact match", "Held-out priority", "Train minutes", "Trainable params (M)"],
-        rows: tunelab.runs.map((r) => [r.label, pct(r.test), pct(r.heldout), pct(r.priority), r.minutes ?? "—", r.params || "—"]),
+        rows: tunelab.runs.map((r) => [r.label, pct(r.test), pct(r.heldout), pct(r.priority), r.minutes ?? "-", r.params || "-"]),
       }}
       note={tunelab.note}
       source={tunelab.source}
@@ -161,7 +161,7 @@ export function AegisExperience() {
                   textfont: { color: t.text, size: 10 },
                   hovertemplate: `${m.model}<br>%{x}: %{y:.3f}<extra></extra>`,
                 })) as Data[],
-                layout: { barmode: "group", yaxis: { range: [0, 1.1], title: { text: "Score (0–1)", font: { size: 12, color: t.muted } } } },
+                layout: { barmode: "group", yaxis: { range: [0, 1.1], title: { text: "Score (0-1)", font: { size: 12, color: t.muted } } } },
               };
             }
             const c = aegis.confusion;
@@ -216,7 +216,7 @@ export function WorkMeshExperience() {
       index="L.3"
       project={{ name: "WorkMesh", href: "/projects/workmesh" }}
       title="Where does permission-aware latency go?"
-      question="Every WorkMesh read applies authorization in SQL under row-level security. This benchmark shows the spread from median to tail latency per endpoint — the dashboards that aggregate across teams have the longest tails."
+      question="Every WorkMesh read applies authorization in SQL under row-level security. This benchmark shows the spread from median to tail latency per endpoint. The dashboards that aggregate across teams have the longest tails."
       controls={
         <Segmented
           label="Sort endpoints by"
@@ -334,7 +334,7 @@ export function SourceAtlasExperience() {
         head: ["Metric", "Live", "Fixture"],
         rows: [
           ...sourceatlas.metrics.map((d) => [d.metric, pct(d.live), pct(d.fixture)]),
-          ...sourceatlas.progression.map((d) => [`${d.run} — answer correct`, pct(d.answer), "—"]),
+          ...sourceatlas.progression.map((d) => [`${d.run}: answer correct`, pct(d.answer), "-"]),
         ],
       }}
       note={sourceatlas.note}

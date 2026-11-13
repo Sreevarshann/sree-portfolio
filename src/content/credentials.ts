@@ -183,7 +183,7 @@ export const achievements: Achievement[] = [
       href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_mlops-machinelearning-dataengineering-ugcPost-7408534309613031425-L_Bj/",
       label: "Google MLOps Expo result post",
     },
-    project: "Charlie — MBTA Real-Time Chatbot",
+    project: "Charlie: MBTA Real-Time Chatbot",
     summary:
       "Charlie answers live Boston transit questions by combining real-time MBTA data pipelines, delay-prediction features and a retrieval-augmented assistant.",
     details: [

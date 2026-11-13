@@ -89,7 +89,7 @@ export default function AboutPage() {
               <dt className="eyebrow">Education</dt>
               {education.map((e) => (
                 <dd key={e.institution} className="mt-1 text-fg-soft">
-                  {e.degree.replace("Master of Science", "M.S.").replace("Bachelor of Engineering", "B.E.")}, {e.field} — {e.institution}
+                  {e.degree.replace("Master of Science", "M.S.").replace("Bachelor of Engineering", "B.E.")} in {e.field}, {e.institution}
                 </dd>
               ))}
             </div>

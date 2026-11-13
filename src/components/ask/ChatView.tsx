@@ -17,7 +17,7 @@ export const GREETING = "Hey! I'm Sree's AI assistant. Ask me about his experien
 export const SUBTITLE = "Answers from Sree's portfolio";
 
 const FALLBACK_COPY: Record<FallbackReason, string> = {
-  unavailable: "I can't write an answer right now — my connection to the language model is down. These pages from the portfolio cover your question:",
+  unavailable: "I can't write an answer right now because my connection to the language model is down. These pages from the portfolio cover your question:",
   busy: "I'm getting a lot of questions at the moment, so I couldn't write an answer. Try again in a few seconds, or start with these pages:",
   budget: "I've reached today's answer limit. These pages from the portfolio cover your question:",
 };
@@ -177,7 +177,7 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
         ) : streaming ? (
           <Typing />
         ) : null}
-        {m.status === "stopped" && <p className="mt-2 text-xs text-fg-muted">Stopped — ask again or retry.</p>}
+        {m.status === "stopped" && <p className="mt-2 text-xs text-fg-muted">Stopped. Ask again or retry.</p>}
         {m.status === "error" && (
           <p role="alert" className="mt-1 rounded-xl border border-[color-mix(in_oklab,var(--warn)_40%,transparent)] px-3 py-2 text-sm text-[var(--warn)]">
             {m.error ?? "Something went wrong."}
@@ -383,7 +383,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
           )}
         </div>
         <p className="mt-2 flex justify-between gap-3 px-2 text-[0.66rem] text-fg-muted">
-          <span>AI answers can be wrong — check important details with Sree.</span>
+          <span>AI answers can be wrong. Check important details with Sree.</span>
           {draft.length > MAX_INPUT * 0.8 && <span className="mono tabular-nums">{draft.length}/{MAX_INPUT}</span>}
         </p>
       </form>

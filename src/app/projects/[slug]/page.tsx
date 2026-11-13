@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
   const p = getProject(slug);
   if (!p) return {};
   return {
-    title: `${p.name} — ${p.tagline}`,
+    title: `${p.name} - ${p.tagline}`,
     description: p.oneLiner,
     alternates: { canonical: `/projects/${p.slug}` },
     openGraph: { title: `${p.name} · Sreevarshan Sathiyamurthy`, description: p.oneLiner, images: [{ url: p.screenshots[0].src }] },
@@ -124,7 +124,7 @@ export default async function CaseStudy({ params }: PageProps<"/projects/[slug]"
               </ul>
             </div>
             <div>
-              <h3 className="eyebrow">Planned — not yet built</h3>
+              <h3 className="eyebrow">Planned, not yet built</h3>
               <ul className="mt-4 space-y-3">
                 {p.planned.map((f) => (
                   <li key={f} className="flex gap-3 leading-relaxed text-fg-muted">
@@ -192,7 +192,7 @@ export default async function CaseStudy({ params }: PageProps<"/projects/[slug]"
           </dl>
           <p className="mt-6 flex items-center gap-2 text-sm text-fg-soft">
             <span className="h-2 w-2 rounded-full bg-[var(--success)]" aria-hidden="true" />
-            {p.ci} — counts as reported in the repository&apos;s README and testing docs.
+            {p.ci}. Counts as reported in the repository&apos;s README and testing docs.
           </p>
           {labAnchors[p.slug] && (
             <Link href={`/lab#${labAnchors[p.slug]}`} className="btn btn-ghost mt-8">
