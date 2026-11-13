@@ -9,15 +9,19 @@ Browser (ChatView)
   └─ POST /api/chat  { messages: [{ role, content }] }        NDJSON stream back
         1. Same-origin check, body size limit, Zod validation
         2. History normalisation (last 12 turns, per-turn caps)
-        3. BM25 retrieval over the knowledge base (+ previous turn for follow-ups)
+        3. Intent + entity recognition, then intent-aware retrieval
+           (follow-ups inherit the previous topic)
         4. Rate limit (per hashed IP: 8/min, 60/day) and daily budget
-        5. No key / budget reached → labelled search fallback
+        5. No key / budget reached → fallback (page links, clearly not an AI answer)
         6. Anthropic Messages API, streamed; text passes a phone-number redactor
-        7. Events: sources → delta… → done   (or fallback / error)
+        7. Events: delta… → sources (pages the answer linked) → suggestions → done
+           (or fallback → suggestions → done, or error)
 ```
 
 - **Knowledge base** (`src/lib/ai/knowledge.ts`): ~50 chunks generated from the typed content modules — profile, experience, education, certifications, achievements, every project (overview, features vs. planned, architecture, results) and the skills map. It asserts at load time that no chunk contains a phone-like number.
-- **Retrieval** (`src/lib/ai/retrieve.ts`): in-memory BM25 with light stemming and a synonym map. The corpus is small, so a vector database would add cost and latency without improving answers. The profile chunk is always included.
+- **Intent** (`src/lib/ai/intent.ts`): deterministic recognition of the question type (identity, experience, project, achievement, certification, education, skills, contact, fit, assistant) and named entities (RightRev, AEGIS AI, the Singapore AUV Challenge, Charlie, Northeastern…). It also picks the follow-up suggestions.
+- **Retrieval** (`src/lib/ai/retrieve.ts`): authoritative records for the intent are pinned first (the profile for "who is", experience records for work questions, the certification list for certificates); BM25 with stemming and synonyms fills the rest, boosted toward the intent's section. Sree's own name is ignored for ranking because it appears in every chunk. A follow-up without a named topic ("what stack did he use there?") inherits the previous question's entity, or the first page the previous answer linked. The corpus is small, so a vector database would add cost and latency without improving answers. Evaluated by `tests/unit/retrieval-eval.test.ts` (40+ questions with required top results and forbidden noise).
+- **Markdown** (`src/lib/ai/markdown.ts`): answers are normalised before rendering (one well-formed email link, no repeated URLs, standard bullets, HTML stripped) and rendered with `skipHtml`; links are limited to site paths, http(s) and mailto.
 - **Prompt** (`src/lib/ai/prompt.ts`): a stable, cacheable system prompt (identity, grounding, privacy, security, style). Retrieved text is wrapped in `<portfolio_context>` inside the user turn and declared to be data, not instructions.
 - **Guards** (`src/lib/ai/guard.ts`): validation, rate limiting, origin check, streaming-safe redaction.
 
@@ -47,7 +51,14 @@ Server-side refusal fallbacks (`fallbacks: "default"`) are enabled automatically
 
 Also set a **monthly spend limit in the Anthropic Console** — the in-app budget is per serverless instance, so the console limit is the hard ceiling.
 
-`GET /api/chat` returns `{ ok, model, configured }` for a quick health check.
+`GET /api/chat` returns `{ ok, configured }` for a quick health check (`configured: false` means `ANTHROPIC_API_KEY` is not set for that deployment).
+
+### Turning on AI answers in production
+
+1. Create a key in the Anthropic Console (with a monthly spend limit and billing set up).
+2. Vercel → project → Settings → Environment Variables → add `ANTHROPIC_API_KEY`, scope **Production** (and Preview if wanted).
+3. Redeploy (environment variables only apply to new deployments).
+4. Check `GET /api/chat` shows `configured: true`, then ask a question. Provider failures are logged to Vercel function logs as `[ask-sree] model error: <type>` (for example `authentication_error`, `billing_error`, `not_found_error`), never with the key.
 
 ## Safety properties
 
@@ -62,15 +73,15 @@ Also set a **monthly spend limit in the Anthropic Console** — the in-app budge
 ## Interface
 
 - Opens from the nav ("Ask My AI"), the floating launcher, **⌘K / Ctrl+K** or **/**; Esc closes.
-- Greeting: "Hey, I'm Sree's AI. Ask me about his experience, projects, or what he's been building." with four starters: *Who is Sree? · What has he built? · What did he do at RightRev? · Why work with Sree?* The full page (`/ask`) offers more.
-- Streaming with a typing indicator, animated message entry, sources, copy, retry, stop, new chat.
+- Greeting: "Hey! I'm Sree's AI assistant. Ask me about his experience, projects, achievements, or what he's building." with four starters (`SUGGESTED_QUESTIONS` in `src/lib/ai/protocol.ts`). The full page (`/ask`) offers more.
+- Streaming with a "Thinking…" indicator, cited sources (only pages the answer linked), three follow-up suggestions, copy, retry, stop, new chat.
 - Desktop: glass panel anchored above the launcher. Mobile: full-height sheet that tracks the visual viewport so the composer stays above the keyboard; focus is trapped and returned on close.
 - The chat bundle (including the Markdown renderer) is lazy-loaded on first open and pre-warmed when the browser is idle.
 
 ## Offline behaviour
 
-If the key is missing, the budget is reached or the model errors before streaming, the API returns a `fallback` event: the top portfolio sections for the question, linked, under a visible "Search results · AI model offline" label. Nothing is presented as an AI answer when it isn't one.
+If the key is missing, the budget is reached or the model errors before streaming, the API returns a `fallback` event with a reason (`unavailable`, `busy`, `budget`) and up to three relevant pages with one-line summaries. The chat says plainly that it couldn't write an answer, lists the pages, offers **Try again** and the email address. Nothing is presented as an AI answer when it isn't one, and no internal error text or stack trace reaches the browser. If a stream breaks after text has arrived, the partial answer stays and an "answer was cut off" error with Try again is shown.
 
 ## Tests
 
-`tests/unit/chat-route.test.ts` (validation, origin, fallback, streaming with redaction, upstream failure, rate limiting with a mocked SDK), `tests/unit/retrieval.test.ts`, `tests/unit/guard.test.ts`, `tests/unit/chat-view.test.tsx`, and Playwright flows in `tests/e2e/interactions.spec.ts`.
+`tests/unit/chat-route.test.ts` (validation, origin, fallback, identity context, multi-turn, streaming with redaction and citations, provider overload, interrupted streams, rate limiting with a mocked SDK), `tests/unit/retrieval.test.ts`, `tests/unit/retrieval-eval.test.ts`, `tests/unit/markdown.test.ts`, `tests/unit/guard.test.ts`, `tests/unit/chat-view.test.tsx`, and Playwright flows in `tests/e2e/interactions.spec.ts`.
