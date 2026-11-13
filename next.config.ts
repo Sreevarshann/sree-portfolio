@@ -29,8 +29,16 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
 ];
 
+/**
+ * Content-release stamp shown in the footer ("Last updated · Month Year").
+ * Fixed when a production build runs, i.e. when an update is published, so
+ * server and client render the same value. SITE_UPDATED_AT overrides it.
+ */
+const SITE_UPDATED_AT = process.env.SITE_UPDATED_AT || new Date().toISOString();
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  env: { SITE_UPDATED_AT },
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85],
@@ -49,6 +57,10 @@ const nextConfig: NextConfig = {
       {
         source: "/projects/:slug/:file*.webp",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        source: "/(tech-icons.svg|tech/:file*)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
       },
     ];
   },
