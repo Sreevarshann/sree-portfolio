@@ -10,6 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:live": "vitest run -c vitest.live.config.ts",
     "test:e2e": "playwright test",
     "test:e2e:groq": "playwright test -c playwright.groq.config.ts",
     "privacy": "node scripts/privacy-check.mjs",
