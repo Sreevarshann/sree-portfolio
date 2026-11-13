@@ -72,7 +72,7 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
       computePosition(ref, box, {
         placement: "bottom",
         strategy: "fixed",
-        middleware: [offset(14), flip({ fallbackPlacements: ["bottom-end", "left", "top"] }), shift({ padding: 12 }), arrow({ element: tip, padding: 16 })],
+        middleware: [offset(window.innerWidth < 640 ? 10 : 14), flip({ fallbackPlacements: ["bottom-end", "left", "top"] }), shift({ padding: 12 }), arrow({ element: tip, padding: 16 })],
       }).then(({ x, y, placement, middlewareData }) => {
         Object.assign(box.style, { left: `${x}px`, top: `${y}px` });
         const s = placement.split("-")[0] as "top" | "bottom" | "left" | "right";
