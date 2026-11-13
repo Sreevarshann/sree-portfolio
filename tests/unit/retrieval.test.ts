@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { retrieve, retrieveForConversation, tokenize } from "@/lib/ai/retrieve";
 import { knowledge } from "@/lib/ai/knowledge";
 
-const PHONE = /\+?\d?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/;
+const PHONE = /(?<![\d\w-])\+?\d?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?![\d\w])/;
 
 describe("retrieval", () => {
   it("tokenizes and drops stop words", () => {

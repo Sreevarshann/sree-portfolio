@@ -130,3 +130,23 @@ test("portrait slot renders (photo or labelled placeholder)", async ({ page, isM
     await expect(page.getByRole("img", { name: /Portrait of Sreevarshan|Portrait placeholder/ }).last()).toBeVisible();
   }
 });
+
+test("achievements link to Sree's LinkedIn proof posts", async ({ page }) => {
+  const posts = [
+    "https://www.linkedin.com/posts/sreevarshansathiyamurthy_sauvc2022-throwback-teamvaruna-ugcPost-7244625106197512192-ilNL/",
+    "https://www.linkedin.com/posts/sreevarshansathiyamurthy_mlops-machinelearning-dataengineering-ugcPost-7408534309613031425-L_Bj/",
+  ];
+  for (const path of ["/achievements", "/"]) {
+    await page.goto(path);
+    for (const href of posts) {
+      const link = page.locator(`a[href="${href}"]`).first();
+      await expect(link).toHaveAttribute("target", "_blank");
+      await expect(link).toHaveAttribute("rel", /noopener/);
+    }
+    // No link may be nested inside another link.
+    expect(await page.locator("a a").count()).toBe(0);
+  }
+  await page.goto("/achievements");
+  await expect(page.locator("#sauvc")).toContainText("130+");
+  await expect(page.locator("#sauvc")).toContainText("teams shortlisted");
+});

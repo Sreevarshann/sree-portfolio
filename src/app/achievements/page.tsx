@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { TeamField, Podium } from "@/components/achievements/FieldViz";
 import { achievements } from "@/content/credentials";
 import { TechChip } from "@/components/ui/TechChip";
+import { LinkedInProof } from "@/components/ui/LinkedInProof";
 
 export const metadata: Metadata = {
   title: "Achievements",
-  description: "6th of 320+ teams at the Singapore AUV Challenge, and 3rd place at the Google MLOps Expo with Charlie, an MBTA real-time chatbot.",
+  description: "6th of 320+ teams (130+ qualified, 20 shortlisted) at the Singapore AUV Challenge, and 3rd place at the Google MLOps Expo with Charlie, an MBTA real-time chatbot.",
   alternates: { canonical: "/achievements" },
 };
 
@@ -26,11 +28,27 @@ export default function AchievementsPage() {
                     <span className="serif-accent align-top text-[0.32em] text-accent-fg">{a.rank.suffix}</span>
                   </p>
                   <p className="mt-6 text-xl">{a.result}{a.rank.field ? ` · ${a.rank.field}` : ""}</p>
+                  {a.stages && (
+                    <dl className="mt-6 grid grid-cols-4 gap-2">
+                      {a.stages.map((st, k) => (
+                        <div key={st.label} className={`rounded-xl border px-3 py-2.5 ${k === a.stages!.length - 1 ? "border-accent bg-accent-soft" : "border-line"}`}>
+                          <dt className="sr-only">{st.label}</dt>
+                          <dd className="text-lg font-medium tracking-[-0.02em]">{st.value}</dd>
+                          <dd className="text-[0.68rem] leading-tight text-fg-muted">{st.label}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                  {a.proof && (
+                    <div className="mt-6">
+                      <LinkedInProof href={a.proof.href} label={a.proof.label} />
+                    </div>
+                  )}
                 </div>
                 <div className="max-w-md">
-                  {i === 0 ? <TeamField total={320} place={6} /> : <Podium place={3} />}
+                  {i === 0 ? <TeamField total={320} qualified={130} shortlisted={20} place={6} /> : <Podium place={3} />}
                   <p className="mt-3 text-xs text-fg-muted">
-                    {i === 0 ? "Each dot represents one team in a field of 320+; the highlighted dot is 6th place. Illustrative." : "Podium graphic, illustrative."}
+                    {i === 0 ? "Each dot is one team in a field of 320+: tinted dots mark the 130+ that qualified, bright dots the 20 shortlisted, and the large dot 6th place. Illustrative." : "Podium graphic, illustrative."}
                   </p>
                 </div>
               </div>
@@ -54,7 +72,10 @@ export default function AchievementsPage() {
                     {a.evidence.map((e) => (
                       <li key={e.label} className="flex flex-wrap items-baseline gap-x-3">
                         {e.href ? (
-                          <a href={e.href} target="_blank" rel="noopener noreferrer" className="link-u text-accent-fg">{e.label} ↗</a>
+                          <a href={e.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-accent-fg">
+                            {e.kind === "linkedin" && <Image src="/logos/linkedin-in.png" alt="" width={96} height={82} style={{ height: 14, width: "auto" }} aria-hidden="true" />}
+                            <span className="link-u">{e.label} ↗</span>
+                          </a>
                         ) : (
                           <span>{e.label}</span>
                         )}

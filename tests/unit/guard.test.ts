@@ -10,6 +10,20 @@ describe("redaction", () => {
     const s = "25,877 transactions, 2026, 0.863 F1, 1M+ records, 18 agents, 172,512 events";
     expect(redact(s)).toBe(s);
   });
+  it("does not redact long IDs inside URLs", () => {
+    const url = "https://www.linkedin.com/posts/someone_tag-ugcPost-7244625106197512192-ilNL/";
+    expect(redact(`See ${url}`)).toBe(`See ${url}`);
+  });
+  it("keeps long URL IDs intact when streamed in small chunks", () => {
+    const text = "Proof: https://www.linkedin.com/posts/someone_tag-ugcPost-7244625106197512192-ilNL/ — see the post.";
+    for (const size of [1, 3, 7, 11]) {
+      const r = createStreamRedactor();
+      let out = "";
+      for (let i = 0; i < text.length; i += size) out += r.push(text.slice(i, i + size));
+      out += r.flush();
+      expect(out).toBe(text);
+    }
+  });
   it("catches a number split across stream chunks", () => {
     const r = createStreamRedactor();
     const parts = ["Reach him at +1 (61", "7) 555-", "0100 or by email."];

@@ -118,11 +118,15 @@ export type Achievement = {
   event: string;
   result: string;
   rank: { place: number; suffix: string; field?: string };
+  /** Competition funnel, widest first (shown as a graphic and a list). */
+  stages?: { value: string; label: string }[];
+  /** Sree's own LinkedIn post about the result, linked as proof. */
+  proof?: { href: string; label: string };
   project: string;
   summary: string;
   details: string[];
   stack: string[];
-  evidence: { label: string; href?: string; note: string }[];
+  evidence: { label: string; href?: string; note: string; kind?: "linkedin" }[];
 };
 
 export const achievements: Achievement[] = [
@@ -131,16 +135,28 @@ export const achievements: Achievement[] = [
     event: "Singapore AUV Challenge",
     result: "6th place globally",
     rank: { place: 6, suffix: "th", field: "320+ teams" },
+    stages: [
+      { value: "320+", label: "teams entered" },
+      { value: "130+", label: "teams qualified" },
+      { value: "20", label: "teams shortlisted" },
+      { value: "6th", label: "final placing" },
+    ],
+    proof: {
+      href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_sauvc2022-throwback-teamvaruna-ugcPost-7244625106197512192-ilNL/",
+      label: "SAUVC result post on LinkedIn",
+    },
     project: "Autonomous underwater vehicle",
     summary:
       "An international student competition in which autonomous underwater vehicles complete navigation and manipulation tasks in a pool without human control.",
     details: [
+      "From a field of 320+ teams, the team was among 130+ that qualified and 20 that were shortlisted, finishing 6th overall.",
       "Built autonomous navigation and object detection for the vehicle while at the Sri Sairam Techno Incubator Foundation.",
       "Trained YOLOv5 detectors with OpenCV for real-time underwater perception.",
       "Developed reinforcement-learning control on ROS, validated in Gazebo and in physical pool tests with a 92% success rate on obstacle avoidance, gate traversal and object recovery.",
     ],
     stack: ["YOLOv5", "OpenCV", "Reinforcement learning", "ROS", "Gazebo"],
     evidence: [
+      { label: "LinkedIn post", href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_sauvc2022-throwback-teamvaruna-ugcPost-7244625106197512192-ilNL/", note: "Sree's post about the result", kind: "linkedin" },
       { label: "Official competition site", href: "https://sauvc.org", note: "sauvc.org" },
       { label: "Resume", href: "/Sreevarshan-Sathiyamurthy-Resume.pdf", note: "Listed under Machine Learning Engineer, 2022" },
     ],
@@ -150,6 +166,10 @@ export const achievements: Achievement[] = [
     event: "Google MLOps Expo",
     result: "3rd place",
     rank: { place: 3, suffix: "rd" },
+    proof: {
+      href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_mlops-machinelearning-dataengineering-ugcPost-7408534309613031425-L_Bj/",
+      label: "Google MLOps Expo result post on LinkedIn",
+    },
     project: "Charlie — MBTA Real-Time Chatbot",
     summary:
       "Charlie answers live Boston transit questions by combining real-time MBTA data pipelines, delay-prediction features and a retrieval-augmented assistant.",
@@ -160,6 +180,7 @@ export const achievements: Achievement[] = [
     ],
     stack: ["Python", "Apache Airflow", "PySpark", "Azure ML", "Docker", "Prometheus", "RAG"],
     evidence: [
+      { label: "LinkedIn post", href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_mlops-machinelearning-dataengineering-ugcPost-7408534309613031425-L_Bj/", note: "Sree's post about the 3rd-place finish", kind: "linkedin" },
       { label: "Resume", href: "/Sreevarshan-Sathiyamurthy-Resume.pdf", note: "Listed under Projects" },
       { label: "Repository", href: "https://github.com/Sreevarshann/Charlir-MBTA", note: "Placeholder repository; source code is not yet published" },
     ],

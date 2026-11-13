@@ -12,6 +12,15 @@ Evidence for every factual claim on the site. Audited November 2026.
 | Official websites | RightRev logo (rightrev.com), Anna University logo (annauniv.edu), SAUVC site (sauvc.org) |
 | Supplied by Sree | Northeastern University (logo and seal), Sri Sairam Engineering College (wide and stacked), Flare Innovations and Sri Sairam Techno Incubator Foundation logos (backgrounds removed; dark-theme variants recolour only the neutral ink, brand colours unchanged) |
 
+## Achievement proof
+
+| Achievement | Proof link (Sree's LinkedIn post) | Extra facts from the post (supplied by Sree) |
+| --- | --- | --- |
+| Singapore AUV Challenge, 6th | linkedin.com/posts/sreevarshansathiyamurthy_sauvc2022-… | 320+ teams entered, 130+ qualified, 20 shortlisted |
+| Google MLOps Expo, 3rd | linkedin.com/posts/sreevarshansathiyamurthy_mlops-… | — |
+
+Tracking parameters from the share links (including a member ID) are stripped. The LinkedIn "in" logo is LinkedIn's official asset from brand.linkedin.com, used only to label links to LinkedIn.
+
 ## Personal details
 
 | Field | Value | Notes |

@@ -102,7 +102,7 @@ export function sameOrigin(req: Request) {
 }
 
 /* ------------------------------------------------------------ output redaction */
-const PHONE = /(?:\+?\d{1,2}[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g;
+const PHONE = /(?<![\d\w-])(?:\+?\d{1,2}[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?![\d\w])/g;
 
 /** Removes anything shaped like a phone number from model output. */
 export function redact(text: string) {
@@ -115,15 +115,27 @@ export function redact(text: string) {
  */
 export function createStreamRedactor(holdback = 24) {
   let pending = "";
+  const isWord = (c: string | undefined) => !!c && /[\w-]/.test(c);
+  // Characters that can appear inside a phone number ("+1 (617) 555-0100").
+  const isPhoneish = (c: string | undefined) => !!c && /[\d\s().+-]/.test(c);
   return {
     push(chunk: string) {
       pending += chunk;
       if (pending.length <= holdback) return "";
-      const safe = redact(pending);
-      // Only release text that cannot be part of an unfinished match.
-      const cut = Math.max(0, safe.length - holdback);
-      const out = safe.slice(0, cut);
-      pending = safe.slice(cut);
+      // Release only up to a word boundary at least `holdback` chars from the
+      // end, so neither a phone number (digits, spaces, dots, dashes, parentheses)
+      // nor a long ID (e.g. in a URL) is split
+      // across the released/pending seam.
+      let cut = pending.length - holdback;
+      const unbreakable = (i: number) =>
+        (isWord(pending[i - 1]) && isWord(pending[i])) || (isPhoneish(pending[i - 1]) && isPhoneish(pending[i]));
+      while (cut > 0 && unbreakable(cut)) cut--;
+      if (cut === 0) {
+        if (pending.length < 4000) return "";
+        cut = pending.length - holdback; // pathological unbroken run: give up waiting
+      }
+      const out = redact(pending.slice(0, cut));
+      pending = pending.slice(cut);
       return out;
     },
     flush() {

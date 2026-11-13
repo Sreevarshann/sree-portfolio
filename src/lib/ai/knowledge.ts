@@ -93,7 +93,8 @@ for (const a of achievements) {
       a.summary,
       ...a.details,
       `Technologies: ${a.stack.join(", ")}.`,
-      `Evidence: ${a.evidence.map((e) => `${e.label}${e.note ? ` (${e.note})` : ""}`).join("; ")}.`,
+      a.stages ? `Competition stages: ${a.stages.map((st) => `${st.value} ${st.label}`).join(" → ")}.` : "",
+      `Evidence: ${a.evidence.map((e) => `${e.label}${e.note ? ` (${e.note})` : ""}${e.href ? `: ${e.href}` : ""}`).join("; ")}.`,
     ].join(" "),
   });
 }
@@ -168,7 +169,7 @@ add({
   text: "Portfolio pages: /about (story, values, skills map), /experience (work history), /projects (catalog with case studies at /projects/<slug>), /achievements (Singapore AUV Challenge, Google MLOps Expo), /education, /certifications, /lab (interactive Plotly charts from project results), /contact, /ask (full-page Sree AI).",
 });
 
-const PHONE_LIKE = /\+?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/;
+const PHONE_LIKE = /(?<![\d\w-])\+?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?![\d\w])/;
 export function assertNoPrivateData(list: KnowledgeChunk[]) {
   for (const c of list) {
     if (PHONE_LIKE.test(c.text)) throw new Error(`Knowledge chunk ${c.id} contains a phone-like number`);
