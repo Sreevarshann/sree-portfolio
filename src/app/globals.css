@@ -1178,7 +1178,7 @@ a:focus-visible > .ss-mark .ss-rule {
       animation-range: entry calc(10% + var(--i) * 5%) entry calc(60% + var(--i) * 5%);
     }
     .signal-node {
-      animation: chip-rise linear both;
+      animation: node-rise linear both;
       animation-timeline: view();
       animation-range: entry calc(10% + var(--n) * 6%) entry calc(55% + var(--n) * 6%);
     }
@@ -1192,6 +1192,10 @@ a:focus-visible > .ss-mark .ss-rule {
 }
 @keyframes stage-glow { from { opacity: 0; scale: 0.7; } }
 @keyframes stage-index { from { transform: translateY(40%); } to { transform: translateY(-30%); } }
+@keyframes node-rise {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(10px); }
+  to { clip-path: inset(-48px -120px); }
+}
 @keyframes chip-rise {
   from { clip-path: inset(0 0 100% 0); transform: translateY(10px); }
   to { clip-path: inset(-12px); }
@@ -1217,7 +1221,7 @@ a:focus-visible > .ss-mark .ss-rule {
 }
 @keyframes tf-in { from { opacity: 0; } }
 @keyframes tf-in-full { from { opacity: 0; } to { opacity: 0.9; } }
-@keyframes tf-dim { from { opacity: 0.9; } to { opacity: 0.35; } }
+@keyframes tf-dim { from { opacity: 0.9; } to { opacity: 0.5; } }
 @keyframes tf-lift { 50% { transform: scale(1.5); } }
 @keyframes tf-pulse { 50% { transform: scale(1.45); } }
 @keyframes funnel-draw { from { transform: scaleX(0); } }

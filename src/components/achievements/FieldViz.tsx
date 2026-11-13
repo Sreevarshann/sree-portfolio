@@ -19,7 +19,7 @@ export function TeamField({ total = 320, qualified = 0, shortlisted = 0, place =
             cy={y}
             r={isPlace ? 4.6 : short ? 2.8 : 2.2}
             fill={isPlace ? "var(--accent)" : short ? "var(--accent-fg)" : qual ? "var(--accent)" : "var(--line-strong)"}
-            opacity={isPlace ? 1 : short ? 0.95 : qual ? 0.45 : 0.35}
+            opacity={isPlace ? 1 : short ? 0.95 : qual ? 0.45 : 0.5}
             className={cls}
             style={{ ["--d" as string]: `${(i % cols) * 9 + Math.floor(i / cols) * 22}ms` }}
           />
