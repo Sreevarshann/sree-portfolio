@@ -154,7 +154,7 @@ export const projects: Project[] = [
     oneLiner:
       "A local-first AI workspace where every answer keeps its plan, its agents, its sources and the SQL behind each number.",
     problem:
-      "Most AI apps return one opaque answer. NEXUS persists everything that produced it — the plan, the agents that ran, every tool call, the cited passage, the query behind each figure and a verification report — so a result can be inspected, replayed and exported.",
+      "Most AI apps return one opaque answer. NEXUS persists everything that produced it: the plan, the agents that ran, every tool call, the cited passage, the query behind each figure and a verification report - so a result can be inspected, replayed and exported.",
     overview:
       "Missions run as a LangGraph graph: a planner proposes steps, a human approves, research, document and data agents execute, then a synthesizer, an evidence verifier and an artifact generator finish the job. Missions can pause, resume, cancel and retry from a checkpoint. The workspace also includes a knowledge library with hybrid retrieval, a DuckDB data lab, an artifact studio, a workflow builder and an authenticated MCP server.",
     features: [
@@ -325,7 +325,7 @@ export const projects: Project[] = [
     oneLiner:
       "Trains LoRA adapters for a small LLM on Apple Silicon and proves what changed by evaluating against the frozen base model on identical prompts.",
     problem:
-      "Fine-tuning demos usually show a loss curve and a cherry-picked example. TuneLab trains LoRA adapters with MLX-LM and evaluates each one against the frozen base model on the same data, prompt and decoding — including a held-out split of phrasings the model never saw during training.",
+      "Fine-tuning demos usually show a loss curve and a cherry-picked example. TuneLab trains LoRA adapters with MLX-LM and evaluates each one against the frozen base model on the same data, prompt and decoding, including a held-out split of phrasings the model never saw during training.",
     overview:
       "A FastAPI backend dispatches training and evaluation jobs to an isolated worker subprocess, streams live loss curves over SSE and records everything in SQLite. Each run verifies that weights actually changed (lora_b norm from 0 to above 0) and stores the adapter's SHA-256. A Next.js UI compares runs, shows base-vs-LoRA outputs side by side and offers a playground.",
     features: [
@@ -448,7 +448,7 @@ export const projects: Project[] = [
     },
     challenges: [
       { title: "Streaming through Next.js", body: "Next.js gzip buffered the SSE stream, so progress arrived all at once. A no-transform middleware fixed it." },
-      { title: "Isolation that holds", body: "A query filter alone isn't a sandbox. Process-per-query isolation adds roughly 100–300 ms per statement, a deliberate trade for safety." },
+      { title: "Isolation that holds", body: "A query filter alone isn't a sandbox. Process-per-query isolation adds roughly 100-300 ms per statement, a deliberate trade for safety." },
       { title: "Numbers you can trust", body: "Explanations reference facts by placeholder, so the model cannot invent a figure that wasn't computed." },
     ],
     decisions: [
@@ -491,7 +491,7 @@ export const projects: Project[] = [
     problem:
       "AI code review is only useful if findings point at real code. ReviewPilot runs 17 deterministic rules first, then a grounded model pass whose findings must quote the exact diff lines they reference. Usage is metered against plan limits in a multi-tenant SaaS shell.",
     overview:
-      "A NestJS API with session auth and tenant guards accepts diffs by paste, upload or HMAC-signed webhook. A BullMQ worker runs the review pipeline — parse, static rules, model, validate, persist — and streams progress over SSE. Findings can be triaged, commented on, compared across versions and exported to JSON, CSV, Markdown or SARIF 2.1.0.",
+      "A NestJS API with session auth and tenant guards accepts diffs by paste, upload or HMAC-signed webhook. A BullMQ worker runs the review pipeline (parse, static rules, model, validate, persist) and streams progress over SSE. Findings can be triaged, commented on, compared across versions and exported to JSON, CSV, Markdown or SARIF 2.1.0.",
     features: [
       "Organizations with Owner, Admin, Reviewer and Viewer roles; email-bound invitations; audit log",
       "Cross-tenant access returns 404, never 403",
@@ -574,7 +574,7 @@ export const projects: Project[] = [
     categories: ["Full Stack"],
     tagline: "Permission-aware company visibility",
     oneLiner:
-      "Connects org structure to the work happening inside it, so people can see who is doing what — within the permissions they actually have.",
+      "Connects org structure to the work happening inside it, so people can see who is doing what, within the permissions they actually have.",
     problem:
       "In a small company, managers often don't know what everyone is working on and employees know the work of only a handful of colleagues. WorkMesh connects company → departments → teams → people with goals → initiatives → projects → milestones → work items, with permission-aware visibility and no surveillance.",
     overview:

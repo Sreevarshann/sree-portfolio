@@ -3,7 +3,7 @@
 import { useId } from "react";
 
 /**
- * The Sree AI mark — original artwork. Eight rounded capsules (four long,
+ * The Sree AI mark - original artwork. Eight rounded capsules (four long,
  * four short) around an open core, a silver-white nucleus and a small
  * orbiting satellite, over a soft blue glow. Colors: deep ocean → electric
  * blue → silver-white (theme tokens --mark-*).

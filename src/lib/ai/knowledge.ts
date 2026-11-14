@@ -59,7 +59,7 @@ add({
     "He wants to build AI systems teams can trust: agents that cite their sources, data that is checked before it is used, and results that are measured. His personal projects ship with tests, evaluations and honest notes on their limits.",
     profile.headline,
     `Current focus: ${profile.focus.join("; ")}.`,
-    `Engineering values: ${profile.values.map((v) => `${v.title} — ${v.body}`).join(" ")}`,
+    `Engineering values: ${profile.values.map((v) => `${v.title}: ${v.body}`).join(" ")}`,
   ].join(" "),
   facts: [
     `Full name: ${profile.name}. Preferred name: ${profile.displayName}. "SS" is his monogram on this website; all refer to the same person.`,
@@ -129,7 +129,7 @@ add({
   label: "Certifications",
   blurb: certifications.map((c) => c.name).join(", ") + ".",
   text: certifications
-    .map((c) => `${c.name} — ${c.issuer} (${c.kind}).${c.note ? " " + c.note : ""}${c.credentialUrl ? " Verifiable on Credly." : ""} Verification: ${c.verifyUrl}.`)
+    .map((c) => `${c.name}, ${c.issuer} (${c.kind}).${c.note ? " " + c.note : ""}${c.credentialUrl ? " Verifiable on Credly." : ""} Verification: ${c.verifyUrl}.`)
     .join(" "),
 });
 
@@ -142,7 +142,7 @@ for (const a of achievements) {
     label: a.event,
     blurb: a.summary,
     text: [
-      `${a.event} — ${a.result}${a.rank.field ? ` among ${a.rank.field}` : ""}. Project: ${a.project}.`,
+      `${a.event}: ${a.result}${a.rank.field ? ` among ${a.rank.field}` : ""}. Project: ${a.project}.`,
       a.summary,
       ...a.details,
       `Technologies: ${a.stack.join(", ")}.`,
@@ -161,7 +161,7 @@ for (const a of achievements) {
 
 add({
   id: "tech-usage",
-  title: "Tools & technologies — where each was used",
+  title: "Tools & technologies - where each was used",
   section: "Skills",
   href: "/#tools",
   label: "Tools & technologies",
@@ -191,7 +191,7 @@ for (const p of projects) {
   add({
     ...base,
     id: `proj-${p.slug}-overview`,
-    title: `${p.name} — ${p.tagline}`,
+    title: `${p.name} - ${p.tagline}`,
     text: [
       `${p.name}: ${p.oneLiner}`,
       `Problem: ${p.problem}`,
@@ -203,13 +203,13 @@ for (const p of projects) {
   add({
     ...base,
     id: `proj-${p.slug}-features`,
-    title: `${p.name} — features and roadmap`,
+    title: `${p.name} - features and roadmap`,
     text: `${p.name} implemented features: ${p.features.join("; ")}. Planned / not yet built: ${p.planned.join("; ")}.`,
   });
   add({
     ...base,
     id: `proj-${p.slug}-engineering`,
-    title: `${p.name} — architecture and engineering decisions`,
+    title: `${p.name} - architecture and engineering decisions`,
     text: [
       `${p.name} architecture: ${p.architecture.caption} Components: ${p.architecture.nodes.map((n) => `${n.label}${n.sub ? ` (${n.sub})` : ""}`).join(", ")}.`,
       `Engineering challenges: ${p.challenges.map((c) => `${c.title}: ${c.body}`).join(" ")}`,
@@ -219,7 +219,7 @@ for (const p of projects) {
   add({
     ...base,
     id: `proj-${p.slug}-results`,
-    title: `${p.name} — tests, results and stack`,
+    title: `${p.name} - tests, results and stack`,
     text: [
       `${p.name} tests: ${p.tests.map((t) => `${t.label}: ${t.value}`).join("; ")}. ${p.ci}.`,
       `Reported results: ${p.metrics.map((m) => `${m.value} ${m.label}`).join("; ")}.`,
@@ -231,7 +231,7 @@ for (const p of projects) {
 for (const c of skillClusters) {
   add({
     id: `skills-${c.id}`,
-    title: `Skills — ${c.title}`,
+    title: `Skills - ${c.title}`,
     section: "About",
     href: "/about#skills",
     label: "Skills map",

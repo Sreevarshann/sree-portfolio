@@ -9,7 +9,7 @@ import type { PortraitAsset } from "@/lib/portrait";
  * edge, coordinate caption, a mask reveal on load, gentle scroll drift and a
  * subtle pointer-responsive tilt (desktop, motion allowed).
  *
- * With no approved photo it shows an explicitly temporary placeholder — an
+ * With no approved photo it shows an explicitly temporary placeholder - an
  * abstract monogram composition, never a generated face.
  */
 export function Portrait({
@@ -111,7 +111,7 @@ export function Portrait({
 
 function PortraitPlaceholder({ small }: { small: boolean }) {
   return (
-    <div className="absolute inset-0" role="img" aria-label="Portrait placeholder — photo coming soon">
+    <div className="absolute inset-0" role="img" aria-label="Portrait placeholder: photo coming soon">
       <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_70%_20%,var(--accent-soft),transparent_60%),linear-gradient(180deg,var(--surface),var(--bg-elev))]" />
       <svg viewBox="0 0 200 250" className="absolute inset-0 h-full w-full text-accent" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         {Array.from({ length: 11 }, (_, i) => (

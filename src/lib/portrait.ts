@@ -27,9 +27,9 @@ function readFocus(dir: string[]) {
 
 /**
  * Finds the hero portraits in public/images/profile/:
- *   portrait-real.{avif,webp,jpg,jpeg,png}         — the photograph
- *   portrait-illustrated.{avif,webp,jpg,jpeg,png}  — the illustrated version
- *   focus.json (optional)                          — { "x": 50, "y": 30 } crop focus in %
+ *   portrait-real.{avif,webp,jpg,jpeg,png}         - the photograph
+ *   portrait-illustrated.{avif,webp,jpg,jpeg,png}  - the illustrated version
+ *   focus.json (optional)                          - { "x": 50, "y": 30 } crop focus in %
  * Nothing is referenced until a file exists, so there are never broken images.
  * Evaluated at build time for static pages.
  */

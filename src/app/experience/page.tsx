@@ -17,7 +17,7 @@ export default function ExperiencePage() {
         eyebrow="Experience"
         title="Work that"
         accent="shipped."
-        lede="AI agents on Snowflake, IoT data pipelines and autonomous underwater robotics — each role with its actual scope, stack and verified outcomes."
+        lede="AI agents on Snowflake, IoT data pipelines and autonomous underwater robotics. Each role with its actual scope, stack and verified outcomes."
       >
         <div className="mt-8 flex flex-wrap gap-3" data-reveal>
           <a href={profile.resumePath} target="_blank" rel="noopener" className="btn btn-ghost">Download resume (PDF)</a>

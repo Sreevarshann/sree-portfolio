@@ -113,14 +113,39 @@ export function redact(text: string) {
  * Streaming-safe redactor: holds back a short tail so a number split across
  * chunks is still caught before it reaches the client.
  */
+/**
+ * Generated text uses plain hyphens instead of em/en dashes: a spaced dash
+ * ("a — b", "a – b") becomes " - ", an unspaced one ("2–5", "A—B") "-".
+ * Idempotent, and it never touches Markdown syntax, links or [S#] citations.
+ */
+export function normalizeDashes(text: string) {
+  return text
+    .replace(/[ \t]*\u2014[ \t]*/g, " - ")
+    .replace(/[ \t]+\u2013[ \t]+/g, " - ")
+    .replace(/\u2013/g, "-")
+    .replace(/ - {2,}/g, " - ");
+}
+
 export function createStreamRedactor(holdback = 24) {
   let pending = "";
+  // Whether the last released text ended in whitespace, so a dash replaced at
+  // the start of the next release does not produce a double space.
+  let releasedSpace = false;
+  const release = (text: string) => {
+    let out = redact(text);
+    if (releasedSpace && out.startsWith(" ")) out = out.replace(/^ +/, "");
+    if (out) releasedSpace = /\s$/.test(out);
+    return out;
+  };
   const isWord = (c: string | undefined) => !!c && /[\w-]/.test(c);
   // Characters that can appear inside a phone number ("+1 (617) 555-0100").
   const isPhoneish = (c: string | undefined) => !!c && /[\d\s().+-]/.test(c);
   return {
     push(chunk: string) {
-      pending += chunk;
+      // Dashes are normalized on the whole pending buffer, so a dash split
+      // across chunks (or arriving next to a space from the previous chunk) is
+      // handled before anything is released.
+      pending = normalizeDashes(pending + chunk);
       if (pending.length <= holdback) return "";
       // Release only up to a word boundary at least `holdback` chars from the
       // end, so neither a phone number (digits, spaces, dots, dashes, parentheses)
@@ -134,12 +159,12 @@ export function createStreamRedactor(holdback = 24) {
         if (pending.length < 4000) return "";
         cut = pending.length - holdback; // pathological unbroken run: give up waiting
       }
-      const out = redact(pending.slice(0, cut));
+      const out = release(pending.slice(0, cut));
       pending = pending.slice(cut);
       return out;
     },
     flush() {
-      const out = redact(pending);
+      const out = release(normalizeDashes(pending));
       pending = "";
       return out;
     },

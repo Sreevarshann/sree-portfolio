@@ -96,13 +96,19 @@ export function TechCatalog() {
   const groups = TECH_CATEGORIES.map((cat) => ({ cat, items: technologies.filter((t) => t.category === cat && t.usedIn.length > 0) })).filter((g) => g.items.length);
   return (
     <details className="tech-index">
-      <summary className="tech-index-summary">
-        <span>Explore My Stack</span>
-        <svg className="tech-index-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+      {/* Native <summary>: the browser exposes its expanded state; the label follows it. */}
+      <summary className="tech-index-summary stack-pill" aria-controls="tech-index-body">
+        <span className="stack-pill-label">
+          <span className="stack-pill-closed">Explore My Stack</span>
+          <span className="stack-pill-open">Hide My Stack</span>
+        </span>
+        <span className="stack-pill-chevron" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
       </summary>
-      <div className="tech-index-body">
+      <div className="tech-index-body" id="tech-index-body">
         {groups.map(({ cat, items }) => (
           <section key={cat} className="tech-index-group" aria-label={cat}>
             <h3 className="tech-index-heading">{cat}</h3>

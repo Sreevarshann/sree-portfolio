@@ -6,7 +6,7 @@ import { skillClusters, evidenceLabels } from "@/content/skills";
 
 /**
  * Interactive capability map. Selecting a skill draws its connections to the
- * roles and projects where it was actually used — evidence, not percentages.
+ * roles and projects where it was actually used - evidence, not percentages.
  */
 export function SkillsMap() {
   const [sel, setSel] = useState({ cluster: 0, skill: 0 });

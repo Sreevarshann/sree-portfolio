@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { chatRequestSchema, checkRate, createStreamRedactor, normalizeHistory, redact, resetRateLimits, sameOrigin, LIMITS } from "@/lib/ai/guard";
+import { normalizeDashes, chatRequestSchema, checkRate, createStreamRedactor, normalizeHistory, redact, resetRateLimits, sameOrigin, LIMITS } from "@/lib/ai/guard";
 
 // Fictional numbers only (555 exchange).
 describe("redaction", () => {
@@ -21,7 +21,8 @@ describe("redaction", () => {
       let out = "";
       for (let i = 0; i < text.length; i += size) out += r.push(text.slice(i, i + size));
       out += r.flush();
-      expect(out).toBe(text);
+      // (The em dash becomes a plain hyphen; the URL is untouched.)
+      expect(out).toBe(text.replace(" \u2014 ", " - "));
     }
   });
   it("catches a number split across stream chunks", () => {
@@ -70,5 +71,41 @@ describe("origin check", () => {
     expect(sameOrigin(mk())).toBe(true);
     expect(sameOrigin(mk("https://example.test"))).toBe(true);
     expect(sameOrigin(mk("https://evil.example"))).toBe(false);
+  });
+});
+
+
+describe("dash normalization in streamed answers", () => {
+  const stream = (text: string, size: number) => {
+    const r = createStreamRedactor();
+    let out = "";
+    for (let i = 0; i < text.length; i += size) out += r.push(text.slice(i, i + size));
+    return out + r.flush();
+  };
+
+  it("replaces em and en dashes with plain hyphens, wherever the chunks split", () => {
+    const text = "He built agents \u2014 grounded ones [S1]. Ranges like 2\u20135 stay readable, and A\u2014B too. Done [S2][S3].";
+    const expected = "He built agents - grounded ones [S1]. Ranges like 2-5 stay readable, and A - B too. Done [S2][S3].";
+    for (const size of [1, 2, 3, 5, 8, 13, 400]) expect(stream(text, size), `chunk ${size}`).toBe(expected);
+  });
+
+  it("never leaves a double space when the dash follows an already-released space", () => {
+    const long = "x".repeat(40) + " ";
+    for (const size of [1, 4, 41, 42]) {
+      const out = stream(long + "\u2014 next part of the answer, long enough to release.", size);
+      expect(out).not.toMatch(/  /);
+      expect(out).not.toMatch(/[\u2014\u2013]/);
+    }
+  });
+
+  it("keeps Markdown links, citations and phone redaction intact", () => {
+    const text = "See [the case study](/projects/aegis-ai) \u2014 or call +1 (617) 555-0100 [S1].";
+    for (const size of [1, 3, 7]) expect(stream(text, size)).toBe("See [the case study](/projects/aegis-ai) - or call [redacted] [S1].");
+  });
+
+  it("normalizeDashes is idempotent", () => {
+    const once = normalizeDashes("a \u2014 b \u2013 c\u2014d");
+    expect(normalizeDashes(once)).toBe(once);
+    expect(once).toBe("a - b - c - d");
   });
 });

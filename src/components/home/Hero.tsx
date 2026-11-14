@@ -59,7 +59,7 @@ function Companies() {
       <ul className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4">
         {experience.map((e, i) => (
           <li key={e.slug} className="company-mark" style={{ ["--i" as string]: i }}>
-            <Link href={`/experience#${e.slug}`} className="company-link" aria-label={`${e.company} — ${e.role}`} title={`${e.role} · ${e.period}`}>
+            <Link href={`/experience#${e.slug}`} className="company-link" aria-label={`${e.company}: ${e.role}`} title={`${e.role} · ${e.period}`}>
               {e.logo ? (
                 <>
                   <LogoImage variant="light" src={e.logo.light} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: COMPANY_HEIGHT[e.slug] ?? 28 }} />
@@ -80,7 +80,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
   const { openChat } = useAskSree();
   const [field, setField] = useState(false);
 
-  // Start the WebGL field once the main thread is idle, after first paint —
+  // Start the WebGL field once the main thread is idle, after first paint -
   // and only on devices that can run it comfortably. Others keep the static
   // contour layer, which is always painted underneath.
   useEffect(() => {
@@ -115,8 +115,19 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-12 md:mt-12 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
-          <div className="min-w-0">
+        {/* Portrait first in the markup: phones and tablets show it above the
+            introduction (same visual, reading and focus order); on desktop it
+            is placed in the right column. */}
+        <div className="mt-8 grid gap-10 md:mt-12 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
+          <div
+            className="hero-portrait hero-fade mx-auto mb-10 w-[min(70vw,300px)] lg:col-start-2 lg:row-start-1 lg:mx-0 lg:mb-0 lg:w-full"
+            data-parallax="0.12"
+            data-parallax-min="1024"
+            style={{ ["--enter-delay" as string]: "0.2s" }}
+          >
+            <PortraitSwap pair={portraits} priority />
+          </div>
+          <div className="min-w-0 lg:col-start-1 lg:row-start-1">
             <h1 className="hero-fade hero-name" style={{ ["--enter-delay" as string]: "0.08s" }}>
               Sreevarshan Sathiyamurthy
             </h1>
@@ -125,10 +136,10 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
               className="display hero-title relative z-[1] mt-5 max-w-[14ch] text-[clamp(2.9rem,9.4vw,8.4rem)] lg:text-[clamp(3.6rem,6.6vw,7.8rem)]"
               delay={0.1}
               trigger="css"
-              segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems — from data to interface."]}
+              segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems, from data to interface."]}
             />
             <p className="hero-fade lede mt-8 max-w-[44rem]" style={{ ["--enter-delay" as string]: "0.55s" }}>
-              Hi, I&apos;m <strong className="font-medium text-fg">Sree</strong> — a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
+              Hi, I&apos;m <strong className="font-medium text-fg">Sree</strong>, a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
             </p>
             <div className="hero-fade mt-8 flex flex-wrap gap-3" style={{ ["--enter-delay" as string]: "0.65s" }}>
               <Link href="/projects" className="btn btn-primary">
@@ -141,9 +152,6 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
                 Resume
               </a>
             </div>
-          </div>
-          <div className="hero-fade mx-auto mb-6 w-[min(76vw,320px)] lg:mx-0 lg:mb-0 lg:w-full" data-parallax="0.12" style={{ ["--enter-delay" as string]: "0.35s" }}>
-            <PortraitSwap pair={portraits} priority />
           </div>
         </div>
 

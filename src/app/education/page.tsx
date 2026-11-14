@@ -17,9 +17,10 @@ function InstitutionMark({ logo, fallback }: { logo: InstitutionLogo; fallback: 
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${logo.alt.replace(/ (logo|seal)$/i, "")} website`}
-        className={`logo-sheen relative inline-block max-w-full overflow-hidden transition-transform duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 ${logo.plate ? "rounded-xl bg-white p-2.5 ring-1 ring-line shadow-[var(--shadow)]" : ""}`}
+        className={`logo-sheen relative inline-block max-w-full overflow-hidden transition-transform duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 ${logo.plate ? "logo-plate" : ""}`}
       >
-        {logo.light === logo.dark ? img(logo.light, "both") : <>{img(logo.light, "light")}{img(logo.dark, "dark")}</>}
+        {/* On a white plate the white-ground artwork is used in both themes, never recoloured. */}
+        {logo.plate || logo.light === logo.dark ? img(logo.light, "both") : <>{img(logo.light, "light")}{img(logo.dark, "dark")}</>}
       </a>
     </div>
   );
@@ -54,7 +55,7 @@ export default function EducationPage() {
                 <div className="p-8 md:p-10">
                   <h2 className="text-[clamp(1.8rem,3.2vw,2.5rem)] font-medium leading-tight tracking-[-0.035em]">{e.institution}</h2>
                   {e.college && <p className="mt-1 text-base text-fg-soft">{e.college} <span className="text-sm text-fg-muted">· affiliated college</span></p>}
-                  <p className="mt-2 text-lg text-fg-soft">{e.degree} — {e.field}</p>
+                  <p className="mt-2 text-lg text-fg-soft">{e.degree} in {e.field}</p>
                   <dl className="mt-8 grid grid-cols-2 gap-6 text-sm">
                     <div><dt className="eyebrow">Dates</dt><dd className="mt-1">{e.date}</dd></div>
                     <div><dt className="eyebrow">Location</dt><dd className="mt-1">{e.location}</dd></div>

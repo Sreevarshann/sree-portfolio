@@ -4,7 +4,7 @@ import { tableauProfile, tableauVizzes } from "@/content/tableau";
 import { AegisExperience, SourceAtlasExperience, TuneLabExperience, WorkMeshExperience } from "@/components/lab/LabExperiences";
 
 export const metadata: Metadata = {
-  title: "Lab — interactive results",
+  title: "Lab: interactive results",
   description: "Interactive Plotly explorations of real results from Sreevarshan Sathiyamurthy's projects: LoRA evaluation, fraud-model metrics, API latency and RAG evaluation.",
   alternates: { canonical: "/lab" },
 };

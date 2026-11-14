@@ -2,7 +2,7 @@
 /**
  * Fails if anything that looks like a phone number, a tel: link, a secret or
  * a private source file is tracked in the repository or shipped in public/.
- * Uses generic patterns only — the real number is never written here.
+ * Uses generic patterns only - the real number is never written here.
  */
 import { execSync } from "node:child_process";
 import { readFileSync, statSync } from "node:fs";

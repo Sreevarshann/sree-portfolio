@@ -17,7 +17,7 @@ test("no cursor-following element exists and the native cursor is untouched", as
 
 test("SS monogram is in the navbar and returns home", async ({ page }) => {
   await page.goto("/projects");
-  const home = page.getByRole("link", { name: "Sreevarshan Sathiyamurthy — Home" });
+  const home = page.getByRole("link", { name: "Sreevarshan Sathiyamurthy - Home" });
   await expect(home).toBeVisible();
   await expect(home).toContainText("SS");
   await home.click();

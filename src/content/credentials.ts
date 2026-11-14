@@ -7,7 +7,7 @@ export type InstitutionLogo = {
   url: string;
   /** Rendered height in px. */
   h: number;
-  /** Full-colour logos that rely on a white ground sit on a white plate in both themes. */
+  /** Logos shown on a white plate in both themes (the official artwork for a white ground). */
   plate?: boolean;
   /** Which layouts show this logo: "wide" ≥ 640px, "compact" < 640px. */
   show: "all" | "wide" | "compact";
@@ -45,8 +45,8 @@ export const education: Education[] = [
     location: "Boston, Massachusetts",
     url: "https://www.northeastern.edu",
     logos: [
-      { light: "/logos/northeastern-light-bg.png", dark: "/logos/northeastern-dark-bg.png", width: 1200, height: 389, alt: "Northeastern University logo", url: "https://www.northeastern.edu", h: 76, show: "wide" },
-      { light: "/logos/northeastern-seal.png", dark: "/logos/northeastern-seal-dark-bg.png", width: 480, height: 480, alt: "Northeastern University seal", url: "https://www.northeastern.edu", h: 104, show: "compact" },
+      { light: "/logos/northeastern-light-bg.png", dark: "/logos/northeastern-dark-bg.png", width: 1200, height: 389, alt: "Northeastern University logo", url: "https://www.northeastern.edu", plate: true, h: 76, show: "wide" },
+      { light: "/logos/northeastern-seal.png", dark: "/logos/northeastern-seal-dark-bg.png", width: 480, height: 480, alt: "Northeastern University seal", url: "https://www.northeastern.edu", plate: true, h: 104, show: "compact" },
     ],
     notes: [
       "Graduate study in data engineering, analytics and machine learning systems.",
@@ -65,8 +65,8 @@ export const education: Education[] = [
     location: "West Tambaram, Chennai, India",
     url: "https://www.annauniv.edu",
     logos: [
-      { light: "/logos/anna-emblem-wide-light-bg.png", dark: "/logos/anna-emblem-wide-dark-bg.png", width: 232, height: 232, alt: "Anna University emblem", url: "https://www.annauniv.edu", h: 112, show: "wide" },
-      { light: "/logos/anna-emblem-compact-light-bg.png", dark: "/logos/anna-emblem-compact-dark-bg.png", width: 480, height: 476, alt: "Anna University emblem", url: "https://www.annauniv.edu", h: 104, show: "compact" },
+      { light: "/logos/anna-emblem-wide-light-bg.png", dark: "/logos/anna-emblem-wide-dark-bg.png", width: 232, height: 232, alt: "Anna University emblem", url: "https://www.annauniv.edu", plate: true, h: 112, show: "wide" },
+      { light: "/logos/anna-emblem-compact-light-bg.png", dark: "/logos/anna-emblem-compact-dark-bg.png", width: 480, height: 476, alt: "Anna University emblem", url: "https://www.annauniv.edu", plate: true, h: 104, show: "compact" },
       { light: "/logos/sairam-college-wide.png", dark: "/logos/sairam-college-wide.png", width: 1000, height: 317, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 64, plate: true, show: "wide", label: "Affiliated college" },
       { light: "/logos/sairam-college-stacked.png", dark: "/logos/sairam-college-stacked.png", width: 383, height: 359, alt: "Sri Sairam Engineering College logo", url: "https://www.sairam.edu.in", h: 112, plate: true, show: "compact", label: "Affiliated college" },
     ],
@@ -183,7 +183,7 @@ export const achievements: Achievement[] = [
       href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_mlops-machinelearning-dataengineering-ugcPost-7408534309613031425-L_Bj/",
       label: "Google MLOps Expo result post",
     },
-    project: "Charlie — MBTA Real-Time Chatbot",
+    project: "Charlie: MBTA Real-Time Chatbot",
     summary:
       "Charlie answers live Boston transit questions by combining real-time MBTA data pipelines, delay-prediction features and a retrieval-augmented assistant.",
     details: [

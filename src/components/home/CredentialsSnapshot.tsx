@@ -20,9 +20,8 @@ export function CredentialsSnapshot() {
             const logo = ed.logos.find((l) => l.show === "compact") ?? ed.logos[0];
             return (
               <li key={ed.institution} className="flex items-center gap-5 py-5 first:pt-0 last:pb-0">
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-line bg-bg-elev p-1.5">
-                  <LogoImage variant="light" src={logo.light} alt={logo.alt} width={logo.width} height={logo.height} fallback={ed.institution.split(" ")[0]} className="h-full w-auto object-contain" />
-                  <LogoImage variant="dark" src={logo.dark} alt={logo.alt} width={logo.width} height={logo.height} fallback={ed.institution.split(" ")[0]} className="h-full w-auto object-contain" />
+                <span className="logo-plate logo-plate-square flex shrink-0 items-center justify-center">
+                  <LogoImage src={logo.light} alt={logo.alt} width={logo.width} height={logo.height} fallback={ed.institution.split(" ")[0]} className="h-full w-full object-contain" />
                 </span>
                 <span className="min-w-0">
                   <span className="block font-medium text-fg">{ed.institution}</span>

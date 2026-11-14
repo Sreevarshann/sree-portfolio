@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Sreevarshan Sathiyamurthy — AI, Data & Software Engineer",
+    name: "Sreevarshan Sathiyamurthy - AI, Data & Software Engineer",
     short_name: "SS",
     start_url: "/",
     display: "standalone",

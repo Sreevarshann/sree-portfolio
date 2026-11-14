@@ -4,7 +4,7 @@ The home hero shows an editorial portrait that switches from an illustrated
 version to the real photograph (hover on desktop, tap on touch, Enter/Space
 with the keyboard). Until both files exist, it shows a deliberate placeholder.
 
-Add the two images here — no code changes needed:
+Add the two images here. No code changes are needed:
 
 | File | What it is |
 | --- | --- |

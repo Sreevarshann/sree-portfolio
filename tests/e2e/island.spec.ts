@@ -51,7 +51,7 @@ test.describe("dynamic island geometry", () => {
     await settle(page);
     // Wait for the collapse transition rather than a fixed delay (slow CI runners).
     await expect.poll(async () => (await label.boundingBox())!.width).toBeLessThan(1);
-    const pill = (await page.getByRole("button", { name: "Ask My AI — open Sree AI" }).boundingBox())!;
+    const pill = (await page.getByRole("button", { name: "Ask My AI - open Sree AI" }).boundingBox())!;
     expect(Math.abs(pill.width - pill.height)).toBeLessThan(2);
   });
 
@@ -97,8 +97,8 @@ test.describe("dynamic island geometry", () => {
       await page.keyboard.press("Tab");
       names.push(await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent?.trim() ?? ""));
     }
-    expect(names[0]).toBe("Sreevarshan Sathiyamurthy — Home");
-    expect(names).toContain("Ask My AI — open Sree AI");
+    expect(names[0]).toBe("Sreevarshan Sathiyamurthy - Home");
+    expect(names).toContain("Ask My AI - open Sree AI");
     expect(names.some((n) => /Switch to (light|dark) theme/.test(n))).toBe(true);
   });
 
@@ -107,7 +107,7 @@ test.describe("dynamic island geometry", () => {
     await page.goto("/projects");
     await scrollTo(page, 1200);
     await settle(page);
-    await page.getByRole("button", { name: "Ask My AI — open Sree AI" }).click();
+    await page.getByRole("button", { name: "Ask My AI - open Sree AI" }).click();
     const dialog = page.getByRole("dialog", { name: /Sree AI/ });
     await expect(dialog).toBeVisible({ timeout: 15_000 });
     await page.keyboard.press("Escape");

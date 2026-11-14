@@ -21,8 +21,12 @@ function cleanProse(s: string) {
       .replace(new RegExp(`(?<![(\\[\\w])mailto:(${EMAIL})`, "g"), "[$1](mailto:$1)")
       // `[url](url) (url)` style duplicates where the text is the URL
       .replace(/(\[(https?:\/\/[^\]\s]+)\]\(\2\))\s*\(\2\)/g, "$1")
-      // `[label](url) — url` trailing echo
-      .replace(/(\[[^\]]+\]\((https?:\/\/[^)\s]+)\))\s*[—–-]\s*\2(?=[\s.,;]|$)/g, "$1")
+      // `[label](url) - url` trailing echo (em dash, en dash or hyphen)
+      .replace(/(\[[^\]]+\]\((https?:\/\/[^)\s]+)\))\s*[\u2014\u2013-]\s*\2(?=[\s.,;]|$)/g, "$1")
+      // em/en dashes become plain hyphens (after the echo rule above)
+      .replace(/[ \t]*\u2014[ \t]*/g, " - ")
+      .replace(/[ \t]+\u2013[ \t]+/g, " - ")
+      .replace(/\u2013/g, "-")
       // raw HTML tags (keep `<` used in prose such as "p < 0.05")
       .replace(/<\/?[A-Za-z][A-Za-z0-9-]*(\s[^<>]*)?\/?>/g, "")
   );

@@ -48,7 +48,7 @@ export function ContourField({ className = "" }: { className?: string }) {
     if (!parent) return;
     // A fresh canvas per mount: React Strict Mode (dev) mounts, unmounts and
     // remounts effects, and a canvas whose context was released cannot get a
-    // new one — Chrome then paints it as an opaque white box over the hero.
+    // new one - Chrome then paints it as an opaque white box over the hero.
     const canvas = document.createElement("canvas");
     canvas.setAttribute("aria-hidden", "true");
     canvas.className = "block h-full w-full transition-opacity duration-[1200ms]";
@@ -113,7 +113,11 @@ export function ContourField({ className = "" }: { className?: string }) {
     };
 
     let mx = 0.7, my = 0.55, tx = mx, ty = my;
+    // The terrain drifts very slowly, so 30fps is visually identical; full
+    // frame rate only while the pointer is moving (and its glow is easing).
+    let activeUntil = 0;
     const onMove = (e: PointerEvent) => {
+      activeUntil = performance.now() + 1500;
       const r = canvas.getBoundingClientRect();
       tx = (e.clientX - r.left) / r.width;
       ty = 1 - (e.clientY - r.top) / r.height;
@@ -138,7 +142,7 @@ export function ContourField({ className = "" }: { className?: string }) {
     let last = 0;
     const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
-      if (now - last < (coarse ? 33 : 16)) return; // ~30fps on touch devices
+      if (now - last < (now < activeUntil ? 15 : 32)) return;
       last = now;
       draw(now);
     };

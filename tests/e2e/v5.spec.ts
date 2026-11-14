@@ -35,7 +35,7 @@ test.describe("V5 hero", () => {
       ["Flare Innovation", "flare-innovation"],
       ["Sri Sairam Techno Incubator Foundation", "sri-sairam-techno-incubator"],
     ]) {
-      await expect(page.getByRole("link", { name: new RegExp(`^${name} —`) })).toHaveAttribute("href", `/experience#${slug}`);
+      await expect(page.getByRole("link", { name: new RegExp(`^${name}:`) })).toHaveAttribute("href", `/experience#${slug}`);
     }
     await expect(page.locator(".hero-facts")).toContainText("Boston, Massachusetts");
     await expect(page.locator(".hero-facts")).toContainText("Northeastern University");
@@ -139,7 +139,7 @@ test.describe("V5 technology marquee", () => {
 
   test("usage index links each tool to where it was used", async ({ page }) => {
     await page.goto("/");
-    await page.getByText("Explore My Stack").click();
+    await page.locator(".tech-index summary").click();
     const index = page.locator(".tech-index");
     await expect(index.getByRole("link", { name: "Sree AI (this site)" })).toHaveAttribute("href", "/ask");
     await expect(index.locator(".tech-index-row", { hasText: /^Snowflake Cortex/ }).getByRole("link", { name: "RightRev" })).toHaveAttribute("href", "/experience#rightrev");
