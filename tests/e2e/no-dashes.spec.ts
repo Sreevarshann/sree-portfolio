@@ -50,9 +50,20 @@ test.describe("no em or en dashes in public content", () => {
     const panel = page.locator("main");
     await expect(panel.getByText(/Hey! I'm Sree's AI assistant/)).toBeVisible();
     expect(await panel.textContent()).not.toMatch(DASH);
-    // Fallback copy (no model key in tests) and the composer footer.
+    // Ask a starter question. Without a model key (local and CI) this shows the
+    // fallback copy; with a key (production) a real streamed answer, which the
+    // stream normalizer must keep dash-free. Either way, wait until it settles.
+    const answers = page.locator("main .msg-in.gap-3"); // assistant messages
+    const before = await answers.count();
     await page.getByRole("button", { name: "Who is Sree?" }).click();
-    await expect(page.getByText(/can't write an answer right now/)).toBeVisible({ timeout: 15_000 });
+    await expect
+      .poll(async () => {
+        if ((await answers.count()) <= before) return false;
+        const status = (await page.getByRole("status").allTextContents()).join(" ");
+        const fallback = await page.getByText(/can't write an answer right now/).count();
+        return /Answer ready\./.test(status) || fallback > 0;
+      }, { timeout: 45_000 })
+      .toBe(true);
     expect(await panel.textContent()).not.toMatch(DASH);
   });
 });
