@@ -41,12 +41,12 @@ test.describe("dark theme is untouched", () => {
   });
 });
 
-test.describe("light theme: Harbor Daylight", () => {
-  test("porcelain paper, navy ink and harbor cobalt", async ({ page }) => {
+test.describe("light theme: Arctic", () => {
+  test("cool canvas, deep navy type and one confident blue", async ({ page }) => {
     await open(page, "/", "light");
-    expect(await style(page, "body", "background-color")).toBe("rgb(246, 244, 239)");
-    expect(await style(page, "h1", "color")).toBe("rgb(13, 21, 38)");
-    expect(await style(page, ".hero-title .serif-accent", "color")).toBe("rgb(26, 59, 184)");
+    expect(await style(page, "body", "background-color")).toBe("rgb(247, 249, 252)");
+    expect(await style(page, "h1", "color")).toBe("rgb(16, 29, 51)");
+    expect(await style(page, ".hero-title .serif-accent", "color")).toBe("rgb(30, 79, 192)");
   });
 
   test("cards are white sheets with daylight shadows, not grey gradients", async ({ page }) => {
@@ -54,21 +54,22 @@ test.describe("light theme: Harbor Daylight", () => {
     const bg = await style(page, "main .panel", "background-image");
     expect(bg).toContain("rgb(255, 255, 255)");
     expect(bg).not.toContain("rgb(238, 241, 245)"); // the old grey fade
-    expect(await style(page, "main .panel", "box-shadow")).toMatch(/rgba\(28, 44, 110, 0\.22\)/);
+    expect(bg).not.toContain("rgb(255, 254, 251)"); // the old warm porcelain
+    expect(await style(page, "main .panel", "box-shadow")).toMatch(/rgba\(34, 58, 108, 0\.26\)/);
     expect(await style(page, ".gap-px.bg-line .bg-bg", "background-color")).toBe("rgb(255, 255, 255)");
   });
 
-  test("the island is daylight glass: clear, blurred, with a bright rim", async ({ page }) => {
+  test("the island is frosted daylight glass: cool, blurred, with a bright rim", async ({ page }) => {
     await open(page, "/", "light");
-    expect(await style(page, "[data-island]", "background-color")).toBe("rgba(255, 255, 255, 0.56)");
-    expect(await style(page, "[data-island]", "backdrop-filter")).toBe("blur(20px) saturate(1.8) brightness(1.08)");
+    expect(await style(page, "[data-island]", "background-color")).toBe("rgba(251, 252, 255, 0.62)");
+    expect(await style(page, "[data-island]", "backdrop-filter")).toBe("blur(22px) saturate(1.7) brightness(1.06)");
     expect(await style(page, "[data-island]", "background-image", "::after")).toContain("rgb(255, 255, 255)");
     // The current-page marker is a raised white lens.
     await page.goto("/about");
     expect(await style(page, ".nav-indicator", "background-image")).toContain("rgb(255, 255, 255)");
   });
 
-  test("accent words carry an inked swash in light only", async ({ page }) => {
+  test("accent words carry an electric dimension line in light only", async ({ page }) => {
     await open(page, "/", "light");
     expect(await style(page, ".hero-title .serif-accent", "background-image")).toContain("data:image/svg+xml");
     await open(page, "/", "dark");
@@ -76,7 +77,7 @@ test.describe("light theme: Harbor Daylight", () => {
   });
 
   for (const width of [390, 1440, 2560]) {
-    test(`the dawn sun rises between the Zakim towers at ${width}px`, async ({ page }, info) => {
+    test(`the winter sun rises between the Zakim towers at ${width}px`, async ({ page }, info) => {
       test.skip(info.project.name !== "desktop", "Viewport set explicitly.");
       await page.setViewportSize({ width, height: 900 });
       await open(page, "/contact", "light");
@@ -109,7 +110,7 @@ test.describe("light theme: Harbor Daylight", () => {
     await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe("light");
     await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains("theme-vt")), { timeout: 4000 }).toBe(false);
     expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe("light");
-    expect(await style(page, "body", "background-color")).toBe("rgb(246, 244, 239)");
+    expect(await style(page, "body", "background-color")).toBe("rgb(247, 249, 252)");
   });
 
   test("under reduced motion the theme changes instantly, with no reveal", async ({ page }, info) => {
@@ -120,13 +121,54 @@ test.describe("light theme: Harbor Daylight", () => {
     expect(await page.evaluate(() => document.documentElement.classList.contains("theme-vt"))).toBe(false);
   });
 
+  test("no warm sunset colors anywhere in the light theme", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop", "Same CSS on every device; desktop covers it.");
+    test.setTimeout(120_000);
+    const found: string[] = [];
+    for (const path of ["/?view=detailed", "/about", "/contact", "/projects/aegis-ai", "/ask"]) {
+      await open(page, path, "light");
+      const hits = await page.evaluate(() => {
+        // Orange, amber, peach or rust with any real opacity. Brand logos, chart
+        // series and each project's small category marks keep their own hues.
+        const warm = (v: string) =>
+          [...v.matchAll(/rgba?\(([\d.]+),? ([\d.]+),? ([\d.]+)(?:,? \/? ?([\d.]+))?\)/g)].some(([, r, g, b, a]) => {
+            const [R, G, B, A] = [+r, +g, +b, a === undefined ? 1 : +a];
+            return A > 0.04 && R > 170 && R - B > 55 && G < R - 15 && G > B - 10;
+          });
+        const exempt = ".tech-logo, .js-plotly-plot, [class*='logo'], img, picture, .tech-chip-icon, .stage-dot, .signal-pulse";
+        const props = ["color", "background-color", "background-image", "box-shadow", "border-top-color", "fill", "stroke", "-webkit-text-stroke-color"];
+        const out: string[] = [];
+        for (const el of document.querySelectorAll("body *")) {
+          if (el.closest(exempt)) continue;
+          for (const ps of [null, "::before", "::after"]) {
+            const cs = getComputedStyle(el, ps);
+            if ((ps && cs.content === "none") || cs.display === "none") continue;
+            for (const p of props) if (warm(cs.getPropertyValue(p))) out.push(`${el.className}${ps ?? ""} ${p}`);
+          }
+        }
+        return out.slice(0, 5);
+      });
+      found.push(...hits.map((h) => `${path}: ${h}`));
+    }
+    expect(found).toEqual([]);
+  });
+
+  test("the hero contours are drawn in cool ink", async ({ page }) => {
+    await open(page, "/", "light");
+    const v = await page.evaluate(() => ["--contour-ink", "--contour-warm"].map((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim()));
+    for (const rgb of v) {
+      const [r, , b] = rgb.split(/\s+/).map(Number);
+      expect(b).toBeGreaterThan(r); // blue-dominant, never sunset
+    }
+  });
+
   const ROUTES = ["/?view=quick", "/?view=detailed", "/about", "/experience", "/projects", "/projects/aegis-ai", "/achievements", "/education", "/certifications", "/lab", "/ask", "/contact"];
   test("no horizontal overflow in light at any width", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Widths set explicitly.");
-    test.setTimeout(150_000);
+    test.setTimeout(300_000);
     await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
     const out: string[] = [];
-    for (const width of [320, 390, 768, 1280, 2560]) {
+    for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440, 1920, 2560]) {
       await page.setViewportSize({ width, height: 900 });
       for (const r of ROUTES) {
         await page.goto(r);
