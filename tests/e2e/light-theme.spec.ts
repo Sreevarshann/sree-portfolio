@@ -189,3 +189,71 @@ test.describe("light theme: Arctic", () => {
     });
   }
 });
+
+test.describe("footer sky: day and night", () => {
+  test("light shows the sun only; dark shows the crescent moon and 8 to 15 stars only", async ({ page }) => {
+    await open(page, "/contact", "light");
+    await page.locator("footer").scrollIntoViewIfNeeded();
+    await expect(page.locator(".footer-sun")).toBeVisible();
+    await expect(page.locator(".footer-night")).toBeHidden();
+    await open(page, "/contact", "dark");
+    await page.locator("footer").scrollIntoViewIfNeeded();
+    await expect(page.locator(".footer-sky")).toBeHidden();
+    await expect(page.locator(".footer-moon")).toBeVisible();
+    const stars = await page.locator(".footer-star").count();
+    expect(stars).toBeGreaterThanOrEqual(8);
+    expect(stars).toBeLessThanOrEqual(15);
+    // Varied, small stars: no oversized glow.
+    const sizes = await page.locator(".footer-star").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width));
+    expect(Math.max(...sizes)).toBeLessThanOrEqual(3);
+    expect(new Set(sizes.map((s) => s.toFixed(1))).size).toBeGreaterThan(3);
+  });
+
+  for (const width of [390, 1440, 2560]) {
+    test(`moon and stars stay in the sky behind the footer content at ${width}px`, async ({ page }, info) => {
+      test.skip(info.project.name !== "desktop", "Viewport set explicitly.");
+      await page.setViewportSize({ width, height: 900 });
+      await open(page, "/contact", "dark");
+      await page.locator("footer").scrollIntoViewIfNeeded();
+      const r = await page.evaluate(() => {
+        const svg = document.querySelector('footer svg[viewBox="0 0 1200 220"]')!;
+        const cs = getComputedStyle(svg);
+        const s = svg.getBoundingClientRect();
+        const plane = document.querySelector(".footer-night-plane")!.getBoundingClientRect();
+        const moon = document.querySelector(".footer-moon")!.getBoundingClientRect();
+        const water = s.top + (196 / 220) * (s.height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom));
+        const stars = [...document.querySelectorAll(".footer-star")].map((e) => e.getBoundingClientRect());
+        const links = [...document.querySelectorAll("footer a")].map((a) => a.getBoundingClientRect());
+        const overlaps = (a: DOMRect, b: DOMRect) => !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+        return {
+          alignedLeft: Math.abs(plane.left - (s.left + parseFloat(cs.paddingLeft))),
+          alignedBottom: Math.abs(plane.bottom - s.bottom),
+          moonAboveWater: moon.bottom < water,
+          starsAboveWater: stars.every((b) => b.bottom < water),
+          hitsLinks: [moon, ...stars].some((c) => links.some((l) => overlaps(c, l))),
+          events: getComputedStyle(document.querySelector(".footer-night")!).pointerEvents,
+          overflow: document.documentElement.scrollWidth - innerWidth,
+        };
+      });
+      expect(r.alignedLeft).toBeLessThanOrEqual(1);
+      expect(r.alignedBottom).toBeLessThanOrEqual(1);
+      expect(r.moonAboveWater).toBe(true);
+      expect(r.starsAboveWater).toBe(true);
+      expect(r.hitsLinks).toBe(false);
+      expect(r.events).toBe("none");
+      expect(r.overflow).toBeLessThanOrEqual(0);
+    });
+  }
+
+  test("stars twinkle gently, pause off screen, and hold still under reduced motion", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop", "Same CSS on every device.");
+    await open(page, "/contact", "dark", "no-preference");
+    const tw = page.locator(".footer-star-tw").first();
+    expect(await tw.evaluate((e) => getComputedStyle(e).animationName)).toBe("star-twinkle");
+    expect(parseFloat(await tw.evaluate((e) => getComputedStyle(e).animationDuration))).toBeGreaterThanOrEqual(5);
+    await page.evaluate(() => scrollTo(0, 0));
+    await expect.poll(() => page.locator(".footer-night").evaluate((e) => e.hasAttribute("data-offscreen"))).toBe(true);
+    await open(page, "/contact", "dark", "reduce");
+    expect(await page.locator(".footer-star-tw").first().evaluate((e) => getComputedStyle(e).animationName)).toBe("none");
+  });
+});
