@@ -45,16 +45,12 @@ export function navKeyForPath(pathname: string): NavKey | null {
  */
 export const HOME_SECTIONS = {
   hero: "home",
-  build: "about",
-  approach: "about",
-  tools: "about",
-  work: "projects",
-  experience: "experience",
   achievements: "achievements",
   education: "education",
   certifications: "certifications",
-  lab: "lab",
-  ai: "contact",
+  experience: "experience",
+  tools: "about", // the stack lives under About (#skills)
+  projects: "projects",
   contact: "contact",
 } as const satisfies Record<string, NavKey>;
 

@@ -7,8 +7,8 @@ import { VIEW_EVENT } from "./viewMode";
 /**
  * The navigation item to highlight. On dedicated routes it is the route's
  * owner. On the homepage it follows the section under an activation line at
- * 38% of the viewport: the last visible `[data-nav-section]` whose top has
- * crossed the line wins. That is deterministic (no observer races, no
+ * 38% of the viewport: the last visible `[data-nav-section]` whose content
+ * (below its top padding) has crossed the line wins. That is deterministic (no observer races, no
  * flicker at boundaries), ignores sections hidden by the current view, and
  * re-evaluates on scroll, resize, view switches and content size changes.
  */
@@ -27,7 +27,10 @@ export function useActiveNav(pathname: string): NavKey | null {
       const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
       let current: NavKey = "home";
       for (const el of sections) {
-        if (atBottom || el.getBoundingClientRect().top <= line) current = HOME_SECTIONS[el.dataset.navSection as HomeSection] ?? current;
+        // Measured from where the section's content starts, not its top padding, so a
+        // short section (the certifications row) owns the line until the next heading arrives.
+        const top = el.getBoundingClientRect().top + parseFloat(getComputedStyle(el).paddingTop);
+        if (atBottom || top <= line) current = HOME_SECTIONS[el.dataset.navSection as HomeSection] ?? current;
       }
       setHome(current);
     };
