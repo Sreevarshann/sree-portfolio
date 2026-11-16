@@ -4,6 +4,7 @@ import { MORE_NAV, PRIMARY_NAV } from "@/lib/nav";
 import { BostonLine } from "@/components/ui/BostonLine";
 import { ContourEcho } from "@/components/ui/ContourEcho";
 import { BostonClock } from "./BostonClock";
+import { NightSky } from "./NightSky";
 import { BrandIcon } from "@/components/ui/BrandIcon";
 import { formatUpdated, updatedMonthISO } from "@/lib/release";
 
@@ -52,6 +53,8 @@ export function SiteFooter() {
         <span className="footer-sky only-light" aria-hidden="true">
           <span className="footer-sun" />
         </span>
+        {/* Night only: crescent moon and scattered stars over the harbor. */}
+        <NightSky />
         <ContourEcho className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%] w-full text-accent opacity-25" />
         <BostonLine className="relative mx-auto block h-auto w-full max-w-[1400px] px-[var(--gutter)]" />
       </div>

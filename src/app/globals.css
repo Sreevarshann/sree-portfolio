@@ -2022,3 +2022,77 @@ html[data-view="quick"] .hero-facts { grid-template-columns: repeat(auto-fit, mi
 [data-offscreen] * {
   animation-play-state: paused !important;
 }
+
+/* ---------------------------------------------------------- footer: night sky
+   Dark theme only (.only-dark): a midnight-blue sky down to the skyline's
+   water line, a crescent moon and scattered stars. The plane below matches
+   the BostonLine drawing box exactly (same max width, gutter and 1200:220
+   aspect), so star and moon positions are in skyline coordinates. */
+.footer-night {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Darkest overhead, a faint city-lit blue toward the water line (89.1%),
+     then the harbor mirrors it and fades. */
+  background: linear-gradient(180deg, rgb(12 20 44 / 0) 0%, rgb(14 24 54 / 0.45) 52%, rgb(20 34 72 / 0.62) 89.1%, rgb(16 28 60 / 0.38) 89.2%, rgb(12 20 44 / 0) 100%);
+}
+.footer-night-frame {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  max-width: 1400px;
+  translate: -50% 0;
+  padding-inline: var(--gutter);
+}
+.footer-night-plane {
+  position: relative;
+  display: block;
+  aspect-ratio: 1200 / 220;
+}
+.footer-star {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: rgb(226 234 255);
+  opacity: var(--o);
+  /* A hairline of glow only on the brighter stars. */
+  box-shadow: 0 0 calc(var(--s) * 1.6) rgb(186 206 255 / calc(var(--o) * 0.55));
+}
+.footer-moon {
+  position: absolute;
+  width: clamp(22px, 2.4vw, 34px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+}
+/* Very gentle moonlight: a soft halo, no blur filter. */
+.footer-moon::before {
+  content: "";
+  position: absolute;
+  inset: -85%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(176 198 255 / 0.16), rgb(176 198 255 / 0.05) 55%, transparent);
+}
+.footer-moon svg { position: relative; filter: drop-shadow(0 0 3px rgb(200 216 255 / 0.35)); }
+@media (prefers-reduced-motion: no-preference) {
+  /* Occasional, soft twinkle on a few stars; long, staggered cycles. */
+  .footer-star-tw { animation: star-twinkle var(--t) ease-in-out var(--d) infinite; }
+  @supports (animation-timeline: view()) {
+    /* The moon settles into place as the footer arrives (scroll-driven, no script). */
+    .footer-moon {
+      animation: moon-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 55%;
+    }
+  }
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: var(--o); }
+  45% { opacity: calc(var(--o) * 0.3); }
+  55% { opacity: calc(var(--o) * 0.35); }
+}
+@keyframes moon-rise {
+  from { translate: -50% 10%; opacity: 0.4; }
+}
