@@ -1,96 +1,104 @@
 /* ==================================================================
-   LIGHT THEME - "Harbor Daylight"
+   LIGHT THEME - "Arctic"
 
    The dark theme is Boston Harbor at night: graphite water, luminous
-   contour lines, glass that glows. The light theme is the same harbor at
-   first light, printed as a fine nautical chart: warm porcelain paper,
-   navy ink engraving, harbor-cobalt as the chart ink, and soft morning
-   light (apricot sun, pale sky) washing across the page. Depth comes from
-   light and shadow, never from glow.
+   contour lines, glass that glows. The light theme is the same harbor on a
+   clear winter morning, drawn like an architectural survey: cool white
+   canvas, deep navy type, blue-grey contour lines, frosted glass, and one
+   restrained electric blue for what matters. Neutral surfaces carry the
+   page; blue is the accent, never the wallpaper. Depth comes from cool,
+   layered shadow, never from glow.
 
    Every rule is scoped to :root[data-theme="light"], so the dark theme is
    untouched (verified by a computed-style fingerprint of every element).
-   Loaded after globals.css.
+   Loaded after globals.css. The theme-switch animation lives in
+   globals.css and ThemeToggle.tsx and is deliberately not touched here.
 ------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------ tokens */
 :root[data-theme="light"] {
   color-scheme: light;
 
-  /* Paper and ink */
-  --bg: #f6f4ef; /* porcelain */
-  --bg-elev: #ffffff; /* lifted sheet */
-  --surface: #efece5; /* warm stone well */
-  --surface-2: #e7e3da;
-  --line: rgb(26 30 44 / 0.1);
-  --line-strong: rgb(26 30 44 / 0.18);
-  --fg: #0d1526; /* navy ink */
-  --fg-soft: #2c3446;
-  --fg-muted: #5d6474; /* 5.4:1 on porcelain */
+  /* Canvas and surfaces (neutral, faintly cool) */
+  --bg: #f7f9fc; /* canvas */
+  --bg-elev: #ffffff; /* surface-elevated */
+  --surface: #eff3f9; /* canvas-muted */
+  --surface-2: #e6ecf5;
+  --line: rgb(20 36 64 / 0.1); /* border */
+  --line-strong: rgb(20 36 64 / 0.17); /* border-strong */
 
-  /* Harbor cobalt: the chart ink */
-  --accent: #2149d8; /* 6.3:1 on porcelain */
-  --accent-strong: #1a3cc0;
-  --accent-soft: rgb(33 73 216 / 0.08);
-  --accent-solid: #2149d8; /* white text 7:1 */
-  --accent-fg: #1a3bb8; /* 8:1 on porcelain */
-  --silver: #6b7385;
+  /* Type */
+  --fg: #101d33; /* text-primary: deep navy, 16:1 */
+  --fg-soft: #2b3a52;
+  --fg-muted: #52637b; /* text-secondary, 5.8:1 */
+
+  /* Accent: one confident blue, plus an electric highlight for motion */
+  --accent: #2b63df; /* 5.0:1 on canvas */
+  --accent-strong: #2152c6;
+  --accent-soft: rgb(43 99 223 / 0.08);
+  --accent-solid: #2b63df; /* white text 5.3:1 */
+  --accent-fg: #1e4fc0; /* links and accent words, 6.8:1 */
+  --silver: #5d6d86; /* 4.9:1 */
   --success: #0f8a5f;
   --warn: #a6620d;
 
-  /* Morning light (decorative only, never text) */
-  --sun: 246 150 92; /* apricot */
-  --sun-soft: 255 221 196;
-  --sky: 120 160 250;
-  --lilac: 164 146 255;
-  --ink: 13 21 38;
+  /* Cool atmosphere (decorative only, never text) */
+  --ink: 16 29 51;
+  --shade: 34 58 108; /* blue-grey shadow tint */
+  --electric: 74 139 255; /* electric accent */
+  --ice: 226 236 253; /* soft blue */
+  --glacier: 116 200 232; /* cold cyan, used sparingly */
+  --periwinkle: 140 152 255;
+  --ambient-glow: rgb(var(--electric) / 0.12);
+  --focus-ring: rgb(43 99 223 / 0.32);
 
-  /* Elevation: tinted, layered shadows (contact + key + ambient) */
+  /* Elevation: contact + key + ambient, tinted blue-grey */
   --e1: 0 0 0 1px rgb(var(--ink) / 0.06), 0 1px 2px rgb(var(--ink) / 0.05);
-  --e2: 0 0 0 1px rgb(var(--ink) / 0.055), 0 1px 2px rgb(var(--ink) / 0.04), 0 6px 14px -8px rgb(var(--ink) / 0.1), 0 18px 40px -24px rgb(28 44 110 / 0.22);
-  --e3: 0 0 0 1px rgb(var(--ink) / 0.06), 0 2px 4px rgb(var(--ink) / 0.04), 0 14px 30px -14px rgb(var(--ink) / 0.16), 0 40px 80px -44px rgb(33 73 216 / 0.34);
+  --e2: 0 0 0 1px rgb(var(--ink) / 0.055), 0 1px 2px rgb(var(--ink) / 0.04), 0 6px 14px -8px rgb(var(--shade) / 0.12), 0 18px 40px -24px rgb(var(--shade) / 0.26);
+  --e3: 0 0 0 1px rgb(var(--ink) / 0.06), 0 2px 4px rgb(var(--ink) / 0.04), 0 14px 30px -14px rgb(var(--shade) / 0.18), 0 40px 80px -44px rgb(43 99 223 / 0.32);
   --shadow: var(--e2);
-  --glow: 0 0 0 1px rgb(33 73 216 / 0.32), 0 10px 26px -12px rgb(33 73 216 / 0.38);
+  --glow: 0 0 0 1px rgb(43 99 223 / 0.3), 0 10px 26px -12px rgb(43 99 223 / 0.36);
 
-  --grain-opacity: 0.055;
-  --contour: 33 73 216;
-  --contour-ink: 20 32 70;
-  --contour-warm: 236 138 82;
+  --grain-opacity: 0.04;
+  /* Contour field: blue-grey survey lines, electric where the pointer lifts
+     the terrain, glacier tint on the high ground. */
+  --contour: 43 99 223; /* contour-stroke highlight */
+  --contour-ink: 44 64 104; /* contour-stroke */
+  --contour-warm: 116 200 232; /* height tint (kept name for the shader) */
 
-  /* Sree AI mark: porcelain-blue enamel */
-  --mark-1: #9ec0ff;
-  --mark-2: #2b5be8;
-  --mark-3: #0b2a74;
+  /* Sree AI mark: cold enamel */
+  --mark-1: #a9c8ff;
+  --mark-2: #2b63df;
+  --mark-3: #0d2a6e;
   --mark-core-1: #ffffff;
-  --mark-core-2: #2b5be8;
-  --mark-glow: #6e9bff;
+  --mark-core-2: #2b63df;
+  --mark-glow: #6f9dff;
 
-  /* Liquid glass in daylight: clear body, bright rims, tinted shadow */
-  --glass-tint: rgb(255 255 255 / 0.56);
-  --glass-tint-strong: rgb(255 255 255 / 0.8);
-  --glass-edge: rgb(255 255 255 / 0.7);
+  /* Frosted daylight glass */
+  --glass-tint: rgb(251 252 255 / 0.62);
+  --glass-tint-strong: rgb(251 252 255 / 0.84);
+  --glass-edge: rgb(255 255 255 / 0.72);
   --glass-hi: rgb(255 255 255 / 1);
-  --glass-lo: rgb(238 243 255 / 0.78); /* lift tint for bubbles and hovers */
+  --glass-lo: rgb(236 242 253 / 0.8); /* lift tint for bubbles and hovers */
   --glass-sheen: rgb(255 255 255 / 0.95);
-  --glass-shadow: 0 0 0 1px rgb(var(--ink) / 0.07), 0 1px 1px rgb(var(--ink) / 0.05), 0 10px 26px -12px rgb(20 34 90 / 0.22), 0 30px 60px -34px rgb(33 73 216 / 0.3);
+  --glass-shadow: 0 0 0 1px rgb(var(--ink) / 0.075), 0 1px 1px rgb(var(--ink) / 0.04), 0 10px 26px -12px rgb(var(--shade) / 0.24), 0 30px 60px -34px rgb(43 99 223 / 0.24);
 }
 
-/* ------------------------------------------------------------ paper */
-/* A warm paper tooth instead of neutral grey noise. */
+/* ------------------------------------------------------------ canvas */
+/* A neutral, barely-cool tooth so large white areas never look flat. */
 :root[data-theme="light"] .grain::after {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.24 0 0 0 0 0.19 0 0 0 0 0.14 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.17 0 0 0 0 0.27 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
-/* Selection reads like a highlighter on paper. */
 :root[data-theme="light"] ::selection {
-  background: rgb(255 196 128 / 0.6);
+  background: rgb(var(--electric) / 0.24);
   color: var(--fg);
 }
 
 /* ------------------------------------------------------------ surfaces */
-/* Lifted sheets: white, a hairline, and soft daylight shadow. No grey fade. */
+/* Elevated sheets: white, a hairline, and cool layered shadow. */
 :root[data-theme="light"] .panel {
-  background: linear-gradient(180deg, #ffffff 0%, #fffefb 100%);
-  border-color: rgb(var(--ink) / 0.06);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  border-color: rgb(var(--ink) / 0.065);
   box-shadow: inset 0 1px 0 #fff, var(--e2);
   transition:
     box-shadow var(--dur-m) var(--ease-out),
@@ -99,16 +107,16 @@
 }
 :root[data-theme="light"] a.panel:hover,
 :root[data-theme="light"] .panel.group:hover {
+  border-color: rgb(43 99 223 / 0.2);
   box-shadow: inset 0 1px 0 #fff, var(--e3);
 }
 
-/* Hairline grids (grid gap-px bg-line): a single sheet ruled into cells. The
-   sheet is white and each cell draws its own right/bottom rule into the 1px
-   gap, so an unfilled cell (a two-item row in a three-column grid) stays
-   clean paper instead of a grey block. Standalone sheets also get depth. */
+/* Hairline grids (grid gap-px bg-line): one sheet ruled into cells. Each cell
+   draws its own right/bottom rule into the 1px gap, so an unfilled cell stays
+   clean instead of a grey block. Standalone sheets also get depth. */
 :root[data-theme="light"] .gap-px.bg-line {
   background-color: #fff;
-  border-color: rgb(var(--ink) / 0.07);
+  border-color: rgb(var(--ink) / 0.075);
 }
 :root[data-theme="light"] .gap-px.bg-line.overflow-hidden { box-shadow: var(--e2); }
 :root[data-theme="light"] .gap-px.bg-line > * {
@@ -119,79 +127,79 @@
   background-color: #fff;
 }
 :root[data-theme="light"] .gap-px.bg-line :is(a, article, li > a).bg-bg {
-  background-image: radial-gradient(130% 90% at 50% -20%, rgb(var(--sky) / 0), transparent 60%);
+  background-image: radial-gradient(130% 90% at 50% -20%, rgb(var(--electric) / 0), transparent 60%);
   transition: background-color var(--dur-m) var(--ease-out), background-image var(--dur-m) var(--ease-out);
 }
 :root[data-theme="light"] .gap-px.bg-line .bg-bg:is(:hover, :focus-visible),
 :root[data-theme="light"] .gap-px.bg-line .group.bg-bg:hover {
-  background-color: #fdfcf9;
-  background-image: radial-gradient(130% 90% at 50% -20%, rgb(var(--sky) / 0.16), transparent 60%);
+  background-color: #fbfcff;
+  background-image: radial-gradient(130% 90% at 50% -20%, rgb(var(--electric) / 0.1), transparent 60%);
 }
 
-/* Chips: small white tabs with a hairline. */
+/* Chips: crisp white tabs with a hairline. */
 :root[data-theme="light"] .chip {
-  background: rgb(255 255 255 / 0.82);
+  background: rgb(255 255 255 / 0.86);
   border-color: rgb(var(--ink) / 0.1);
   color: var(--fg-soft);
   box-shadow: 0 1px 1px rgb(var(--ink) / 0.03);
 }
 :root[data-theme="light"] a.chip:hover,
 :root[data-theme="light"] button.chip:hover {
-  border-color: rgb(33 73 216 / 0.45);
+  border-color: rgb(43 99 223 / 0.42);
   background: #fff;
 }
 
 /* ------------------------------------------------------------ buttons */
-/* Primary: a pressed-ink button with a lit top edge; cobalt rises on hover. */
+/* Primary: deep navy with a lit top edge; electric blue rises on hover. */
 :root[data-theme="light"] .btn-primary {
-  /* Solid ink under the gradient, so contrast tools (and any engine that
+  /* Solid navy under the gradient, so contrast tools (and any engine that
      skips the gradient) see white text on navy, never on the page. */
-  background: #0d1526 linear-gradient(180deg, #1c263b 0%, #0d1526 100%);
+  background: #101d33 linear-gradient(180deg, #1d2c48 0%, #101d33 100%);
   color: #fff;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.16),
     inset 0 -1px 0 rgb(0 0 0 / 0.25),
-    0 1px 2px rgb(var(--ink) / 0.22),
-    0 10px 22px -12px rgb(var(--ink) / 0.6);
+    0 1px 2px rgb(var(--ink) / 0.2),
+    0 10px 22px -12px rgb(var(--shade) / 0.7);
 }
 :root[data-theme="light"] .btn-primary::before {
-  background: linear-gradient(180deg, #3a63f2 0%, #2149d8 100%);
+  background: linear-gradient(180deg, #3f78f4 0%, #2b63df 100%);
 }
 :root[data-theme="light"] .btn-primary:hover {
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.22),
     inset 0 -1px 0 rgb(0 0 0 / 0.18),
-    0 1px 2px rgb(33 73 216 / 0.25),
-    0 14px 28px -12px rgb(33 73 216 / 0.65);
+    0 1px 2px rgb(43 99 223 / 0.25),
+    0 14px 28px -12px rgb(var(--electric) / 0.7);
 }
-/* Ghost: a white tab with a hairline that picks up cobalt on hover. */
+/* Ghost: a frosted tab with a hairline that picks up blue on hover. */
 :root[data-theme="light"] .btn-ghost {
-  background: rgb(255 255 255 / 0.72);
+  background: rgb(255 255 255 / 0.74);
   border-color: rgb(var(--ink) / 0.12);
   box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05);
 }
 :root[data-theme="light"] .btn-ghost:hover {
   background: #fff;
-  border-color: rgb(33 73 216 / 0.42);
-  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 10px 22px -12px rgb(33 73 216 / 0.45);
+  border-color: rgb(43 99 223 / 0.4);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 10px 22px -12px rgb(43 99 223 / 0.42);
 }
 :root[data-theme="light"] .btn-ghost:focus-visible,
 :root[data-theme="light"] .btn-primary:focus-visible {
-  box-shadow: 0 0 0 3px rgb(33 73 216 / 0.28);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 /* ------------------------------------------------------------ liquid glass */
-/* Daylight glass: clear body that lifts what is behind it, a bright lens rim
-   on top, a faint ink line underneath for thickness, and a prism edge -
-   cool blue on the left, warm sun on the right - where light refracts. */
+/* Frosted daylight glass: a clear, cool body that lifts what is behind it, a
+   bright lens rim on top, a faint navy line underneath for thickness, and a
+   cold prism edge (electric blue to glacier) where light refracts. */
 /* Unlayered on purpose: beats the layered base .glass and the unlayered .island rim. */
 :root[data-theme="light"] .glass {
-  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.08);
-  backdrop-filter: blur(20px) saturate(180%) brightness(1.08);
+  -webkit-backdrop-filter: blur(22px) saturate(170%) brightness(1.06);
+  backdrop-filter: blur(22px) saturate(170%) brightness(1.06);
   box-shadow:
     inset 0 1px 0 var(--glass-hi),
     inset 0 -1px 0 rgb(var(--ink) / 0.07),
-    inset 0 0 14px rgb(255 255 255 / 0.55),
+    inset 0 0 16px rgb(255 255 255 / 0.6),
     var(--glass-shadow);
 }
 :root[data-theme="light"] .glass::before {
@@ -202,24 +210,26 @@
 :root[data-theme="light"] .glass::after {
   background:
     linear-gradient(180deg, rgb(255 255 255 / 1), rgb(255 255 255 / 0) 42%, rgb(255 255 255 / 0) 70%, rgb(var(--ink) / 0.06)),
-    linear-gradient(90deg, rgb(110 150 255 / 0.32), transparent 16%, transparent 84%, rgb(255 160 110 / 0.3));
+    linear-gradient(90deg, rgb(var(--electric) / 0.3), transparent 16%, transparent 84%, rgb(var(--glacier) / 0.32));
   opacity: 0.9;
 }
 
 /* ------------------------------------------------------------ dynamic island */
 /* The active/hover marker is a raised white lens, like a daylight segmented
-   control, instead of a tinted wash. */
+   control, with a fine electric underline of light. */
 :root[data-theme="light"] .nav-indicator {
-  background: linear-gradient(180deg, #ffffff, rgb(255 255 255 / 0.86));
+  background:
+    linear-gradient(90deg, transparent 22%, rgb(var(--electric) / 0.55) 50%, transparent 78%) 50% 100% / 100% 1.5px no-repeat,
+    linear-gradient(180deg, #ffffff, rgb(255 255 255 / 0.88));
   box-shadow:
     0 0 0 1px rgb(var(--ink) / 0.06),
     0 1px 2px rgb(var(--ink) / 0.08),
-    0 4px 12px -4px rgb(20 34 90 / 0.18),
+    0 4px 12px -4px rgb(var(--shade) / 0.2),
     inset 0 1px 0 #fff;
 }
 :root[data-theme="light"] .island-links a,
 :root[data-theme="light"] .island-links button {
-  color: rgb(var(--ink) / 0.62);
+  color: rgb(var(--ink) / 0.64);
 }
 :root[data-theme="light"] .island-links a:hover,
 :root[data-theme="light"] .island-links button:hover,
@@ -227,38 +237,38 @@
 :root[data-theme="light"] .island-links button[aria-expanded="true"] {
   color: var(--fg);
 }
-/* Sree AI pill: a pale-blue glass chip with a cobalt hairline. */
+/* Sree AI pill: an ice-blue glass chip with a blue hairline. */
 :root[data-theme="light"] .ai-pill {
-  background: linear-gradient(135deg, rgb(255 255 255 / 0.95), rgb(226 235 255 / 0.9));
-  box-shadow: 0 0 0 1px rgb(33 73 216 / 0.16), 0 1px 2px rgb(var(--ink) / 0.06), inset 0 1px 0 #fff;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.96), rgb(var(--ice) / 0.92));
+  box-shadow: 0 0 0 1px rgb(43 99 223 / 0.16), 0 1px 2px rgb(var(--ink) / 0.06), inset 0 1px 0 #fff;
 }
 :root[data-theme="light"] .ai-pill:hover {
-  box-shadow: 0 0 0 1px rgb(33 73 216 / 0.38), 0 8px 20px -10px rgb(33 73 216 / 0.55), inset 0 1px 0 #fff;
+  box-shadow: 0 0 0 1px rgb(43 99 223 / 0.36), 0 8px 20px -10px rgb(var(--electric) / 0.6), inset 0 1px 0 #fff;
 }
 /* Quick / Detailed: a recessed track with a white thumb. */
 :root[data-theme="light"] .view-switch {
-  background: rgb(var(--ink) / 0.045);
+  background: rgb(var(--shade) / 0.06);
   box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.06), inset 0 1px 2px rgb(var(--ink) / 0.06);
 }
 :root[data-theme="light"] .view-switch-thumb {
-  background: linear-gradient(180deg, #ffffff, #fbfbfd);
-  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.07), 0 1px 2px rgb(var(--ink) / 0.1), 0 3px 8px -3px rgb(20 34 90 / 0.2);
+  background: linear-gradient(180deg, #ffffff, #fafcff);
+  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.07), 0 1px 2px rgb(var(--ink) / 0.1), 0 3px 8px -3px rgb(var(--shade) / 0.24);
 }
-:root[data-theme="light"] .view-switch-opt { color: rgb(var(--ink) / 0.58); }
+:root[data-theme="light"] .view-switch-opt { color: rgb(var(--ink) / 0.6); }
 :root[data-theme="light"] .view-switch-opt:hover { color: var(--fg); }
-/* SS monogram: a porcelain coin. */
+/* SS monogram: a frosted coin. */
 :root[data-theme="light"] .ss-mark {
-  background: radial-gradient(120% 120% at 30% 20%, #ffffff 0%, #f3f1ec 70%);
-  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.12), inset 0 -2px 4px rgb(var(--ink) / 0.04), 0 1px 2px rgb(var(--ink) / 0.08);
+  background: radial-gradient(120% 120% at 30% 20%, #ffffff 0%, #edf2f9 72%);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.12), inset 0 -2px 4px rgb(var(--shade) / 0.05), 0 1px 2px rgb(var(--ink) / 0.08);
 }
 :root[data-theme="light"] a:hover > .ss-mark,
 :root[data-theme="light"] a:focus-visible > .ss-mark {
-  box-shadow: inset 0 0 0 1px rgb(33 73 216 / 0.5), 0 6px 18px -8px rgb(33 73 216 / 0.55);
+  box-shadow: inset 0 0 0 1px rgb(43 99 223 / 0.5), 0 6px 18px -8px rgb(var(--electric) / 0.6);
 }
 :root[data-theme="light"] .island-brand[data-active] .ss-mark {
-  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.12), 0 0 0 2px #fff, 0 0 0 3.5px rgb(33 73 216 / 0.35);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.12), 0 0 0 2px #fff, 0 0 0 3.5px rgb(43 99 223 / 0.32);
 }
-:root[data-theme="light"] .island-btn:hover { background: rgb(255 255 255 / 0.7); }
+:root[data-theme="light"] .island-btn:hover { background: rgb(255 255 255 / 0.72); }
 /* Dropdowns that grow out of the island. */
 :root[data-theme="light"] .more-item { color: var(--fg-soft); }
 :root[data-theme="light"] .more-item:hover,
@@ -266,200 +276,207 @@
 :root[data-theme="light"] .more-item[data-active] {
   background: #fff;
   color: var(--fg);
-  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.05), 0 1px 3px rgb(var(--ink) / 0.06);
+  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.05), 0 1px 3px rgb(var(--shade) / 0.08);
 }
 
 /* ------------------------------------------------------------ hero */
-/* Morning light: sun from the upper right behind the portrait, pale sky
-   pooling at the lower left. The atmosphere drifts as in dark mode. */
+/* Clear morning air: an icy haze from the upper right behind the portrait,
+   a cool pool at the lower left, white light falling from the top. */
 :root[data-theme="light"] .hero-wash {
   background:
-    radial-gradient(40% 50% at 78% 32%, rgb(var(--sun) / 0.12), transparent 72%),
-    radial-gradient(48% 58% at 6% 80%, rgb(var(--sky) / 0.16), transparent 72%),
-    linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0) 38%);
+    radial-gradient(40% 52% at 80% 30%, rgb(var(--ice) / 0.9), transparent 72%),
+    radial-gradient(34% 40% at 82% 34%, rgb(var(--electric) / 0.07), transparent 72%),
+    radial-gradient(48% 58% at 4% 84%, rgb(var(--glacier) / 0.1), transparent 72%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0) 40%);
 }
-/* The sun sits behind the print itself, so it stays with the portrait at
+/* A cold halo sits behind the print itself, so it stays with the portrait at
    every width (phones, laptops, ultrawide). */
 :root[data-theme="light"] .hero-portrait::before {
   content: "";
   position: absolute;
-  inset: -34% -46%;
+  inset: -30% -42%;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(closest-side, rgb(var(--sun-soft) / 0.8), rgb(var(--sun) / 0.16) 56%, transparent 78%);
+  background: radial-gradient(closest-side, rgb(var(--ice) / 0.95), rgb(var(--electric) / 0.08) 58%, transparent 80%);
 }
 :root[data-theme="light"] .hero-atmos {
   background:
-    radial-gradient(30% 32% at 24% 24%, rgb(var(--sky) / 0.12), transparent 70%),
-    radial-gradient(22% 26% at 64% 70%, rgb(var(--lilac) / 0.08), transparent 70%),
-    radial-gradient(26% 30% at 92% 74%, rgb(var(--sun) / 0.1), transparent 70%);
+    radial-gradient(30% 32% at 24% 24%, rgb(var(--electric) / 0.07), transparent 70%),
+    radial-gradient(22% 26% at 64% 70%, rgb(var(--periwinkle) / 0.07), transparent 70%),
+    radial-gradient(26% 30% at 92% 74%, rgb(var(--glacier) / 0.08), transparent 70%);
 }
 :root[data-theme="light"] .availability {
-  background: rgb(255 255 255 / 0.78);
+  background: rgb(255 255 255 / 0.8);
   border-color: rgb(15 138 95 / 0.22);
   box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05);
 }
 
 /* ------------------------------------------------------------ portrait print */
-/* A white gallery print on daylight paper: deckled warmth, apricot washi
-   tape, and a halftone of the sunrise in the placeholder. */
+/* A white print mounted on the canvas with a strip of frosted tape, and a
+   cool halftone in the placeholder. */
 :root[data-theme="light"] .pswap-print {
-  background: linear-gradient(180deg, #ffffff 0%, #fdfcf8 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
   box-shadow:
     0 0 0 1px rgb(var(--ink) / 0.06),
     0 1px 2px rgb(var(--ink) / 0.06),
-    0 18px 30px -18px rgb(var(--ink) / 0.22),
-    0 44px 70px -40px rgb(120 70 30 / 0.28);
+    0 18px 30px -18px rgb(var(--shade) / 0.24),
+    0 44px 70px -40px rgb(var(--shade) / 0.3);
 }
 :root[data-theme="light"] .pswap:hover .pswap-print,
 :root[data-theme="light"] .pswap:focus-within .pswap-print {
   box-shadow:
-    0 0 0 1px rgb(33 73 216 / 0.22),
+    0 0 0 1px rgb(43 99 223 / 0.22),
     0 2px 6px rgb(var(--ink) / 0.08),
-    0 26px 40px -22px rgb(var(--ink) / 0.26),
-    0 60px 90px -46px rgb(33 73 216 / 0.34);
+    0 26px 40px -22px rgb(var(--shade) / 0.28),
+    0 60px 90px -46px rgb(var(--electric) / 0.38);
 }
 :root[data-theme="light"] .pswap-tape {
   background:
-    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.18) 0 6px, transparent 6px 12px),
-    linear-gradient(90deg, rgb(255 205 160 / 0.82), rgb(255 222 190 / 0.78));
-  box-shadow: 0 1px 2px rgb(120 70 30 / 0.16), inset 0 1px 0 rgb(255 255 255 / 0.5);
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.3) 0 6px, transparent 6px 12px),
+    linear-gradient(90deg, rgb(206 222 248 / 0.78), rgb(226 236 253 / 0.74));
+  box-shadow: 0 1px 2px rgb(var(--shade) / 0.16), inset 0 1px 0 rgb(255 255 255 / 0.6);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 }
-:root[data-theme="light"] .pswap-photo { background: #f4f1ea; }
+:root[data-theme="light"] .pswap-photo { background: #eef2f8; }
 :root[data-theme="light"] .pswap-gloss {
   box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.05);
   background: linear-gradient(125deg, rgb(255 255 255 / 0.55), transparent 36%);
 }
 :root[data-theme="light"] .pswap-placeholder {
-  /* A crisp cobalt halftone on white paper, with the first light at one corner. */
+  /* A crisp blue halftone on white, with cold light at one corner. */
   background:
-    radial-gradient(70% 50% at 100% 0%, rgb(var(--sun-soft) / 0.7), transparent 70%),
-    linear-gradient(170deg, #ffffff, #f5f3ee);
+    radial-gradient(70% 50% at 100% 0%, rgb(var(--ice) / 0.95), transparent 70%),
+    linear-gradient(170deg, #ffffff, #f1f5fb);
 }
-:root[data-theme="light"] .pswap-placeholder svg { color: #2149d8; }
+:root[data-theme="light"] .pswap-placeholder svg { color: #2b63df; }
 :root[data-theme="light"] .pswap-placeholder-mark { color: var(--accent-fg); opacity: 0.9; }
-:root[data-theme="light"] .pswap-caption { color: rgb(var(--ink) / 0.55); }
+:root[data-theme="light"] .pswap-caption { color: rgb(var(--ink) / 0.56); }
 
 /* ------------------------------------------------------------ project stages */
-/* Prints laid on a light table: each screenshot sits in a white mat with a
-   shadow tinted by the project's own hue, over a soft watercolor bloom. */
+/* Each screenshot is a precise digital object: a white mat, a hairline, and
+   a cool layered shadow over a soft ice bloom. In daylight the project's own
+   hue stays on its small category marks, so warm-hued projects never wash the
+   canvas. */
 :root[data-theme="light"] .stage-glow {
-  opacity: 0.8;
-  background: radial-gradient(closest-side, color-mix(in oklab, var(--p) 24%, transparent), transparent);
+  opacity: 0.85;
+  background: radial-gradient(closest-side, rgb(var(--electric) / 0.13), rgb(var(--ice) / 0.5) 60%, transparent);
   filter: blur(50px);
 }
 :root[data-theme="light"] .project-preview {
   background: #fff;
   border-color: rgb(var(--ink) / 0.08);
   box-shadow:
-    0 0 0 5px rgb(255 255 255 / 0.92),
+    0 0 0 5px rgb(255 255 255 / 0.94),
     0 0 0 6px rgb(var(--ink) / 0.06),
     0 2px 4px rgb(var(--ink) / 0.05),
-    0 28px 48px -30px color-mix(in oklab, var(--p, var(--accent)) 55%, rgb(var(--ink) / 0.5));
+    0 28px 48px -30px rgb(var(--shade) / 0.42);
 }
 :root[data-theme="light"] .preview-fade {
   background: linear-gradient(to top, rgb(255 255 255 / 0.4), transparent 38%);
 }
 :root[data-theme="light"] .preview-caption {
-  background: rgb(255 255 255 / 0.86) !important;
+  background: rgb(255 255 255 / 0.88) !important;
   border-color: rgb(var(--ink) / 0.08);
   color: var(--fg-soft);
-  box-shadow: 0 1px 2px rgb(var(--ink) / 0.08), 0 6px 14px -8px rgb(var(--ink) / 0.2);
+  box-shadow: 0 1px 2px rgb(var(--ink) / 0.08), 0 6px 14px -8px rgb(var(--shade) / 0.24);
 }
 :root[data-theme="light"] .stage-secondary {
   border-color: rgb(var(--ink) / 0.08);
   box-shadow:
-    0 0 0 4px rgb(255 255 255 / 0.95),
+    0 0 0 4px rgb(255 255 255 / 0.96),
     0 0 0 5px rgb(var(--ink) / 0.06),
-    0 24px 44px -24px rgb(var(--ink) / 0.38);
+    0 24px 44px -24px rgb(var(--shade) / 0.4);
 }
-/* Index numerals engraved in the project's hue with a watercolor fill. */
+/* Index numerals: a blue-grey outline with a faint electric fill. */
 :root[data-theme="light"] .stage-index {
   color: transparent;
-  -webkit-text-stroke: 1px color-mix(in oklab, var(--p) 52%, rgb(var(--ink) / 0.4));
-  background: linear-gradient(180deg, color-mix(in oklab, var(--p) 18%, transparent) 15%, transparent 85%);
+  -webkit-text-stroke: 1px rgb(var(--shade) / 0.3);
+  background: linear-gradient(180deg, rgb(var(--electric) / 0.12) 15%, transparent 85%);
   -webkit-background-clip: text;
   background-clip: text;
   opacity: 0.85;
 }
 :root[data-theme="light"] .tilt-stage[data-tilting] .tilt-inner {
-  box-shadow: 0 46px 80px -44px color-mix(in oklab, var(--p, var(--accent)) 60%, transparent);
+  box-shadow: 0 46px 80px -44px rgb(var(--electric) / 0.4);
 }
 :root[data-theme="light"] .tilt-inner::after {
-  background: radial-gradient(60% 60% at calc(50% + var(--tx, 0) * 100%) calc(50% + var(--ty, 0) * 100%), rgb(255 255 255 / 0.35), transparent 70%);
+  background: radial-gradient(60% 60% at calc(50% + var(--tx, 0) * 100%) calc(50% + var(--ty, 0) * 100%), rgb(255 255 255 / 0.38), transparent 70%);
 }
 /* Case study hero: the same white mat at full size. */
 :root[data-theme="light"] .case-hero-media {
   background: #fff;
   border-color: rgb(var(--ink) / 0.08);
   box-shadow:
-    0 0 0 6px rgb(255 255 255 / 0.92),
+    0 0 0 6px rgb(255 255 255 / 0.94),
     0 0 0 7px rgb(var(--ink) / 0.06),
     0 2px 4px rgb(var(--ink) / 0.05),
-    0 40px 80px -46px color-mix(in oklab, var(--p, var(--accent)) 55%, rgb(var(--ink) / 0.5));
+    0 40px 80px -46px rgb(var(--shade) / 0.42);
 }
 
 /* ------------------------------------------------------------ toolkit */
-/* Marquee tiles become printed keycaps. */
+/* Marquee tiles become frosted keycaps. */
 :root[data-theme="light"] .marquee { padding-block: 8px 12px; }
 :root[data-theme="light"] .tech-tile {
-  background: linear-gradient(180deg, #ffffff, #fdfcf9);
+  background: linear-gradient(180deg, #ffffff, #f9fbfe);
   border-color: rgb(var(--ink) / 0.08);
-  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 4px 10px -6px rgb(var(--ink) / 0.12);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 4px 10px -6px rgb(var(--shade) / 0.16);
 }
 :root[data-theme="light"] .tech-tile:hover {
   background: #fff;
-  border-color: rgb(33 73 216 / 0.32);
-  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 10px 20px -12px rgb(33 73 216 / 0.45);
+  border-color: rgb(43 99 223 / 0.32);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 10px 20px -12px rgb(var(--electric) / 0.5);
 }
 :root[data-theme="light"] .stack-pill {
-  background: rgb(255 255 255 / 0.8);
-  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.09), inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 8px 20px -12px rgb(20 34 90 / 0.25);
+  background: rgb(255 255 255 / 0.82);
+  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.09), inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 8px 20px -12px rgb(var(--shade) / 0.28);
 }
 :root[data-theme="light"] .stack-pill:hover {
   background: #fff;
-  box-shadow: 0 0 0 1px rgb(33 73 216 / 0.4), inset 0 1px 0 #fff, 0 10px 24px -12px rgb(33 73 216 / 0.45);
+  box-shadow: 0 0 0 1px rgb(43 99 223 / 0.4), inset 0 1px 0 #fff, 0 10px 24px -12px rgb(var(--electric) / 0.5);
 }
 :root[data-theme="light"] .tech-index[open] .stack-pill {
-  box-shadow: 0 0 0 1px rgb(33 73 216 / 0.35), inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05);
+  box-shadow: 0 0 0 1px rgb(43 99 223 / 0.35), inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05);
 }
 
 /* ------------------------------------------------------------ achievements */
-/* Rank numerals pressed in ink that deepens toward harbor blue. */
+/* Rank numerals in deep navy that cools to blue at the base. */
 :root[data-theme="light"] .rank-reveal {
-  background: linear-gradient(180deg, #0d1526 35%, #2b4296 100%);
+  background: linear-gradient(180deg, #101d33 35%, #2b5bd0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 /* ------------------------------------------------------------ contact */
-/* The closing line sits in a sunrise: apricot at the horizon, sky at the edges. */
+/* The closing line sits in cold, clear air: a soft ice light behind the words
+   with faint electric and glacier fields at the sides. */
 :root[data-theme="light"] .contact-close { overflow: clip visible; }
 :root[data-theme="light"] .contact-glow {
-  /* Unclipped below in daylight, so the light spills softly into the footer's
-     dawn; clipped at the sides (no horizontal overflow) with a soft fade. */
+  /* Unclipped below, so the light falls softly into the footer's sky; clipped
+     at the sides (no horizontal overflow) with a soft fade. */
   inset: auto 0 -48% 0;
   height: 118%;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
   background:
-    radial-gradient(30% 34% at 44% 52%, rgb(var(--sun) / 0.26), transparent 70%),
-    radial-gradient(18% 22% at 46% 54%, rgb(var(--sun-soft) / 0.7), transparent 70%),
-    radial-gradient(24% 30% at 18% 48%, rgb(var(--sky) / 0.22), transparent 70%),
-    radial-gradient(22% 28% at 80% 46%, rgb(var(--lilac) / 0.16), transparent 70%);
+    radial-gradient(30% 34% at 46% 52%, rgb(var(--ice) / 0.95), transparent 70%),
+    radial-gradient(16% 20% at 47% 54%, rgb(var(--electric) / 0.12), transparent 70%),
+    radial-gradient(24% 30% at 18% 48%, rgb(var(--glacier) / 0.13), transparent 70%),
+    radial-gradient(22% 28% at 80% 46%, rgb(var(--periwinkle) / 0.12), transparent 70%);
 }
 
-/* ------------------------------------------------------------ footer: dawn */
-/* The night skyline becomes Boston at first light: an ink drawing over a warm
-   horizon, the sun rising behind the Zakim cables as the footer arrives, and
-   a glint of sunlight travelling the water line. */
+/* ------------------------------------------------------------ footer: winter morning */
+/* The night skyline becomes Boston on a clear winter morning: a navy ink
+   drawing over a cold, clear sky; a pale winter sun rising behind the Zakim
+   cables as the footer arrives; ice-blue water mirroring the sky; and a cold
+   electric glint travelling the water line. */
 :root[data-theme="light"] .footer-horizon {
-  color: rgb(var(--ink) / 0.58);
-  /* Warm sky down to the water line (89.1%), then the harbor mirrors it and fades. */
-  background: linear-gradient(180deg, rgb(var(--sun-soft) / 0) 0%, rgb(var(--sun-soft) / 0.3) 60%, rgb(var(--sun-soft) / 0.55) 89.1%, rgb(var(--sun-soft) / 0.34) 89.2%, rgb(var(--sun-soft) / 0) 100%);
+  color: rgb(var(--ink) / 0.6);
+  /* Sky down to the water line (89.1%), then the harbor mirrors it and fades. */
+  background: linear-gradient(180deg, rgb(var(--ice) / 0) 0%, rgb(var(--ice) / 0.55) 58%, rgb(208 224 251 / 0.85) 89.1%, rgb(var(--ice) / 0.6) 89.2%, rgb(var(--ice) / 0) 100%);
 }
-:root[data-theme="light"] .footer-horizon .echo-light { stroke: rgb(var(--sun)); }
+:root[data-theme="light"] .footer-horizon .echo-light { stroke: rgb(var(--electric)); }
 /* The sky spans the drawing (max 1400px) and ends exactly at its water line
    (y 196 of 220), so the sun is cut by the horizon and aligns with the Zakim
    towers at every width. */
@@ -473,6 +490,7 @@
   overflow: hidden;
   pointer-events: none;
 }
+/* A pale, cold winter sun: a white disc with a fine blue rim and an icy halo. */
 .footer-sun {
   position: absolute;
   left: calc(var(--gutter) + (100% - 2 * var(--gutter)) * 0.866);
@@ -481,7 +499,9 @@
   aspect-ratio: 1;
   translate: -50% 40%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(255 208 168) 0 24%, rgb(255 184 132 / 0.95) 25.5%, rgb(255 184 132 / 0.36) 38%, rgb(255 184 132 / 0.1) 54%, rgb(255 184 132 / 0) 66%);
+}
+:root[data-theme="light"] .footer-sun {
+  background: radial-gradient(circle, #ffffff 0 23%, rgb(178 204 250) 24.2%, rgb(var(--electric) / 0.2) 26%, rgb(var(--electric) / 0.09) 40%, rgb(var(--ice) / 0.5) 52%, rgb(var(--ice) / 0) 66%);
 }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -497,7 +517,7 @@
 }
 
 /* ------------------------------------------------------------ page headers */
-/* Interior pages open on chart paper ruled in cobalt, with morning light. */
+/* Interior pages open on a survey grid ruled in blue, with cold morning air. */
 :root[data-theme="light"] .page-header::before {
   content: "";
   position: absolute;
@@ -505,44 +525,44 @@
   z-index: -10;
   pointer-events: none;
   background:
-    radial-gradient(34% 58% at 84% 10%, rgb(var(--sun) / 0.22), transparent 70%),
-    radial-gradient(20% 34% at 88% 6%, rgb(var(--sun-soft) / 0.7), transparent 70%),
-    radial-gradient(36% 54% at 4% 0%, rgb(var(--sky) / 0.2), transparent 70%);
+    radial-gradient(34% 58% at 84% 10%, rgb(var(--ice) / 0.95), transparent 70%),
+    radial-gradient(22% 36% at 88% 6%, rgb(var(--electric) / 0.08), transparent 70%),
+    radial-gradient(36% 54% at 4% 0%, rgb(var(--glacier) / 0.1), transparent 70%);
 }
 :root[data-theme="light"] .page-header .grid-bg {
   background-image:
-    linear-gradient(rgb(33 73 216 / 0.09) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(33 73 216 / 0.09) 1px, transparent 1px);
+    linear-gradient(rgb(43 99 223 / 0.085) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(43 99 223 / 0.085) 1px, transparent 1px);
 }
 
 /* ------------------------------------------------------------ Sree AI */
-/* In daylight the assistant panel carries a soft aurora instead of a glow. */
+/* In daylight the assistant panel carries a cold aurora instead of a glow. */
 :root[data-theme="light"] .ai-promo {
   background:
-    radial-gradient(60% 80% at 100% 0%, rgb(var(--lilac) / 0.16), transparent 70%),
-    radial-gradient(50% 70% at 0% 100%, rgb(var(--sky) / 0.18), transparent 70%),
-    radial-gradient(40% 60% at 72% 110%, rgb(var(--sun) / 0.14), transparent 70%),
+    radial-gradient(60% 80% at 100% 0%, rgb(var(--periwinkle) / 0.13), transparent 70%),
+    radial-gradient(50% 70% at 0% 100%, rgb(var(--electric) / 0.1), transparent 70%),
+    radial-gradient(40% 60% at 72% 110%, rgb(var(--glacier) / 0.14), transparent 70%),
     #fff;
 }
 
 /* ------------------------------------------------------------ coach mark */
 :root[data-theme="light"] .coach {
-  background: rgb(255 255 255 / 0.88);
+  background: rgb(255 255 255 / 0.9);
   box-shadow:
     inset 0 1px 0 #fff,
-    0 0 0 1px rgb(33 73 216 / 0.18),
+    0 0 0 1px rgb(43 99 223 / 0.18),
     0 2px 4px rgb(var(--ink) / 0.05),
-    0 22px 44px -22px rgb(20 34 90 / 0.35);
+    0 22px 44px -22px rgb(var(--shade) / 0.38);
 }
-:root[data-theme="light"] .coach-arrow { box-shadow: -1px -1px 0 0 rgb(33 73 216 / 0.18); }
-:root[data-theme="light"] .coach[data-side="top"] .coach-arrow { box-shadow: 1px 1px 0 0 rgb(33 73 216 / 0.18); }
+:root[data-theme="light"] .coach-arrow { box-shadow: -1px -1px 0 0 rgb(43 99 223 / 0.18); }
+:root[data-theme="light"] .coach[data-side="top"] .coach-arrow { box-shadow: 1px 1px 0 0 rgb(43 99 223 / 0.18); }
 
-/* ------------------------------------------------------------ inked accents */
-/* The italic accent words in headings get a hand-inked apricot swash, drawn
-   in as the heading arrives - an annotation on the chart. Decorative only:
-   the word itself keeps its cobalt ink and full contrast. */
+/* ------------------------------------------------------------ accent words */
+/* The italic accent words in headings get a precise electric underline, a
+   dimension line that draws in as the heading arrives and ends in a node.
+   Decorative only: the word itself keeps its blue ink and full contrast. */
 :root[data-theme="light"] {
-  --swash: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'><path d='M3 11.5 C 42 6.5, 96 4.2, 197 7.2' fill='none' stroke='rgb(246,150,92)' stroke-opacity='0.78' stroke-width='3.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/><path d='M26 13.6 C 70 10.4, 120 9.6, 168 10.8' fill='none' stroke='rgb(246,150,92)' stroke-opacity='0.38' stroke-width='1.6' stroke-linecap='round' vector-effect='non-scaling-stroke'/></svg>");
+  --swash: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'><path d='M2 8.5 L198 8.5' fill='none' stroke='rgb(52,108,232)' stroke-opacity='0.9' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/><path d='M2 13.5 L118 13.5' fill='none' stroke='rgb(74,139,255)' stroke-opacity='0.38' stroke-width='1' vector-effect='non-scaling-stroke'/></svg>");
 }
 :root[data-theme="light"] :is(.display, .h-section) .serif-accent {
   background-image: var(--swash);
@@ -570,7 +590,7 @@
 /* ------------------------------------------------------------ Sree AI chat */
 :root[data-theme="light"] .ask-panel .msg-in .ring-line,
 :root[data-theme="light"] main .msg-in .ring-line {
-  box-shadow: 0 0 0 1px rgb(33 73 216 / 0.1), 0 1px 2px rgb(var(--ink) / 0.04);
+  box-shadow: 0 0 0 1px rgb(43 99 223 / 0.1), 0 1px 2px rgb(var(--ink) / 0.04);
 }
 
 /* ------------------------------------------------------------ case studies */
@@ -582,27 +602,27 @@
 :root[data-theme="light"] .shot-frame {
   background: #fff;
   border-color: rgb(var(--ink) / 0.08);
-  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.9), 0 0 0 5px rgb(var(--ink) / 0.05), 0 18px 36px -24px rgb(var(--ink) / 0.35);
+  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.92), 0 0 0 5px rgb(var(--ink) / 0.05), 0 18px 36px -24px rgb(var(--shade) / 0.38);
   transition: box-shadow var(--dur-m) var(--ease-out), transform var(--dur-m) var(--ease-out);
 }
 :root[data-theme="light"] .shot-frame:hover {
   transform: translateY(-3px);
-  box-shadow: 0 0 0 4px #fff, 0 0 0 5px rgb(33 73 216 / 0.2), 0 26px 46px -24px rgb(33 73 216 / 0.4);
+  box-shadow: 0 0 0 4px #fff, 0 0 0 5px rgb(43 99 223 / 0.2), 0 26px 46px -24px rgb(var(--electric) / 0.42);
 }
 
 /* ------------------------------------------------------------ about portrait */
 :root[data-theme="light"] .portrait-frame {
   background: #fff;
-  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.06), 0 2px 4px rgb(var(--ink) / 0.05), 0 30px 50px -30px rgb(var(--ink) / 0.3);
+  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.06), 0 2px 4px rgb(var(--ink) / 0.05), 0 30px 50px -30px rgb(var(--shade) / 0.34);
 }
 :root[data-theme="light"] .portrait-plate {
-  border-color: rgb(33 73 216 / 0.22);
-  background: linear-gradient(140deg, rgb(var(--sun-soft) / 0.7), rgb(var(--sky) / 0.12) 70%) !important;
+  border-color: rgb(43 99 223 / 0.2);
+  background: linear-gradient(140deg, rgb(var(--ice) / 0.9), rgb(var(--glacier) / 0.1) 70%) !important;
 }
 :root[data-theme="light"] .portrait [aria-label^="Portrait placeholder"] > div:first-child {
   background:
-    radial-gradient(90% 60% at 80% 10%, rgb(var(--sun-soft) / 0.8), transparent 62%),
-    linear-gradient(180deg, #ffffff, #f6f4ef);
+    radial-gradient(90% 60% at 80% 10%, rgb(var(--ice) / 0.95), transparent 62%),
+    linear-gradient(180deg, #ffffff, #f1f5fb);
 }
 
 /* ------------------------------------------------------------ capability art */
@@ -610,12 +630,12 @@
 
 /* ------------------------------------------------------------ daylight motion */
 @media (prefers-reduced-motion: no-preference) {
-  /* Daybreak: on arrival the morning light comes up behind the portrait. */
+  /* First light: on arrival the cold morning air clears behind the portrait. */
   :root[data-theme="light"] .hero-wash {
     transform-origin: 80% 30%;
     animation: daybreak 1.8s var(--ease-out) 0.1s both;
   }
-  /* The placeholder print develops, like a photograph in daylight. */
+  /* The placeholder print develops, like a photograph. */
   :root[data-theme="light"] .pswap-mosaic {
     animation: develop 1.6s var(--ease-out) 0.45s both;
   }

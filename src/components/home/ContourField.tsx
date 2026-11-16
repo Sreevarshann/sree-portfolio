@@ -113,7 +113,7 @@ export function ContourField({ className = "" }: { className?: string }) {
     let light = isLight();
     let color = readColor();
     let ink = readColor("--contour-ink", "20 32 70");
-    let warm = readColor("--contour-warm", "236 138 82");
+    let warm = readColor("--contour-warm", "116 200 232");
     // Ink lines on paper show softness that glowing lines hide, so the light
     // chart renders a little closer to device resolution.
     const dprFor = () => Math.min(window.devicePixelRatio || 1, light ? (coarse ? 1 : 1.5) : coarse ? 0.75 : 1.25);
@@ -122,7 +122,7 @@ export function ContourField({ className = "" }: { className?: string }) {
       light = isLight();
       color = readColor();
       ink = readColor("--contour-ink", "20 32 70");
-      warm = readColor("--contour-warm", "236 138 82");
+      warm = readColor("--contour-warm", "116 200 232");
       dpr = dprFor();
       resize();
       // Repaint now, so a theme view transition captures the new chart.

@@ -27,7 +27,7 @@ export function chartTheme(): ChartTheme {
   const mono = css.getPropertyValue("--font-mono").trim() || "monospace";
   return dark
     ? { mode: "dark", surface: "#0d1016", text: "#eef1f6", muted: "#8b95a7", grid: "rgba(148,163,184,0.12)", axis: "rgba(148,163,184,0.28)", s1: "#3987e5", s2: "#d95926", s3: "#199e70", seq: ["#141c2b", "#1b3a6e", "#2a5cb0"], font, mono }
-    : { mode: "light", surface: "#ffffff", text: "#0d1526", muted: "#5d6474", grid: "rgba(26,30,44,0.07)", axis: "rgba(26,30,44,0.2)", s1: "#2a78d6", s2: "#eb6834", s3: "#1baf7a", seq: ["#f1f5fc", "#c9dbf6", "#8fb3ec"], font, mono };
+    : { mode: "light", surface: "#ffffff", text: "#101d33", muted: "#52637b", grid: "rgba(20,36,64,0.07)", axis: "rgba(20,36,64,0.2)", s1: "#2a78d6", s2: "#eb6834", s3: "#1baf7a", seq: ["#f1f5fc", "#c9dbf6", "#8fb3ec"], font, mono };
 }
 
 export function baseLayout(t: ChartTheme, extra: Partial<Layout> = {}): Partial<Layout> {

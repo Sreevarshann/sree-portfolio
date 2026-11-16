@@ -31,7 +31,7 @@ test.describe("hero theme regression", () => {
       if (scheme === "dark") expect(luma).toBeLessThan(60);
       else expect(luma).toBeGreaterThan(200);
       const h1 = await page.locator("h1").evaluate((el) => getComputedStyle(el).color);
-      expect(h1).toBe(scheme === "dark" ? "rgb(238, 241, 246)" : "rgb(13, 21, 38)");
+      expect(h1).toBe(scheme === "dark" ? "rgb(238, 241, 246)" : "rgb(16, 29, 51)");
     });
   }
 
@@ -39,7 +39,7 @@ test.describe("hero theme regression", () => {
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/");
     await page.getByRole("button", { name: /Switch to light theme/ }).click();
-    await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(246, 244, 239)");
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(247, 249, 252)");
     await page.waitForTimeout(800);
     const vw = page.viewportSize()!.width;
     expect(await regionLuma(page, { x: Math.round(vw * 0.55), y: 90, width: Math.round(vw * 0.3), height: 60 })).toBeGreaterThan(200);
