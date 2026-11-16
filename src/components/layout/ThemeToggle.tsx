@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
-type Doc = Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+type Doc = Document & {
+  startViewTransition?: (cb: () => void) => { finished: Promise<void>; skipTransition?: () => void };
+};
 
 /**
  * Switching themes from the toggle reveals the new theme as a circle that
@@ -15,7 +17,9 @@ type Doc = Document & { startViewTransition?: (cb: () => void) => { finished: Pr
 function applyTheme(next: Theme, origin?: { x: number; y: number }) {
   const root = document.documentElement;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let committed = false;
   const commit = () => {
+    committed = true;
     root.setAttribute("data-theme", next);
     root.style.colorScheme = next;
     window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
@@ -27,10 +31,21 @@ function applyTheme(next: Theme, origin?: { x: number; y: number }) {
     root.style.setProperty("--vt-y", `${origin.y}px`);
     root.style.setProperty("--vt-r", `${Math.ceil(r)}px`);
     root.classList.add("theme-vt");
-    doc
-      .startViewTransition(commit)
-      .finished.catch(() => {})
-      .finally(() => root.classList.remove("theme-vt"));
+    try {
+      const vt = doc.startViewTransition(commit);
+      vt.finished.catch(() => {}).finally(() => root.classList.remove("theme-vt"));
+      // The theme must never wait on the animation: if the browser hasn't run
+      // the update (a throttled or background page), skip it and switch now.
+      window.setTimeout(() => {
+        if (committed) return;
+        vt.skipTransition?.();
+        if (!committed) commit();
+        root.classList.remove("theme-vt");
+      }, 300);
+    } catch {
+      root.classList.remove("theme-vt");
+      commit();
+    }
     return;
   }
   if (!reduce) root.classList.add("theme-transition");
