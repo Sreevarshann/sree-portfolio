@@ -4,13 +4,37 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
-function applyTheme(next: Theme) {
+type Doc = Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+
+/**
+ * Switching themes from the toggle reveals the new theme as a circle that
+ * grows from the button (View Transitions API), like a light being turned on
+ * or off. Without the API, under reduced motion, or for OS-driven changes,
+ * colors cross-fade briefly (or change instantly under reduced motion).
+ */
+function applyTheme(next: Theme, origin?: { x: number; y: number }) {
   const root = document.documentElement;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const commit = () => {
+    root.setAttribute("data-theme", next);
+    root.style.colorScheme = next;
+    window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
+  };
+  const doc = document as Doc;
+  if (!reduce && origin && doc.startViewTransition) {
+    const r = Math.hypot(Math.max(origin.x, innerWidth - origin.x), Math.max(origin.y, innerHeight - origin.y));
+    root.style.setProperty("--vt-x", `${origin.x}px`);
+    root.style.setProperty("--vt-y", `${origin.y}px`);
+    root.style.setProperty("--vt-r", `${Math.ceil(r)}px`);
+    root.classList.add("theme-vt");
+    doc
+      .startViewTransition(commit)
+      .finished.catch(() => {})
+      .finally(() => root.classList.remove("theme-vt"));
+    return;
+  }
   if (!reduce) root.classList.add("theme-transition");
-  root.setAttribute("data-theme", next);
-  root.style.colorScheme = next;
-  window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
+  commit();
   if (!reduce) window.setTimeout(() => root.classList.remove("theme-transition"), 460);
 }
 
@@ -47,8 +71,9 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   return (
     <button
       type="button"
-      onClick={() => {
-        applyTheme(next);
+      onClick={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        applyTheme(next, { x: r.left + r.width / 2, y: r.top + r.height / 2 });
         try {
           localStorage.setItem("theme", next);
         } catch {}
