@@ -535,16 +535,6 @@
     linear-gradient(90deg, rgb(43 99 223 / 0.085) 1px, transparent 1px);
 }
 
-/* ------------------------------------------------------------ Sree AI */
-/* In daylight the assistant panel carries a cold aurora instead of a glow. */
-:root[data-theme="light"] .ai-promo {
-  background:
-    radial-gradient(60% 80% at 100% 0%, rgb(var(--periwinkle) / 0.13), transparent 70%),
-    radial-gradient(50% 70% at 0% 100%, rgb(var(--electric) / 0.1), transparent 70%),
-    radial-gradient(40% 60% at 72% 110%, rgb(var(--glacier) / 0.14), transparent 70%),
-    #fff;
-}
-
 /* ------------------------------------------------------------ coach mark */
 :root[data-theme="light"] .coach {
   background: rgb(255 255 255 / 0.9);
@@ -624,9 +614,6 @@
     radial-gradient(90% 60% at 80% 10%, rgb(var(--ice) / 0.95), transparent 62%),
     linear-gradient(180deg, #ffffff, #f1f5fb);
 }
-
-/* ------------------------------------------------------------ capability art */
-:root[data-theme="light"] .cap-layer { fill: #fff; }
 
 /* ------------------------------------------------------------ daylight motion */
 @media (prefers-reduced-motion: no-preference) {

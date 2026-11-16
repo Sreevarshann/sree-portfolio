@@ -184,3 +184,20 @@ Three elevations (`--e1`, `--e2`, `--e3`): a hairline contact ring, a short key 
 
 ### Keeping dark untouched
 The computed-style fingerprint (every element and `::before`/`::after`, 13 routes, desktop and phone, 45 properties) shows no dark changes apart from Plotly's random clip-path ids and the light-only footer sun inside its `display: none` sky. `tests/e2e/light-theme.spec.ts` pins dark samples, asserts no warm colors anywhere in light, and checks the contour ink is blue-dominant.
+
+## V9: achievements-first homepage
+
+The homepage is a 30-second overview; dedicated pages hold the detail. The order is fixed and identical in Quick and Detailed View:
+
+1. **Hero:** introduction, portrait-first on phones, availability, calls to action.
+2. **Achievements:** the two verified results first. Large ranking numerals (the SAUVC numeral counts down from the 320+ team field to 6th), the original field and podium graphics from the Achievements page, the result line, event and project, a card link to the full write-up, the original LinkedIn result post, and "View all achievements". Detailed View adds one sentence per result.
+3. **Education:** Northeastern and Anna University as prominent cards with their marks on white plates, degree, GPA and date; certifications follow as one compact row with verification links.
+4. **Experience:** the snapshot (Quick) or compact timeline (Detailed), linking to /experience.
+5. **Technology stack:** the logo marquee and Explore My Stack, unchanged.
+6. **Projects:** a compact gallery (3 cards in Quick, 6 in Detailed; 3 columns on desktop, 2 on tablet, 1 on phone). Each card has real screenshots that step through on hover, the project's categories, name, one line, three technologies, Case study and GitHub; "View all projects" leads to the full set.
+7. **Contact:** email, LinkedIn, GitHub and Tableau Public.
+8. **Footer:** the Boston skyline.
+
+Removed from the homepage: the My Approach statement (component, styles, animation, nav mapping and view anchor), What I build, the Lab teaser and the Sree AI promo. The Lab and Sree AI remain reachable from the island, the More menu, the floating launcher and their own pages.
+
+Navigation mapping (`HOME_SECTIONS` in `src/lib/nav.ts`): hero → Home (SS), achievements → Achievements, education → Education and certifications → Certifications (More), experience → Experience, tools → About (the stack lives in About › Skills), projects → Projects, contact → Contact (More). `tests/e2e/v7-refine.spec.ts` asserts the exact order in both views, that Achievements follows the hero directly, and that the gallery links every case study and repository.
