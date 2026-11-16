@@ -59,7 +59,7 @@ export function ProjectFeature({
         </div>
         {secondary && (
           <div
-            className={`layer-drift pointer-events-none absolute -bottom-10 hidden w-[34%] overflow-hidden rounded-[14px] border border-line-strong bg-surface shadow-[var(--shadow)] lg:block ${flip ? "-left-8" : "-right-8"}`}
+            className={`stage-secondary layer-drift pointer-events-none absolute -bottom-10 hidden w-[34%] overflow-hidden rounded-[14px] border border-line-strong bg-surface shadow-[var(--shadow)] lg:block ${flip ? "-left-8" : "-right-8"}`}
             aria-hidden="true"
           >
             <div className="relative aspect-[16/10]">

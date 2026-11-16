@@ -19,7 +19,7 @@ export function PageHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <header className="container-x relative pb-12 pt-36 md:pb-20 md:pt-48">
+    <header className="page-header container-x relative pb-12 pt-36 md:pb-20 md:pt-48">
       <div className="grid-bg pointer-events-none absolute inset-0 -z-10 opacity-60" aria-hidden="true" />
       <p className="eyebrow enter-fade flex items-center gap-3" style={{ ["--enter-delay" as string]: "0s" }}>
         <span className="text-accent">{index}</span>

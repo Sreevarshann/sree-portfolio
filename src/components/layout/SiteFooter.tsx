@@ -47,7 +47,11 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="relative mt-16 overflow-hidden text-fg-muted">
+      <div className="footer-horizon relative mt-16 overflow-hidden text-fg-muted">
+        {/* Daylight only: the sun rising out of the harbor behind the Zakim cables. */}
+        <span className="footer-sky only-light" aria-hidden="true">
+          <span className="footer-sun" />
+        </span>
         <ContourEcho className="pointer-events-none absolute inset-x-0 bottom-0 h-[70%] w-full text-accent opacity-25" />
         <BostonLine className="relative mx-auto block h-auto w-full max-w-[1400px] px-[var(--gutter)]" />
       </div>

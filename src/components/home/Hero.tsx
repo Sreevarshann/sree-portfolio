@@ -100,7 +100,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-28" aria-label="Introduction" data-nav-section="hero" data-view-anchor="hero">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_70%_40%,var(--accent-soft),transparent_70%)]" />
+        <div className="hero-wash absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_70%_40%,var(--accent-soft),transparent_70%)]" />
         <div className="hero-atmos absolute inset-0" />
         <ContourEcho id="echo-fade-hero" className={`absolute inset-x-0 bottom-[12%] h-[60%] w-full text-accent transition-opacity duration-1000 ${field ? "opacity-0" : "opacity-[0.18]"}`} />
         {field && <ContourField className="absolute inset-0 h-full w-full" />}

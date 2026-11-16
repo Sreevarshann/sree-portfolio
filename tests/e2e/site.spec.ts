@@ -46,7 +46,7 @@ test("theme toggle switches, persists and applies before paint", async ({ page }
   await expect(html).toHaveAttribute("data-theme", "dark");
   await page.getByRole("button", { name: /Switch to light theme/ }).click();
   await expect(html).toHaveAttribute("data-theme", "light");
-  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(245, 246, 248)");
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(246, 244, 239)");
   // Reload: the inline script must set the stored theme before hydration.
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "light");

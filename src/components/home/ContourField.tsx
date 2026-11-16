@@ -6,9 +6,13 @@ const VERT = `#version 300 es
 in vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`;
 
 // Animated topographic contours over fbm noise, brightening near the pointer.
+// Dark: luminous lines over the night harbor. Light (uLight = 1): a printed
+// daylight chart - navy ink lines that turn cobalt where the pointer lifts
+// the terrain, over faint depth bands shading from harbor blue to sunlit sand.
 const FRAG = `#version 300 es
 precision highp float;
 uniform vec2 uRes; uniform float uTime; uniform vec2 uMouse; uniform vec3 uColor; uniform float uAlpha;
+uniform float uLight; uniform vec3 uInk; uniform vec3 uWarm;
 out vec4 o;
 float hash(vec2 p){ p = fract(p*vec2(123.34,456.21)); p += dot(p,p+45.32); return fract(p.x*p.y); }
 float noise(vec2 p){ vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
@@ -30,15 +34,26 @@ void main(){
   float glow = exp(-d*d*6.0);
   vec2 s = gl_FragCoord.xy/uRes;
   float vign = smoothstep(1.15, 0.25, length((s-vec2(0.62,0.55))*vec2(1.25,1.0)));
-  float alpha = a*(0.16 + 0.10*major + 0.55*glow)*vign*uAlpha;
-  o = vec4(uColor*alpha, alpha);
+  if (uLight > 0.5) {
+    float lens = clamp(glow*1.25, 0.0, 1.0);
+    vec3 lineCol = mix(uInk, uColor, max(lens, 0.22*major));
+    float la = a*(0.075 + 0.075*major + 0.42*glow)*vign*uAlpha;
+    float band = mod(floor(c), 2.0);
+    vec3 tint = mix(uColor, uWarm, smoothstep(0.32, 0.78, h));
+    float ta = (0.012 + 0.02*band + 0.05*glow)*vign*uAlpha;
+    o = vec4(lineCol*la + tint*ta*(1.0 - la), la + ta*(1.0 - la));
+  } else {
+    float alpha = a*(0.16 + 0.10*major + 0.55*glow)*vign*uAlpha;
+    o = vec4(uColor*alpha, alpha);
+  }
 }`;
 
-function readColor(): [number, number, number] {
-  const raw = getComputedStyle(document.documentElement).getPropertyValue("--contour").trim() || "79 143 255";
+function readColor(name = "--contour", fallback = "79 143 255"): [number, number, number] {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
   const [r, g, b] = raw.split(/\s+/).map(Number);
   return [r / 255, g / 255, b / 255];
 }
+const isLight = () => document.documentElement.dataset.theme === "light";
 
 export function ContourField({ className = "" }: { className?: string }) {
   const host = useRef<HTMLDivElement>(null);
@@ -91,26 +106,39 @@ export function ContourField({ className = "" }: { className?: string }) {
     const uMouse = gl.getUniformLocation(prog, "uMouse");
     const uColor = gl.getUniformLocation(prog, "uColor");
     const uAlpha = gl.getUniformLocation(prog, "uAlpha");
+    const uLight = gl.getUniformLocation(prog, "uLight");
+    const uInk = gl.getUniformLocation(prog, "uInk");
+    const uWarm = gl.getUniformLocation(prog, "uWarm");
 
+    let light = isLight();
     let color = readColor();
-    let alpha = document.documentElement.dataset.theme === "light" ? 0.9 : 1;
+    let ink = readColor("--contour-ink", "20 32 70");
+    let warm = readColor("--contour-warm", "236 138 82");
+    // Ink lines on paper show softness that glowing lines hide, so the light
+    // chart renders a little closer to device resolution.
+    const dprFor = () => Math.min(window.devicePixelRatio || 1, light ? (coarse ? 1 : 1.5) : coarse ? 0.75 : 1.25);
+    let dpr = dprFor();
     const onTheme = () => {
+      light = isLight();
       color = readColor();
-      alpha = document.documentElement.dataset.theme === "light" ? 0.9 : 1;
-      if (!running) draw(performance.now());
+      ink = readColor("--contour-ink", "20 32 70");
+      warm = readColor("--contour-warm", "236 138 82");
+      dpr = dprFor();
+      resize();
+      // Repaint now, so a theme view transition captures the new chart.
+      draw(performance.now());
     };
     const mo = new MutationObserver(onTheme);
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
     // Contours are soft lines, so render below device resolution to keep fragment cost low.
-    const dpr = Math.min(window.devicePixelRatio || 1, coarse ? 0.75 : 1.25);
-    const resize = () => {
-      const { width, height } = canvas.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.round(width * dpr));
-      canvas.height = Math.max(1, Math.round(height * dpr));
-      gl.viewport(0, 0, canvas.width, canvas.height);
+    function resize() {
+      const { width, height } = canvas!.getBoundingClientRect();
+      canvas!.width = Math.max(1, Math.round(width * dpr));
+      canvas!.height = Math.max(1, Math.round(height * dpr));
+      gl!.viewport(0, 0, canvas.width, canvas.height);
       if (!running) draw(performance.now());
-    };
+    }
 
     let mx = 0.7, my = 0.55, tx = mx, ty = my;
     // The terrain drifts very slowly, so 30fps is visually identical; full
@@ -134,7 +162,10 @@ export function ContourField({ className = "" }: { className?: string }) {
       gl!.uniform1f(uTime, reduce ? 12 : (now - start) / 1000);
       gl!.uniform2f(uMouse, mx * canvas!.width, my * canvas!.height);
       gl!.uniform3f(uColor, color[0], color[1], color[2]);
-      gl!.uniform1f(uAlpha, alpha);
+      gl!.uniform1f(uAlpha, 1);
+      gl!.uniform1f(uLight, light ? 1 : 0);
+      gl!.uniform3f(uInk, ink[0], ink[1], ink[2]);
+      gl!.uniform3f(uWarm, warm[0], warm[1], warm[2]);
       gl!.clearColor(0, 0, 0, 0);
       gl!.clear(gl!.COLOR_BUFFER_BIT);
       gl!.drawArrays(gl!.TRIANGLES, 0, 3);
