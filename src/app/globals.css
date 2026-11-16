@@ -177,6 +177,12 @@ html.theme-vt::view-transition-new(root) {
   letter-spacing: -0.04em;
   line-height: 0.98;
 }
+/* Tablets and laptops: section headings a step smaller (about 15%), so they
+   lead without dominating the narrower viewport. Phones and large desktops
+   keep the scale above. */
+@media (min-width: 768px) and (max-width: 1535px) {
+  .h-section { font-size: clamp(2.4rem, 4.6vw, 4rem); }
+}
 .lede {
   font-size: clamp(1.05rem, 1.4vw, 1.25rem);
   line-height: 1.6;
