@@ -1,8 +1,7 @@
 import { InView } from "@/components/motion/InView";
 
 /** Original competition graphics. Decorative; the facts are stated in text. */
-export function TeamField({ total = 320, qualified = 0, shortlisted = 0, place = 6 }: { total?: number; qualified?: number; shortlisted?: number; place?: number }) {
-  const cols = 32;
+export function TeamField({ total = 320, qualified = 0, shortlisted = 0, place = 6, cols = 32 }: { total?: number; qualified?: number; shortlisted?: number; place?: number; cols?: number }) {
   return (
     <InView as="svg" viewBox={`0 0 ${cols * 12} ${Math.ceil(total / cols) * 12}`} className="team-field h-auto w-full" aria-hidden="true">
       {Array.from({ length: total }, (_, i) => {
