@@ -89,7 +89,7 @@ export default async function CaseStudy({ params }: PageProps<"/projects/[slug]"
 
       <div className="container-x mt-14">
         <ViewTransition name={`project-${p.slug}`} share="morph" default="none">
-          <div className="relative aspect-[16/9] overflow-hidden rounded-[22px] border border-line bg-surface">
+          <div className="case-hero-media relative aspect-[16/9] overflow-hidden rounded-[22px] border border-line bg-surface" style={{ ["--p" as string]: p.accent } as React.CSSProperties}>
             <Image src={hero.src} alt={hero.alt} fill priority sizes="(min-width: 1360px) 1280px, 100vw" className="object-cover object-top" />
           </div>
         </ViewTransition>
@@ -184,7 +184,7 @@ export default async function CaseStudy({ params }: PageProps<"/projects/[slug]"
         <Block n="07" title="Verified test results">
           <dl className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {p.tests.map((t) => (
-              <div key={t.label} className="flex flex-col-reverse rounded-2xl border border-line p-5">
+              <div key={t.label} className="stat-tile flex flex-col-reverse rounded-2xl border border-line p-5">
                 <dt className="mt-1 text-sm text-fg-muted">{t.label}</dt>
                 <dd className="text-2xl font-medium tracking-[-0.03em]">{t.value}</dd>
               </div>
@@ -205,7 +205,7 @@ export default async function CaseStudy({ params }: PageProps<"/projects/[slug]"
           <div className="grid gap-6 md:grid-cols-2">
             {p.screenshots.map((s) => (
               <figure key={s.src} className="group">
-                <a href={s.src} target="_blank" rel="noopener" className="block overflow-hidden rounded-[16px] border border-line bg-surface" aria-label={`Open full-size screenshot: ${s.caption}`}>
+                <a href={s.src} target="_blank" rel="noopener" className="shot-frame block overflow-hidden rounded-[16px] border border-line bg-surface" aria-label={`Open full-size screenshot: ${s.caption}`}>
                   <div className="relative aspect-[16/10]">
                     <Image src={s.src} alt={s.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.02]" />
                   </div>

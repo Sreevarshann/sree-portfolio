@@ -11,7 +11,7 @@ const picks = DETAILED_QUESTIONS;
 export function AskSreePromo() {
   const { send, openChat } = useAskSree();
   return (
-    <div className="panel relative overflow-hidden p-8 md:p-14" data-reveal>
+    <div className="ai-promo panel relative overflow-hidden p-8 md:p-14" data-reveal>
       <div className="pointer-events-none absolute -right-24 -top-24 opacity-[0.08] md:opacity-[0.12]" aria-hidden="true">
         <SreeMark size={520} />
       </div>

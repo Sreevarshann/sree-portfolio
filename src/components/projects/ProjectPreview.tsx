@@ -38,7 +38,7 @@ export function ProjectPreview({ project, priority = false, sizes }: { project: 
         setActive(false);
         setFrame(0);
       }}
-      className="relative aspect-[16/10] overflow-hidden rounded-[18px] border border-line bg-surface"
+      className="project-preview relative aspect-[16/10] overflow-hidden rounded-[18px] border border-line bg-surface"
     >
       <ViewTransition name={`project-${project.slug}`} share="morph" default="none">
         <div className="absolute inset-0">
@@ -59,9 +59,9 @@ export function ProjectPreview({ project, priority = false, sizes }: { project: 
           ))}
         </div>
       </ViewTransition>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[color-mix(in_oklab,var(--bg)_55%,transparent)] via-transparent to-transparent" />
+      <div className="preview-fade pointer-events-none absolute inset-0 bg-gradient-to-t from-[color-mix(in_oklab,var(--bg)_55%,transparent)] via-transparent to-transparent" />
       <div className="pointer-events-none absolute inset-x-4 bottom-4 flex items-center justify-between gap-3">
-        <span className="chip !bg-[color-mix(in_oklab,var(--bg)_70%,transparent)] backdrop-blur">{shots[frame]?.caption}</span>
+        <span className="preview-caption chip !bg-[color-mix(in_oklab,var(--bg)_70%,transparent)] backdrop-blur">{shots[frame]?.caption}</span>
         <span className="flex gap-1" aria-hidden="true">
           {shots.map((s, i) => (
             <span key={s.src} className={`h-1 rounded-full transition-all duration-500 ${i === frame ? "w-5 bg-accent" : "w-1.5 bg-fg-muted/50"}`} />
