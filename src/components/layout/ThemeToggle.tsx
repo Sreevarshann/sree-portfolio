@@ -25,7 +25,10 @@ function applyTheme(next: Theme, origin?: { x: number; y: number }) {
     window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
   };
   const doc = document as Doc;
-  if (!reduce && origin && doc.startViewTransition) {
+  // WebKit's view transitions can stall the update, so Safari (and every iOS
+  // browser) keeps the cross-fade; Chromium browsers get the reveal.
+  const webkit = /AppleWebKit/.test(navigator.userAgent) && !/Chrome\//.test(navigator.userAgent);
+  if (!reduce && origin && doc.startViewTransition && !webkit) {
     const r = Math.hypot(Math.max(origin.x, innerWidth - origin.x), Math.max(origin.y, innerHeight - origin.y));
     root.style.setProperty("--vt-x", `${origin.x}px`);
     root.style.setProperty("--vt-y", `${origin.y}px`);
