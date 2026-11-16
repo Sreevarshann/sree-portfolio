@@ -102,11 +102,17 @@
   box-shadow: inset 0 1px 0 #fff, var(--e3);
 }
 
-/* Hairline grids (grid gap-px bg-line): a single sheet ruled into cells. */
+/* Hairline grids (grid gap-px bg-line): a single sheet ruled into cells. The
+   sheet is white and each cell draws its own right/bottom rule into the 1px
+   gap, so an unfilled cell (a two-item row in a three-column grid) stays
+   clean paper instead of a grey block. Standalone sheets also get depth. */
 :root[data-theme="light"] .gap-px.bg-line {
-  background-color: rgb(var(--ink) / 0.075);
+  background-color: #fff;
   border-color: rgb(var(--ink) / 0.07);
-  box-shadow: var(--e2);
+}
+:root[data-theme="light"] .gap-px.bg-line.overflow-hidden { box-shadow: var(--e2); }
+:root[data-theme="light"] .gap-px.bg-line > * {
+  box-shadow: 1px 0 0 rgb(var(--ink) / 0.075), 0 1px 0 rgb(var(--ink) / 0.075);
 }
 :root[data-theme="light"] .gap-px.bg-line .bg-bg,
 :root[data-theme="light"] .gap-px.bg-line .bg-bg-elev {
