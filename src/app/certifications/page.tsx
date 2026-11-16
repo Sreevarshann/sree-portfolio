@@ -32,12 +32,12 @@ export default function CertificationsPage() {
                 {c.note && <p className="mt-4 rounded-xl border border-line bg-bg px-3 py-2 text-xs leading-relaxed text-fg-soft">{c.note}</p>}
                 <div className="mt-auto flex flex-col gap-2.5 pt-8">
                   {c.credentialUrl && (
-                    <a href={c.credentialUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary cert-action w-full whitespace-nowrap">
+                    <a href={c.credentialUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary cert-action w-full whitespace-nowrap max-[359px]:whitespace-normal">
                       View credential <span className="arrow" aria-hidden="true">↗</span>
                       <span className="sr-only"> on Credly (opens in a new tab)</span>
                     </a>
                   )}
-                  <a href={c.verifyUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost cert-action w-full whitespace-nowrap">
+                  <a href={c.verifyUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost cert-action w-full whitespace-nowrap max-[359px]:whitespace-normal">
                     {c.verifyLabel} <span className="arrow" aria-hidden="true">↗</span>
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
