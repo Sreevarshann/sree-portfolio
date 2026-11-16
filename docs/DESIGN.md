@@ -27,12 +27,12 @@ Drafting-table aesthetic: cyan line drawings, dimension lines, grid paper.
 ### Color tokens (`src/app/globals.css`, light in `src/app/theme-light.css`)
 | Token | Dark | Light |
 | --- | --- | --- |
-| `--bg` | `#08090c` graphite | `#f6f4ef` porcelain |
-| `--surface` | `#111620` midnight | `#efece5` warm stone (wells); cards are `#ffffff` sheets |
-| `--fg` | `#eef1f6` | `#0d1526` navy ink |
-| `--fg-muted` | `#8b95a7` | `#5d6474` (5.4:1 on porcelain) |
-| `--accent` | `#4f8fff` electric blue | `#2149d8` harbor cobalt (6.3:1) |
-| `--accent-solid` | `#2659d1` (white text ≥ 4.5:1) | `#2149d8` (white text 7:1) |
+| `--bg` | `#08090c` graphite | `#f7f9fc` arctic canvas |
+| `--surface` | `#111620` midnight | `#eff3f9` cool well; cards are `#ffffff` sheets |
+| `--fg` | `#eef1f6` | `#101d33` deep navy (16:1) |
+| `--fg-muted` | `#8b95a7` | `#52637b` (5.8:1) |
+| `--accent` | `#4f8fff` electric blue | `#2b63df` blue (5.0:1; accent text `#1e4fc0`, 6.8:1) |
+| `--accent-solid` | `#2659d1` (white text ≥ 4.5:1) | `#2b63df` (white text 5.3:1) |
 
 The light theme is designed separately (deeper accent, softer shadows, contour alpha retuned), not inverted. Theme choice is stored in `localStorage`; with no stored choice the site follows the OS and reacts to changes. An inline script sets `data-theme` before first paint, so there is no flash.
 
@@ -136,47 +136,51 @@ All motion respects `prefers-reduced-motion`. The WebGL hero field only starts o
 - **Spacing system.** `--space-chapter` (section owns only its top gap) and `--space-head`; see docs/v7/AUDIT.md for before/after measurements.
 - **Tableau Public.** Profile link in contact, footer, More menu and the toolkit; the Lab lists the three public dashboards by their real titles (linked, not embedded).
 
-## V8 — Harbor Daylight: the light theme
+## V9: Arctic, the light theme
 
-The light theme is its own design, not an inversion. Dark is Boston Harbor at night: graphite water, luminous contour lines, glass that glows. Light is the same harbor at first light, printed as a fine nautical chart: warm porcelain paper, navy ink engraving, harbor cobalt as the chart ink, and morning light (apricot sun, pale sky) washing across the page. Depth comes from light and shadow, never from glow.
+V8 ("Harbor Daylight") gave light mode its own design, but its warm porcelain, apricot sun and sunset footer read as a sunrise. V9 replaces that atmosphere with a cool, architectural identity while keeping every structure, hook and motion from V8. Dark is Boston Harbor at night; light is the same harbor on a clear winter morning, drawn like a survey: cool white canvas, deep navy type, blue-grey contour lines, frosted glass, and one restrained electric blue for what matters. Neutral surfaces carry the page; blue is the accent, never the wallpaper.
 
-All of it lives in `src/app/theme-light.css`, loaded after `globals.css`, and every rule is scoped to `:root[data-theme="light"]`. Components only gained inert class hooks (`hero-wash`, `project-preview`, `footer-horizon`, …) and one light-only element (`.footer-sky`, `display: none` in dark).
+Everything lives in `src/app/theme-light.css` (loaded after `globals.css`, every rule scoped to `:root[data-theme="light"]`). The theme-switch animation lives in `globals.css` and `ThemeToggle.tsx` and is deliberately untouched; `tests/unit/theme-transition.test.ts` pins both byte for byte.
 
-### Palette
-| Role | Value | Use |
+### Semantic tokens
+| Role | Token | Value |
 | --- | --- | --- |
-| Paper | `#f6f4ef` porcelain | page canvas; warm paper tooth instead of grey noise |
-| Sheet | `#ffffff` | cards, hairline grids, mats, glass highlights |
-| Ink | `#0d1526` / `#2c3446` / `#5d6474` | text, contour lines, skyline drawing |
-| Harbor cobalt | `#2149d8`, text `#1a3bb8` | accents, links, pointer lens, focus |
-| Morning light | apricot `246 150 92`, sky `120 160 250`, lilac `164 146 255` | decorative washes only, never text |
+| canvas / canvas-muted | `--bg` / `--surface` | `#f7f9fc` / `#eff3f9` |
+| surface-elevated | `--bg-elev` | `#ffffff` |
+| text-primary / text-secondary | `--fg` / `--fg-muted` | `#101d33` (16:1) / `#52637b` (5.8:1) |
+| accent / accent text | `--accent` / `--accent-fg` | `#2b63df` (5.0:1) / `#1e4fc0` (6.8:1) |
+| accent-soft | `--accent-soft` | `rgb(43 99 223 / .08)` |
+| border / border-strong | `--line` / `--line-strong` | navy at 10% / 17% |
+| shadow tint | `--shade` | `34 58 108` blue-grey |
+| ambient (decorative only) | `--electric`, `--ice`, `--glacier`, `--periwinkle` | `74 139 255`, `226 236 253`, `116 200 232`, `140 152 255` |
+| glass | `--glass-tint`, `--glass-shadow` | `rgb(251 252 255 / .62)`, cool layered shadow |
+| focus-ring | `--focus-ring` | `rgb(43 99 223 / .32)` |
+| contour-stroke | `--contour-ink`, `--contour`, `--contour-warm` | `44 64 104` lines, `43 99 223` pointer lens, `116 200 232` height tint |
 
-Selection reads like a highlighter on paper (apricot), not a blue block.
+Status colors, brand logos, Plotly series colors and each project's small category marks keep their own hues.
 
 ### Depth
-Three tinted elevations (`--e1`, `--e2`, `--e3`): a hairline contact ring, a short key shadow and a long ambient shadow tinted toward harbor blue. Cards are white sheets (no grey fades); hairline grids become one sheet ruled into cells; project screenshots sit in a white mat with a shadow tinted by the project's own hue, like prints on a light table.
+Three elevations (`--e1`, `--e2`, `--e3`): a hairline contact ring, a short key shadow and a long ambient shadow tinted blue-grey. Cards are white sheets; hairline grids are one sheet ruled into cells; project screenshots sit in a white mat over a soft ice bloom with a neutral shadow, so warm-hued projects never wash the canvas.
 
-### Liquid glass in daylight
-A clear body (`rgb(255 255 255 / .56)`) with `blur(20px) saturate(180%) brightness(1.08)`, a bright lens rim on top, a faint ink line underneath for thickness, an inner glow, and a prism edge where light refracts: cool blue on the left, warm sun on the right. The current-page marker and the Quick/Detailed thumb are raised white lenses, like a daylight segmented control.
+### Frosted daylight glass
+`rgb(251 252 255 / .62)` with `blur(22px) saturate(170%) brightness(1.06)`, a bright lens rim, a faint navy line underneath for thickness, an inner frost and a cold prism edge (electric blue to glacier). The current-page marker is a raised white lens with a fine electric underline of light.
 
 ### Signature details
-- **Daylight chart (hero WebGL).** The same shader in a light branch (`uLight`): navy ink lines, cobalt where the pointer lifts the terrain, and faint depth bands shading from harbor blue to sunlit sand. Rendered at DPR 1.5 (1.0 on touch) because ink lines show softness that glowing lines hide; it still pauses off screen and drops to 30 fps while the pointer is idle.
-- **Sun behind the print.** The portrait is a white gallery print with apricot washi tape; a sun glow is anchored to the print so it stays with it at every width.
-- **Inked swash.** Italic accent words in headings get a hand-inked apricot stroke that draws in as the heading arrives (an annotation on the chart). The word keeps its cobalt ink and full contrast.
-- **Engraved numerals.** Project index numbers are engraved in the project's hue with a watercolor fill; rank numerals are pressed in ink that deepens toward harbor blue.
-- **Dawn footer.** The night skyline becomes Boston at first light: an ink drawing over a warm horizon, a sun that rises behind the Zakim cables as the footer arrives (clipped exactly at the drawing's water line, aligned with the towers at every width), warm water mirroring the sky, and a sunlight glint travelling the water.
-- **Morning everywhere else.** A sunrise behind the contact call to action that spills into the footer, a soft aurora on the Sree AI panel, chart paper ruled in cobalt behind interior page headers.
+- **Survey contours (hero WebGL).** The light shader branch draws blue-grey survey lines that turn electric where the pointer lifts the terrain, over faint depth bands shading from blue to glacier on the high ground.
+- **Cold halo behind the print.** The portrait is a white print with frosted tape; an icy halo is anchored to the print at every width.
+- **Dimension line.** Italic accent words get a precise electric double rule that draws in as the heading arrives.
+- **Winter morning footer.** Boston as a navy ink drawing over a cold, clear sky; a pale winter sun (white disc, fine blue rim, icy halo) rises behind the Zakim cables with scroll, cut exactly at the water line; ice-blue water and an electric glint travelling the water line.
+- **Cold air elsewhere.** Ice light behind the contact call to action, a cold aurora on the Sree AI panel, a survey grid ruled in blue behind interior page headers.
 
 ### Motion
 | Moment | Light | Reduced motion |
 | --- | --- | --- |
-| Theme switch (both directions) | The new theme grows as a circle from the toggle (View Transitions API) | Instant change |
-| Daybreak | The hero's morning light comes up on arrival | Static |
-| Developing print | The placeholder mosaic develops like a photograph | Static |
-| Swash | Accent strokes draw in after the heading rises | Shown complete |
-| Sunrise | The footer sun rises with scroll (scroll-driven) | Final position |
-| Tactile lift | Buttons and toolkit keycaps lift toward the light on hover | Static |
+| Theme switch | Unchanged: circular reveal from the toggle in Chromium browsers, cross-fade in Safari | Instant |
+| First light | The hero haze clears in on arrival | Static |
+| Developing print | The placeholder mosaic develops | Static |
+| Dimension line | Accent rules draw in after the heading rises | Shown complete |
+| Winter sun | The footer sun rises with scroll | Final position |
+| Tactile lift | Buttons and keycaps lift on hover | Static |
 
 ### Keeping dark untouched
-A computed-style fingerprint of every element (and its `::before`/`::after`) on 13 routes at desktop and phone sizes, 45 properties each, is compared before and after. Result for this release: no changes in dark apart from Plotly's random clip-path ids and the new light-only element, which is `display: none` in dark. `tests/e2e/light-theme.spec.ts` also pins a sample of dark values (surfaces, glass, buttons, footer) so a future light change cannot leak into dark.
-
+The computed-style fingerprint (every element and `::before`/`::after`, 13 routes, desktop and phone, 45 properties) shows no dark changes apart from Plotly's random clip-path ids and the light-only footer sun inside its `display: none` sky. `tests/e2e/light-theme.spec.ts` pins dark samples, asserts no warm colors anywhere in light, and checks the contour ink is blue-dominant.
