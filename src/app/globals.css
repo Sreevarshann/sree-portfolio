@@ -49,36 +49,8 @@
   --maxw: 1360px;
 }
 
-:root[data-theme="light"] {
-  color-scheme: light;
-  --bg: #f5f6f8;
-  --bg-elev: #ffffff;
-  --surface: #eef1f5;
-  --surface-2: #e6eaf0;
-  --line: rgb(15 23 42 / 0.09);
-  --line-strong: rgb(15 23 42 / 0.18);
-  --fg: #0d1117;
-  --fg-soft: #2b3340;
-  --fg-muted: #586273;
-  --accent: #1f5fe0;
-  --accent-strong: #1a4fbd;
-  --accent-soft: rgb(31 95 224 / 0.09);
-  --accent-solid: #1f5fe0;
-  --accent-fg: #1a4fbd;
-  --silver: #6b778a;
-  --success: #0f8a5f;
-  --warn: #a6620d;
-  --shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 18px 40px -22px rgb(15 23 42 / 0.25);
-  --glow: 0 0 0 1px rgb(31 95 224 / 0.3), 0 10px 30px -12px rgb(31 95 224 / 0.35);
-  --grain-opacity: 0.035;
-  --contour: 31 95 224;
-  --mark-1: #7fa8f2;
-  --mark-2: #2563eb;
-  --mark-3: #0a2f78;
-  --mark-core-1: #dbe7ff;
-  --mark-core-2: #2563eb;
-  --mark-glow: #5b8ff5;
-}
+/* Light theme ("Harbor Daylight") tokens and components live in theme-light.css,
+   loaded after this file and scoped to :root[data-theme="light"]. */
 
 @theme inline {
   --color-bg: var(--bg);
@@ -720,15 +692,6 @@ button.chip:hover {
   --glass-sheen: rgb(169 200 255 / 0.18);
   --glass-shadow: 0 1px 1px rgb(0 0 0 / 0.25), 0 10px 30px -8px rgb(0 0 0 / 0.55), 0 30px 60px -30px rgb(20 60 160 / 0.35);
 }
-:root[data-theme="light"] {
-  --glass-tint: rgb(255 255 255 / 0.55);
-  --glass-tint-strong: rgb(255 255 255 / 0.8);
-  --glass-edge: rgb(15 23 42 / 0.08);
-  --glass-hi: rgb(255 255 255 / 0.95);
-  --glass-lo: rgb(255 255 255 / 0.3);
-  --glass-sheen: rgb(255 255 255 / 0.65);
-  --glass-shadow: 0 1px 1px rgb(15 23 42 / 0.06), 0 12px 32px -10px rgb(15 23 42 / 0.22), 0 30px 60px -32px rgb(31 95 224 / 0.25);
-}
 @layer components {
 .glass {
   isolation: isolate;
@@ -960,10 +923,6 @@ a:focus-visible > .ss-mark .ss-rule {
   transform: translateX(-50%) scaleX(1);
   opacity: 1;
 }
-:root[data-theme="light"] .ss-mark {
-  background: linear-gradient(160deg, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.4));
-  box-shadow: inset 0 0 0 1px var(--line-strong), 0 1px 2px rgb(10 20 40 / 0.06);
-}
 @media (prefers-reduced-motion: reduce) {
   .ss-mark, .ss-letters, .ss-rule { transition: none; }
 }
@@ -1044,11 +1003,6 @@ a:focus-visible > .ss-mark .ss-rule {
     linear-gradient(180deg, rgb(255 255 255 / 0.42), rgb(255 255 255 / 0) 38%, rgb(255 255 255 / 0) 70%, rgb(130 175 255 / 0.32)),
     linear-gradient(90deg, rgb(120 170 255 / 0.22), transparent 18%, transparent 82%, rgb(120 170 255 / 0.22));
 }
-:root[data-theme="light"] .island::after {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 1), rgb(255 255 255 / 0) 45%, rgb(31 95 224 / 0.14)),
-    linear-gradient(90deg, rgb(31 95 224 / 0.12), transparent 20%, transparent 80%, rgb(31 95 224 / 0.12));
-}
 
 @media (prefers-reduced-motion: reduce) {
   .island, .collapse-x, .ai-pill { transition: none; }
@@ -1083,7 +1037,6 @@ a:focus-visible > .ss-mark .ss-rule {
   pointer-events: none;
 }
 .stage-glow-right { left: auto; right: 0; }
-:root[data-theme="light"] .stage-glow { opacity: 0.32; }
 .stage-index {
   position: absolute;
   left: 0;
@@ -1406,13 +1359,6 @@ a:focus-visible > .ss-mark .ss-rule {
   transform: rotate(var(--tilt));
   transition: transform var(--dur-l) var(--ease-spring-soft), box-shadow var(--dur-l) var(--ease-out);
 }
-:root[data-theme="light"] .pswap-print {
-  background: #fff;
-  box-shadow:
-    0 1px 2px rgb(15 23 42 / 0.08),
-    0 28px 50px -26px rgb(15 23 42 / 0.32),
-    0 0 0 1px rgb(15 23 42 / 0.06);
-}
 .pswap:hover .pswap-print,
 .pswap:focus-within .pswap-print {
   transform: rotate(-1deg) translateY(-6px);
@@ -1421,13 +1367,6 @@ a:focus-visible > .ss-mark .ss-rule {
     0 4px 10px rgb(0 0 0 / 0.35),
     0 44px 80px -30px rgb(0 0 0 / 0.8),
     0 0 0 1px color-mix(in oklab, var(--accent) 35%, var(--line));
-}
-:root[data-theme="light"] .pswap:hover .pswap-print,
-:root[data-theme="light"] .pswap:focus-within .pswap-print {
-  box-shadow:
-    0 2px 6px rgb(15 23 42 / 0.1),
-    0 40px 70px -30px rgb(15 23 42 / 0.4),
-    0 0 0 1px color-mix(in oklab, var(--accent) 30%, transparent);
 }
 .pswap-tape {
   position: absolute;
@@ -1674,10 +1613,6 @@ a:focus-visible > .ss-mark .ss-rule {
     background-color var(--dur-s) var(--ease-out),
     transform var(--dur-m) var(--ease-spring);
   user-select: none;
-}
-:root[data-theme="light"] .stack-pill {
-  background: color-mix(in oklab, #fff 80%, transparent);
-  box-shadow: inset 0 0 0 1px var(--line-strong), 0 8px 20px -14px rgb(15 23 42 / 0.3);
 }
 .stack-pill::-webkit-details-marker { display: none; }
 .stack-pill::marker { content: ""; }
@@ -1962,10 +1897,6 @@ html[data-view="detailed"] .view-switch-thumb { transform: translateX(100%); }
     inset 0 1px 0 rgb(255 255 255 / 0.08),
     0 0 0 1px color-mix(in oklab, var(--accent) 28%, var(--line)),
     0 24px 50px -22px rgb(0 0 0 / 0.65);
-}
-:root[data-theme="light"] .coach {
-  background: color-mix(in oklab, #fff 88%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 22%, var(--line)), 0 22px 44px -22px rgb(15 23 42 / 0.35);
 }
 .coach-arrow {
   position: absolute;

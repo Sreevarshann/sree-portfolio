@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
+// The light theme ("Harbor Daylight") is its own design system, loaded after the base.
+import "./theme-light.css";
 import { profile } from "@/content/profile";
 import { SiteNav } from "@/components/layout/SiteNav";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -55,7 +57,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#08090c" },
-    { media: "(prefers-color-scheme: light)", color: "#f5f6f8" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f4ef" },
   ],
   width: "device-width",
   initialScale: 1,

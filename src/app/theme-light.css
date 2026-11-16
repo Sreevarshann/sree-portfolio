@@ -1,0 +1,262 @@
+/* ==================================================================
+   LIGHT THEME - "Harbor Daylight"
+
+   The dark theme is Boston Harbor at night: graphite water, luminous
+   contour lines, glass that glows. The light theme is the same harbor at
+   first light, printed as a fine nautical chart: warm porcelain paper,
+   navy ink engraving, harbor-cobalt as the chart ink, and soft morning
+   light (apricot sun, pale sky) washing across the page. Depth comes from
+   light and shadow, never from glow.
+
+   Every rule is scoped to :root[data-theme="light"], so the dark theme is
+   untouched (verified by a computed-style fingerprint of every element).
+   Loaded after globals.css.
+------------------------------------------------------------------- */
+
+/* ------------------------------------------------------------ tokens */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Paper and ink */
+  --bg: #f6f4ef; /* porcelain */
+  --bg-elev: #ffffff; /* lifted sheet */
+  --surface: #efece5; /* warm stone well */
+  --surface-2: #e7e3da;
+  --line: rgb(26 30 44 / 0.1);
+  --line-strong: rgb(26 30 44 / 0.18);
+  --fg: #0d1526; /* navy ink */
+  --fg-soft: #2c3446;
+  --fg-muted: #5d6474; /* 5.4:1 on porcelain */
+
+  /* Harbor cobalt: the chart ink */
+  --accent: #2149d8; /* 6.3:1 on porcelain */
+  --accent-strong: #1a3cc0;
+  --accent-soft: rgb(33 73 216 / 0.08);
+  --accent-solid: #2149d8; /* white text 7:1 */
+  --accent-fg: #1a3bb8; /* 8:1 on porcelain */
+  --silver: #6b7385;
+  --success: #0f8a5f;
+  --warn: #a6620d;
+
+  /* Morning light (decorative only, never text) */
+  --sun: 246 150 92; /* apricot */
+  --sun-soft: 255 221 196;
+  --sky: 120 160 250;
+  --lilac: 164 146 255;
+  --ink: 13 21 38;
+
+  /* Elevation: tinted, layered shadows (contact + key + ambient) */
+  --e1: 0 0 0 1px rgb(var(--ink) / 0.06), 0 1px 2px rgb(var(--ink) / 0.05);
+  --e2: 0 0 0 1px rgb(var(--ink) / 0.055), 0 1px 2px rgb(var(--ink) / 0.04), 0 6px 14px -8px rgb(var(--ink) / 0.1), 0 18px 40px -24px rgb(28 44 110 / 0.22);
+  --e3: 0 0 0 1px rgb(var(--ink) / 0.06), 0 2px 4px rgb(var(--ink) / 0.04), 0 14px 30px -14px rgb(var(--ink) / 0.16), 0 40px 80px -44px rgb(33 73 216 / 0.34);
+  --shadow: var(--e2);
+  --glow: 0 0 0 1px rgb(33 73 216 / 0.32), 0 10px 26px -12px rgb(33 73 216 / 0.38);
+
+  --grain-opacity: 0.055;
+  --contour: 33 73 216;
+  --contour-ink: 20 32 70;
+  --contour-warm: 236 138 82;
+
+  /* Sree AI mark: porcelain-blue enamel */
+  --mark-1: #9ec0ff;
+  --mark-2: #2b5be8;
+  --mark-3: #0b2a74;
+  --mark-core-1: #ffffff;
+  --mark-core-2: #2b5be8;
+  --mark-glow: #6e9bff;
+
+  /* Liquid glass in daylight: clear body, bright rims, tinted shadow */
+  --glass-tint: rgb(255 255 255 / 0.56);
+  --glass-tint-strong: rgb(255 255 255 / 0.8);
+  --glass-edge: rgb(255 255 255 / 0.7);
+  --glass-hi: rgb(255 255 255 / 1);
+  --glass-lo: rgb(238 243 255 / 0.78); /* lift tint for bubbles and hovers */
+  --glass-sheen: rgb(255 255 255 / 0.95);
+  --glass-shadow: 0 0 0 1px rgb(var(--ink) / 0.07), 0 1px 1px rgb(var(--ink) / 0.05), 0 10px 26px -12px rgb(20 34 90 / 0.22), 0 30px 60px -34px rgb(33 73 216 / 0.3);
+}
+
+/* ------------------------------------------------------------ paper */
+/* A warm paper tooth instead of neutral grey noise. */
+:root[data-theme="light"] .grain::after {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.24 0 0 0 0 0.19 0 0 0 0 0.14 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+/* Selection reads like a highlighter on paper. */
+:root[data-theme="light"] ::selection {
+  background: rgb(255 196 128 / 0.6);
+  color: var(--fg);
+}
+
+/* ------------------------------------------------------------ surfaces */
+/* Lifted sheets: white, a hairline, and soft daylight shadow. No grey fade. */
+:root[data-theme="light"] .panel {
+  background: linear-gradient(180deg, #ffffff 0%, #fffefb 100%);
+  border-color: rgb(var(--ink) / 0.06);
+  box-shadow: inset 0 1px 0 #fff, var(--e2);
+  transition:
+    box-shadow var(--dur-m) var(--ease-out),
+    border-color var(--dur-m) var(--ease-out),
+    transform var(--dur-m) var(--ease-out);
+}
+:root[data-theme="light"] a.panel:hover,
+:root[data-theme="light"] .panel.group:hover {
+  box-shadow: inset 0 1px 0 #fff, var(--e3);
+}
+
+/* Hairline grids (grid gap-px bg-line): a single sheet ruled into cells. */
+:root[data-theme="light"] .gap-px.bg-line {
+  background-color: rgb(var(--ink) / 0.075);
+  border-color: rgb(var(--ink) / 0.07);
+  box-shadow: var(--e2);
+}
+:root[data-theme="light"] .gap-px.bg-line .bg-bg,
+:root[data-theme="light"] .gap-px.bg-line .bg-bg-elev {
+  background-color: #fff;
+}
+:root[data-theme="light"] .gap-px.bg-line :is(a, article, li > a).bg-bg {
+  background-image: radial-gradient(130% 90% at 50% -20%, rgb(var(--sky) / 0), transparent 60%);
+  transition: background-color var(--dur-m) var(--ease-out), background-image var(--dur-m) var(--ease-out);
+}
+:root[data-theme="light"] .gap-px.bg-line .bg-bg:is(:hover, :focus-visible),
+:root[data-theme="light"] .gap-px.bg-line .group.bg-bg:hover {
+  background-color: #fdfcf9;
+  background-image: radial-gradient(130% 90% at 50% -20%, rgb(var(--sky) / 0.16), transparent 60%);
+}
+
+/* Chips: small white tabs with a hairline. */
+:root[data-theme="light"] .chip {
+  background: rgb(255 255 255 / 0.82);
+  border-color: rgb(var(--ink) / 0.1);
+  color: var(--fg-soft);
+  box-shadow: 0 1px 1px rgb(var(--ink) / 0.03);
+}
+:root[data-theme="light"] a.chip:hover,
+:root[data-theme="light"] button.chip:hover {
+  border-color: rgb(33 73 216 / 0.45);
+  background: #fff;
+}
+
+/* ------------------------------------------------------------ buttons */
+/* Primary: a pressed-ink button with a lit top edge; cobalt rises on hover. */
+:root[data-theme="light"] .btn-primary {
+  background: linear-gradient(180deg, #1c263b 0%, #0d1526 100%);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    inset 0 -1px 0 rgb(0 0 0 / 0.25),
+    0 1px 2px rgb(var(--ink) / 0.22),
+    0 10px 22px -12px rgb(var(--ink) / 0.6);
+}
+:root[data-theme="light"] .btn-primary::before {
+  background: linear-gradient(180deg, #3a63f2 0%, #2149d8 100%);
+}
+:root[data-theme="light"] .btn-primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    inset 0 -1px 0 rgb(0 0 0 / 0.18),
+    0 1px 2px rgb(33 73 216 / 0.25),
+    0 14px 28px -12px rgb(33 73 216 / 0.65);
+}
+/* Ghost: a white tab with a hairline that picks up cobalt on hover. */
+:root[data-theme="light"] .btn-ghost {
+  background: rgb(255 255 255 / 0.72);
+  border-color: rgb(var(--ink) / 0.12);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05);
+}
+:root[data-theme="light"] .btn-ghost:hover {
+  background: #fff;
+  border-color: rgb(33 73 216 / 0.42);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgb(var(--ink) / 0.05), 0 10px 22px -12px rgb(33 73 216 / 0.45);
+}
+:root[data-theme="light"] .btn-ghost:focus-visible,
+:root[data-theme="light"] .btn-primary:focus-visible {
+  box-shadow: 0 0 0 3px rgb(33 73 216 / 0.28);
+}
+
+/* ------------------------------------------------------------ liquid glass */
+/* Daylight glass: clear body that lifts what is behind it, a bright lens rim
+   on top, a faint ink line underneath for thickness, and a prism edge -
+   cool blue on the left, warm sun on the right - where light refracts. */
+/* Unlayered on purpose: beats the layered base .glass and the unlayered .island rim. */
+:root[data-theme="light"] .glass {
+  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.08);
+  backdrop-filter: blur(20px) saturate(180%) brightness(1.08);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 -1px 0 rgb(var(--ink) / 0.07),
+    inset 0 0 14px rgb(255 255 255 / 0.55),
+    var(--glass-shadow);
+}
+:root[data-theme="light"] .glass::before {
+  background:
+    radial-gradient(140px 70px at var(--gx, 30%) var(--gy, 0%), var(--glass-sheen), transparent 70%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.5), transparent 55%);
+}
+:root[data-theme="light"] .glass::after {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 1), rgb(255 255 255 / 0) 42%, rgb(255 255 255 / 0) 70%, rgb(var(--ink) / 0.06)),
+    linear-gradient(90deg, rgb(110 150 255 / 0.32), transparent 16%, transparent 84%, rgb(255 160 110 / 0.3));
+  opacity: 0.9;
+}
+
+/* ------------------------------------------------------------ dynamic island */
+/* The active/hover marker is a raised white lens, like a daylight segmented
+   control, instead of a tinted wash. */
+:root[data-theme="light"] .nav-indicator {
+  background: linear-gradient(180deg, #ffffff, rgb(255 255 255 / 0.86));
+  box-shadow:
+    0 0 0 1px rgb(var(--ink) / 0.06),
+    0 1px 2px rgb(var(--ink) / 0.08),
+    0 4px 12px -4px rgb(20 34 90 / 0.18),
+    inset 0 1px 0 #fff;
+}
+:root[data-theme="light"] .island-links a,
+:root[data-theme="light"] .island-links button {
+  color: rgb(var(--ink) / 0.62);
+}
+:root[data-theme="light"] .island-links a:hover,
+:root[data-theme="light"] .island-links button:hover,
+:root[data-theme="light"] .island-links [aria-current],
+:root[data-theme="light"] .island-links button[aria-expanded="true"] {
+  color: var(--fg);
+}
+/* Sree AI pill: a pale-blue glass chip with a cobalt hairline. */
+:root[data-theme="light"] .ai-pill {
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.95), rgb(226 235 255 / 0.9));
+  box-shadow: 0 0 0 1px rgb(33 73 216 / 0.16), 0 1px 2px rgb(var(--ink) / 0.06), inset 0 1px 0 #fff;
+}
+:root[data-theme="light"] .ai-pill:hover {
+  box-shadow: 0 0 0 1px rgb(33 73 216 / 0.38), 0 8px 20px -10px rgb(33 73 216 / 0.55), inset 0 1px 0 #fff;
+}
+/* Quick / Detailed: a recessed track with a white thumb. */
+:root[data-theme="light"] .view-switch {
+  background: rgb(var(--ink) / 0.045);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.06), inset 0 1px 2px rgb(var(--ink) / 0.06);
+}
+:root[data-theme="light"] .view-switch-thumb {
+  background: linear-gradient(180deg, #ffffff, #fbfbfd);
+  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.07), 0 1px 2px rgb(var(--ink) / 0.1), 0 3px 8px -3px rgb(20 34 90 / 0.2);
+}
+:root[data-theme="light"] .view-switch-opt { color: rgb(var(--ink) / 0.58); }
+:root[data-theme="light"] .view-switch-opt:hover { color: var(--fg); }
+/* SS monogram: a porcelain coin. */
+:root[data-theme="light"] .ss-mark {
+  background: radial-gradient(120% 120% at 30% 20%, #ffffff 0%, #f3f1ec 70%);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.12), inset 0 -2px 4px rgb(var(--ink) / 0.04), 0 1px 2px rgb(var(--ink) / 0.08);
+}
+:root[data-theme="light"] a:hover > .ss-mark,
+:root[data-theme="light"] a:focus-visible > .ss-mark {
+  box-shadow: inset 0 0 0 1px rgb(33 73 216 / 0.5), 0 6px 18px -8px rgb(33 73 216 / 0.55);
+}
+:root[data-theme="light"] .island-brand[data-active] .ss-mark {
+  box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.12), 0 0 0 2px #fff, 0 0 0 3.5px rgb(33 73 216 / 0.35);
+}
+:root[data-theme="light"] .island-btn:hover { background: rgb(255 255 255 / 0.7); }
+/* Dropdowns that grow out of the island. */
+:root[data-theme="light"] .more-item { color: var(--fg-soft); }
+:root[data-theme="light"] .more-item:hover,
+:root[data-theme="light"] .more-item:focus-visible,
+:root[data-theme="light"] .more-item[data-active] {
+  background: #fff;
+  color: var(--fg);
+  box-shadow: 0 0 0 1px rgb(var(--ink) / 0.05), 0 1px 3px rgb(var(--ink) / 0.06);
+}
