@@ -38,9 +38,10 @@ test.describe("Quick View (default)", () => {
     expect(await view(page)).toBe("quick");
     await expect(page.locator("h1")).toHaveText("Sreevarshan Sathiyamurthy");
     await expect(page.getByText("Available for full-time opportunities")).toBeVisible();
-    // Exactly three featured projects, each with one action.
-    await expect(visible(page, "Selected work").getByRole("link", { name: /^Explore project/ })).toHaveCount(3);
-    for (const name of ["AEGIS AI", "NEXUS AI", "WorkMesh"]) await expect(visible(page, "Selected work").getByRole("heading", { name })).toBeVisible();
+    // Exactly three projects in the gallery, each with a case study and a repository.
+    await expect(visible(page, "Projects").getByRole("link", { name: /^Case study/ })).toHaveCount(3);
+    await expect(visible(page, "Projects").getByRole("link", { name: /^GitHub/ })).toHaveCount(3);
+    for (const name of ["AEGIS AI", "NEXUS AI", "WorkMesh"]) await expect(visible(page, "Projects").getByRole("heading", { name })).toBeVisible();
     // Experience snapshot: three roles with one outcome each.
     await expect(page.locator(".xp-snap li")).toHaveCount(3);
     await expect(page.locator(".xp-snap")).toContainText("18");
@@ -48,9 +49,8 @@ test.describe("Quick View (default)", () => {
     await expect(visible(page, "Achievements")).toContainText("Singapore AUV Challenge");
     await expect(visible(page, "Achievements")).toContainText("Google MLOps Expo");
     await expect(visible(page, "Contact").getByRole("link", { name: /sreevarshan\.dev@gmail\.com/ })).toHaveAttribute("href", "mailto:sreevarshan.dev@gmail.com");
-    // Detailed-only sections are out of layout (display:none) and their charts never load.
-    for (const label of ["Lab", "Sree AI"]) await expect(visible(page, label)).toBeHidden();
-    await expect(visible(page, "Approach")).toBeVisible(); // the short approach statement shows in both views
+    // Removed homepage sections are gone entirely, and no chart loads on the homepage.
+    for (const label of ["Approach", "What I build", "Selected work", "Lab", "Sree AI"]) await expect(page.locator(`main > section[aria-label="${label}"]`)).toHaveCount(0);
     await expect(page.locator(".js-plotly-plot")).toHaveCount(0);
     // The hero intro stays short.
     const intro = await page.locator(".hero-title + p, .lede").first().innerText();
@@ -71,8 +71,8 @@ test.describe("Detailed View", () => {
   test("?view=detailed shows the full portfolio", async ({ page }) => {
     await page.goto("/?view=detailed");
     expect(await view(page)).toBe("detailed");
-    for (const label of ["Approach", "Lab", "Sree AI"]) await expect(visible(page, label)).toBeVisible();
-    await expect(visible(page, "Selected work").getByRole("link", { name: /^Case study/ })).toHaveCount(4);
+    await expect(visible(page, "Projects").getByRole("link", { name: /^Case study/ })).toHaveCount(6);
+    await expect(visible(page, "Achievements")).toContainText("An international student competition");
     await expect(page.locator(".hero-companies")).toBeVisible();
     await expect(page.locator(".xp-snap")).toBeHidden();
     await expect(visible(page, "Experience").getByRole("heading", { name: "Software & Data Engineer Intern" })).toBeVisible();
@@ -114,8 +114,8 @@ test.describe("view switch", () => {
     const sw = page.getByRole("group", { name: "Portfolio view" });
     for (let i = 0; i < 9; i++) await sw.getByRole("button", { name: i % 2 ? "Quick View" : "Detailed View" }).click();
     await expect.poll(() => view(page)).toBe("detailed");
-    await expect(visible(page, "Approach")).toBeVisible();
-    await expect(visible(page, "Selected work").locator(".v-quick")).toBeHidden();
+    await expect(visible(page, "Projects").locator(".v-detailed")).toBeVisible();
+    await expect(visible(page, "Projects").locator(".v-quick")).toBeHidden();
     expect(errors).toEqual([]);
   });
 
@@ -301,11 +301,10 @@ test.describe("navigation", () => {
   test.skip(({ isMobile }) => isMobile, "Desktop island links");
 
   const homeCases: [string, string, string][] = [
-    ['section[aria-label="What I build"]', "About", "location"],
-    ['section[aria-label="Selected work"]', "Projects", "location"],
+    ['section[aria-label="Achievements"]', "Achievements", "location"],
     ['section[aria-label="Experience"]', "Experience", "location"],
     ["#tools", "About", "location"],
-    ['section[aria-label="Achievements"]', "Achievements", "location"],
+    ['section[aria-label="Projects"]', "Projects", "location"],
   ];
   for (const v of ["quick", "detailed"] as const) {
     test(`homepage sections highlight their owner (${v})`, async ({ page }) => {
@@ -391,7 +390,6 @@ test.describe("spacing", () => {
         for (const g of r.gaps) {
           expect(Math.abs(g.gap), `${g.label} adjacency at ${width}`).toBeLessThanOrEqual(1);
           expect(g.pb, `${g.label}'s neighbour adds no bottom padding at ${width}`).toBe(0);
-          // The short Approach statement sits closer to the hero by design.
           if (g.tight) expect(g.pad, `${g.label} uses the tight gap at ${width}`).toBeLessThan(r.chapter);
           else expect(Math.abs(g.pad - r.chapter), `${g.label} uses the chapter gap at ${width}`).toBeLessThanOrEqual(1);
         }
@@ -406,7 +404,8 @@ test.describe("spacing", () => {
     const quick = await page.evaluate(() => document.documentElement.scrollHeight);
     await page.goto("/?view=detailed");
     const detailed = await page.evaluate(() => document.documentElement.scrollHeight);
-    expect(quick).toBeLessThan(detailed * 0.75);
+    // Since V9 both views are concise; Quick still drops summaries, the timeline and a gallery row.
+    expect(quick).toBeLessThan(detailed * 0.85);
   });
 });
 

@@ -1,56 +1,51 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const approach = (page: Page) => page.locator('main > section[aria-label="Approach"]');
 const triggers = (page: Page) => page.evaluate(() => Number(document.documentElement.dataset.motionTriggers ?? -1));
 
-test.describe("Approach statement", () => {
+const ORDER = ["Introduction", "Achievements", "Education and certifications", "Experience", "Tools and technologies", "Projects", "Contact"];
+
+test.describe("homepage information architecture (V9)", () => {
   for (const v of ["quick", "detailed"] as const) {
-    test(`compact and present in ${v} view`, async ({ page }) => {
-      await page.setViewportSize({ width: 1440, height: 900 });
+    test(`exact section order in ${v} view, with no approach statement`, async ({ page }) => {
       await page.goto(`/?view=${v}`);
-      const s = approach(page);
-      await expect(s).toBeVisible();
-      await expect(s.getByRole("heading", { level: 2 })).toHaveText(/An AI feature is only as good as\s+the data it reads\./);
-      await expect(s.locator(".approach-hl")).toHaveText("the data it reads.");
-      await expect(s.locator(".approach-label")).toHaveText(/my approach/i);
-      await expect(s.locator(".approach-support")).toContainText("systems that work beyond the prototype");
-      const m = await s.locator(".approach-statement").evaluate((el) => {
-        const cs = getComputedStyle(el);
-        return { lines: Math.round(el.getBoundingClientRect().height / parseFloat(cs.lineHeight)), size: parseFloat(cs.fontSize) };
-      });
-      expect(m.lines).toBeGreaterThanOrEqual(2);
-      expect(m.lines).toBeLessThanOrEqual(3);
-      expect(m.size).toBeLessThanOrEqual(48);
-      // The section stays compact: well under one viewport tall.
-      expect((await s.boundingBox())!.height).toBeLessThan(560);
+      const labels = await page.$$eval("main > section", (ss) => ss.filter((s) => getComputedStyle(s).display !== "none").map((s) => s.getAttribute("aria-label")));
+      expect(labels).toEqual(ORDER);
+      await expect(page.locator("footer").first()).toBeVisible();
+      await expect(page.getByText("the data it reads", { exact: false })).toHaveCount(0);
+      await expect(page.getByText(/my approach/i)).toHaveCount(0);
+      expect(await page.locator('[data-nav-section="approach"], [data-nav-section="build"], [data-nav-section="lab"], [data-nav-section="ai"], [data-view-anchor="approach"]').count()).toBe(0);
     });
   }
 
-  test("readable at phone width with no overflow, in both themes", async ({ page }) => {
-    for (const scheme of ["light", "dark"] as const) {
-      await page.emulateMedia({ colorScheme: scheme });
-      await page.setViewportSize({ width: 320, height: 700 });
-      await page.goto("/");
-      const s = approach(page);
-      await s.scrollIntoViewIfNeeded();
-      const box = (await s.locator(".approach-statement").boundingBox())!;
-      expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width).toBeLessThanOrEqual(320);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-      // Text is fully opaque once in view (the entrance never leaves it hidden).
-      await expect.poll(() => s.locator(".approach-hl").evaluate((el) => getComputedStyle(el).opacity)).toBe("1");
+  test("achievements start within the first scroll on desktop and phone", async ({ page }) => {
+    for (const [w, h] of [[1440, 900], [390, 844]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto("/?view=quick");
+      const top = await page.locator('main > section[aria-label="Achievements"]').evaluate((el) => el.getBoundingClientRect().top + scrollY);
+      const hero = await page.locator('main > section[aria-label="Introduction"]').evaluate((el) => el.getBoundingClientRect().bottom + scrollY);
+      expect(Math.abs(top - hero), "achievements follow the hero directly").toBeLessThanOrEqual(1);
+      const ach = page.locator('main > section[aria-label="Achievements"]');
+      await expect(ach.getByText("6th place globally · of 320+ teams")).toBeVisible();
+      await expect(ach.locator("p.eyebrow", { hasText: /^3rd place$/ })).toBeVisible();
+      await expect(ach.getByRole("link", { name: "Singapore AUV Challenge", exact: true })).toHaveAttribute("href", "/achievements#sauvc");
+      await expect(ach.getByRole("link", { name: "Google MLOps Expo", exact: true })).toHaveAttribute("href", "/achievements#google-mlops-expo");
+      await expect(ach.getByRole("link", { name: /View all achievements/ })).toHaveAttribute("href", "/achievements");
     }
   });
 
-  test("final state without animation under reduced motion", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.goto("/");
-    const words = approach(page).locator(".approach-word");
-    const states = await words.evaluateAll((els) => els.map((el) => [getComputedStyle(el).opacity, getComputedStyle(el).transform]));
-    for (const [o, t] of states) {
-      expect(o).toBe("1");
-      expect(t).toBe("none");
-    }
+  test("project gallery links every case study and repository", async ({ page }) => {
+    await page.goto("/?view=detailed");
+    const g = page.locator('main > section[aria-label="Projects"] .v-detailed');
+    const cases = await g.getByRole("link", { name: /^Case study/ }).evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    const repos = await g.getByRole("link", { name: /^GitHub/ }).evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    expect(cases).toHaveLength(6);
+    for (const h of cases) expect(h).toMatch(/^\/projects\/[a-z-]+$/);
+    for (const h of repos) expect(h).toMatch(/^https:\/\/github\.com\/Sreevarshann\//);
+    await expect(page.locator('main > section[aria-label="Projects"]').getByRole("link", { name: /View all projects/ })).toHaveAttribute("href", "/projects");
+    // A gallery, not a vertical stack: three cards share a row on desktop.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const tops = await g.locator("article.project-card").evaluateAll((els) => els.slice(0, 3).map((e) => Math.round(e.getBoundingClientRect().top)));
+    expect(new Set(tops).size).toBe(1);
   });
 });
 
