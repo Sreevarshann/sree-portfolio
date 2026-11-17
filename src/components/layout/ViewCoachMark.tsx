@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getView, setView, VIEW_EVENT } from "@/lib/viewMode";
 
-export const COACH_KEY = "sree:coach:view";
 const COACH_ID = "view-coach";
 /** How long the hint stays on screen once it is visible. */
 export const COACH_VISIBLE_MS = 3000;
@@ -12,14 +11,19 @@ const EXIT_MS = 220;
 type Phase = "hidden" | "positioning" | "open" | "closing";
 
 /**
- * One-time hint pointing at the Quick/Detailed switch.
+ * Hint pointing at the Quick/Detailed switch, shown once per homepage entry.
  *
- * - Shown once per browser, on the homepage in Quick View, after first paint
- *   and idle time, once the switch has a stable box. It is remembered as seen
- *   the moment it appears, so a refresh never shows it again.
+ * - Every real entry shows it: a first visit, a refresh, a new tab, a return
+ *   days later, or navigating back to the homepage (the component mounts per
+ *   homepage visit; a back/forward restore from the browser cache re-arms it
+ *   through `pageshow`). Nothing is stored, so it is never suppressed across
+ *   visits. Re-renders, scrolling, theme or view changes never re-show it:
+ *   one entry, one appearance.
+ * - Only in Quick View (it suggests Detailed View), after first paint and
+ *   idle time, once the switch has a stable box.
  * - Anchored to the real switch with Floating UI (flip/shift/arrow), loaded on
- *   demand. It stays invisible until positioned, then a 3-second timer starts;
- *   it closes itself when the timer ends.
+ *   demand. Invisible until positioned; then it closes itself at an absolute
+ *   deadline 3 s after it became visible.
  * - Closes immediately on the close button, Escape, any press on the switch,
  *   a view change, or scrolling past the hero. The hint text itself switches
  *   to Detailed View. Non-modal: it never takes focus and never traps it.
@@ -35,13 +39,17 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
     setPhase((p) => (p === "open" || p === "positioning" ? "closing" : p));
   }, []);
 
-  // Decide whether to show, after paint and idle time.
+  // Decide whether to show, after paint and idle time. `entry` increments when
+  // the page is restored from the back/forward cache (a new homepage entry
+  // without a remount).
+  const [entry, setEntry] = useState(0);
   useEffect(() => {
-    let seen = false;
-    try {
-      seen = localStorage.getItem(COACH_KEY) === "done";
-    } catch {}
-    if (seen || getView() !== "quick") return;
+    const onShow = (e: PageTransitionEvent) => e.persisted && setEntry((n) => n + 1);
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+  useEffect(() => {
+    if (getView() !== "quick") return;
     let cancelled = false;
     let delay = 0;
     const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 600));
@@ -51,7 +59,7 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
           if (cancelled) return;
           delay = window.setTimeout(() => {
             const r = document.getElementById("view-switch")?.getBoundingClientRect();
-            if (!cancelled && r && r.width > 0 && getView() === "quick") setPhase("positioning");
+            if (!cancelled && r && r.width > 0 && getView() === "quick") setPhase((p) => (p === "hidden" ? "positioning" : p));
           }, 900);
         });
       },
@@ -62,18 +70,10 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
       window.clearTimeout(delay);
       (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
     };
-  }, []);
+  }, [entry]);
 
   const visible = phase === "open" && !suspended;
   useEffect(() => onOpenChange(visible), [visible, onOpenChange]);
-
-  // Remember it as seen as soon as it appears.
-  useEffect(() => {
-    if (phase !== "positioning") return;
-    try {
-      localStorage.setItem(COACH_KEY, "done");
-    } catch {}
-  }, [phase]);
 
   // Position against the switch; reveal once placed.
   useEffect(() => {
@@ -115,10 +115,16 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
     };
   }, [phase, suspended]);
 
-  // The 3-second timer starts when the hint is actually visible.
+  // The 3-second clock starts when the hint is actually visible, as an absolute
+  // deadline: unrelated re-renders or a brief suspension cannot extend it.
+  const deadline = useRef(0);
   useEffect(() => {
-    if (phase !== "open") return;
-    const t = window.setTimeout(close, COACH_VISIBLE_MS);
+    if (phase !== "open") {
+      if (phase === "hidden") deadline.current = 0;
+      return;
+    }
+    if (!deadline.current) deadline.current = performance.now() + COACH_VISIBLE_MS;
+    const t = window.setTimeout(close, Math.max(0, deadline.current - performance.now()));
     return () => window.clearTimeout(t);
   }, [phase, close]);
 
@@ -170,7 +176,7 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
     >
       <span ref={arrowRef} className="coach-arrow" aria-hidden="true" />
       <div className="flex items-start justify-between gap-3">
-        <p id={`${COACH_ID}-title`} className="coach-title">Want the full portfolio?</p>
+        <p id={`${COACH_ID}-title`} className="coach-title">Want the full experience?</p>
         <button type="button" className="coach-close" aria-label="Dismiss" onClick={close}>
           <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
             <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -186,7 +192,7 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
           close();
         }}
       >
-        Click here to switch to Detailed View and explore my complete experience, projects, and technical work.
+        Switch to Detailed View to explore all my projects, experience, and technical work.
       </button>
     </div>
   );
