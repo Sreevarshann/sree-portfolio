@@ -81,6 +81,15 @@ const busyStatus = (status: number) => status === 429 || status === 498 || statu
  * events (`data: {...}` lines ending with `data: [DONE]`). Only
  * `choices[0].delta.content` is forwarded; reasoning is not requested.
  */
+/** Retry-After in ms (seconds or an HTTP date); a missing header means a short default wait. */
+export function retryAfterMs(h: string | null, now = Date.now()): number | null {
+  if (!h) return 1200;
+  const secs = Number(h);
+  if (Number.isFinite(secs)) return Math.max(0, Math.ceil(secs * 1000));
+  const at = Date.parse(h);
+  return Number.isNaN(at) ? null : Math.max(0, at - now);
+}
+
 export function groqProvider(apiKey: string, model: string, baseURL = "https://api.groq.com/openai/v1"): ChatProvider {
   const reasoningModel = /gpt-oss/.test(model);
   return {
@@ -117,6 +126,17 @@ export function groqProvider(apiKey: string, model: string, baseURL = "https://a
         }
         // One retry for transient server errors before any text was produced.
         if (res.status >= 500 && res.status !== 503 && attempt === 0) continue;
+        // One retry for a short provider rate limit (tokens-per-minute bursts), when
+        // the wait it asks for is brief; otherwise the visitor gets the busy fallback.
+        if (res.status === 429 && attempt === 0) {
+          const wait = retryAfterMs(res.headers.get("retry-after"));
+          if (wait !== null && wait <= 3000) {
+            await res.body?.cancel().catch(() => {});
+            await new Promise((r) => setTimeout(r, wait));
+            if (combined.aborted) throw new ProviderError("timeout", "unavailable");
+            continue;
+          }
+        }
         break;
       }
       if (!res) throw new ProviderError("network_error", "unavailable");

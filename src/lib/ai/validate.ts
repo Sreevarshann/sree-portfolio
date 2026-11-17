@@ -12,7 +12,7 @@ import { factsOf, type KnowledgeChunk } from "./knowledge";
  * answer; the route logs findings and the tests and live evaluation assert on
  * them.
  */
-export type Finding = { kind: "term" | "number" | "vague"; value: string };
+export type Finding = { kind: "term" | "number" | "vague" | "commitment"; value: string };
 
 const WATCHLIST = [
   "Salesforce", "Kubernetes", "AWS", "Azure", "GCP", "Google Cloud", "Kafka", "Airflow", "Spark", "Tableau", "Power BI",
@@ -43,6 +43,66 @@ const VAGUE = [
   /\bstandard (?:web )?technologies\b/i,
 ];
 
+/**
+ * Statements Sree AI must never send, whatever the context: guarantees,
+ * commitments on Sree's behalf, money, literal superlatives and immigration
+ * claims. Proportionate on purpose: humour and clearly qualified statements
+ * ("his dance moves are unverified", "he's worth interviewing") pass.
+ */
+export const COMMITMENTS: RegExp[] = [
+  /\bguarantee[sd]?\b/i,
+  /\bhe(?: will|'ll| would)(?: definitely| certainly| surely)? (?:accept|join|relocate|move|start|deliver|finish|be available)\b/i,
+  /\b(?:he is|he's) (?:available|free) (?:to start|immediately|right away|from|starting)\b/i,
+  /\$\s?\d|\b\d{2,3}\s?k\b|\b(?:USD|per (?:year|hour|annum))\b/i,
+  /\b(?:best|smartest|greatest|top) (?:engineer|developer|programmer|candidate|data scientist|ai engineer)s? (?:in|of) (?:the )?(?:world|country|industry|planet)\b/i,
+  /\bgenius\b/i,
+  /\b(?:he is|he's|he has|he holds|he's got)(?: a| an| on| on an?)? (?:u\.?s\.? citizen|green card|permanent resident|h-?1b|(?:stem )?opt\b|f-?1)/i,
+  /\b(?:does not|doesn't|will not|won't|does|will|would) (?:need|require) (?:visa )?sponsorship\b/i,
+];
+
+/** The first commitment pattern a sentence matches, if any. */
+export function commitmentIn(sentence: string): string | null {
+  for (const re of COMMITMENTS) {
+    const m = stripCitationMarkers(sentence).match(re);
+    if (m) return m[0];
+  }
+  return null;
+}
+
+/**
+ * Streams text through sentence by sentence, dropping any complete sentence
+ * that matches COMMITMENTS. Holds back only the current unfinished sentence.
+ */
+export function createCommitmentGate(onDrop?: (sentence: string, match: string) => void) {
+  let buf = "";
+  const check = (part: string) =>
+    part
+      .split(/(?<=[.!?](?:\s+|$)|\n)/)
+      .map((sentence) => {
+        const hit = commitmentIn(sentence);
+        if (!hit) return sentence;
+        onDrop?.(sentence, hit);
+        return sentence.match(/^\s*/)![0]; // keep the spacing before the next sentence
+      })
+      .join("");
+  return {
+    push(text: string) {
+      buf += text;
+      const ends = [...buf.matchAll(/[.!?](?=\s)|\n/g)];
+      if (!ends.length) return "";
+      const cut = ends[ends.length - 1].index! + 1;
+      const done = buf.slice(0, cut);
+      buf = buf.slice(cut);
+      return check(done);
+    },
+    flush() {
+      const rest = buf;
+      buf = "";
+      return rest ? check(rest) : "";
+    },
+  };
+}
+
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const has = (hay: string, term: string) => new RegExp(`(?<![A-Za-z0-9])${esc(term)}(?![A-Za-z0-9])`, term === "R" ? "" : "i").test(hay);
 
@@ -66,6 +126,10 @@ export function unsupportedClaims(answer: string, context: string): Finding[] {
       continue;
     }
     if (!context.replace(/,/g, "").includes(raw.replace(/,/g, "").replace(/\s/g, ""))) out.push({ kind: "number", value: raw });
+  }
+  for (const sentence of text.split(/(?<=[.!?])\s+|\n/)) {
+    const hit = commitmentIn(sentence);
+    if (hit) out.push({ kind: "commitment", value: hit });
   }
   for (const re of VAGUE) {
     const m = text.match(re);
