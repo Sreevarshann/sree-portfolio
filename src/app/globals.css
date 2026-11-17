@@ -2104,3 +2104,118 @@ html[data-view="quick"] .hero-facts { grid-template-columns: repeat(auto-fit, mi
 @keyframes moon-rise {
   from { translate: -50% 10%; opacity: 0.4; }
 }
+
+/* ---------------------------------------------------------- achievement media
+   Real photographs and video inside each achievement section. Thumbnails are
+   framed like the site's other media (hairline, soft radius, quiet shadow). */
+.ach-media { margin-top: 1.75rem; }
+.ach-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  cursor: zoom-in;
+  transition: border-color var(--dur-m) var(--ease-out), box-shadow var(--dur-m) var(--ease-out);
+}
+.ach-thumb:hover { border-color: color-mix(in oklab, var(--accent) 45%, var(--line)); box-shadow: var(--shadow); }
+.ach-thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ach-media-caption {
+  margin-top: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+}
+/* Portrait video, framed like a phone recording; never taller than most of the viewport. */
+.ach-video { margin: 0; }
+.ach-video-frame {
+  position: relative;
+  max-height: 78svh;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: #0b0f17;
+}
+.ach-video-frame video { display: block; width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+.ach-video-big {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(10 14 22 / 0.55);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.25), 0 10px 30px -10px rgb(0 0 0 / 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: transform var(--dur-s) var(--ease-out);
+}
+.ach-video-big:hover { transform: scale(1.06); }
+.ach-video-bar {
+  position: absolute;
+  inset: auto 10px 10px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgb(10 14 22 / 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.ach-video-btn { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; }
+.ach-video-btn:hover { background: rgb(255 255 255 / 0.14); }
+.ach-video-btn:focus-visible, .ach-video-big:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.ach-video-track { flex: 1; height: 3px; overflow: hidden; border-radius: 3px; background: rgb(255 255 255 / 0.25); }
+.ach-video-track > span { display: block; height: 100%; background: #fff; transform-origin: left; }
+
+/* Lightbox (native <dialog>). */
+html.lightbox-open { overflow: hidden; }
+.lightbox {
+  max-width: none;
+  max-height: none;
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  padding: clamp(12px, 3vw, 40px);
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  overflow: hidden;
+}
+.lightbox[open] { display: grid; place-items: center; }
+.lightbox::backdrop { background: rgb(6 8 12 / 0.86); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+:root[data-theme="light"] .lightbox::backdrop { background: rgb(16 29 51 / 0.82); }
+.lightbox-figure { margin: 0; display: grid; gap: 12px; justify-items: center; width: min(1400px, 100%); touch-action: pan-y; }
+.lightbox-frame { position: relative; width: min(100%, calc((100dvh - 140px) * var(--ar, 1.5))); max-width: 100%; max-height: calc(100dvh - 140px); }
+.lightbox-frame img { border-radius: 10px; opacity: 0; transition: opacity 260ms var(--ease-out); }
+.lightbox-frame img[data-loaded] { opacity: 1; }
+.lightbox-caption { display: flex; gap: 1rem; justify-content: space-between; width: 100%; max-width: 900px; color: #e8edf6; font-size: 0.9rem; }
+.lightbox-btn {
+  position: fixed;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(255 255 255 / 0.1);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+  transition: background var(--dur-s) var(--ease-out);
+}
+.lightbox-btn:hover { background: rgb(255 255 255 / 0.2); }
+.lightbox-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.lightbox-close { top: 16px; right: 16px; }
+.lightbox-prev { left: 16px; top: 50%; translate: 0 -50%; }
+.lightbox-next { right: 16px; top: 50%; translate: 0 -50%; }
+@media (max-width: 640px) {
+  .lightbox-prev, .lightbox-next { top: auto; bottom: 16px; translate: none; }
+}

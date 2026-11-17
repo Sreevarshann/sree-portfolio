@@ -7,6 +7,8 @@ import { TechChip } from "@/components/ui/TechChip";
 import { LinkedInProof } from "@/components/ui/LinkedInProof";
 import { RankCounter } from "@/components/achievements/RankCounter";
 import { InView } from "@/components/motion/InView";
+import { AchievementMedia } from "@/components/media/AchievementMedia";
+import type { AchievementSlug } from "@/content/media";
 
 /** Bar width for a funnel stage: square-root scale so 6 of 320 stays visible. */
 const barWidth = (value: string, top: number) => `${Math.max(6, Math.sqrt(parseInt(value, 10) / top) * 100)}%`;
@@ -80,6 +82,7 @@ export default function AchievementsPage() {
               <div className="p-8 md:p-12" data-reveal>
                 <h2 id={`a-${a.slug}`} className="text-[clamp(1.8rem,3.4vw,2.6rem)] font-medium leading-tight tracking-[-0.035em]">{a.project}</h2>
                 <p className="mt-4 leading-relaxed text-fg-soft">{a.summary}</p>
+                <AchievementMedia slug={a.slug as AchievementSlug} />
                 <ul className="mt-8 space-y-3">
                   {a.details.map((d) => (
                     <li key={d} className="flex gap-3 leading-relaxed text-fg-soft">
