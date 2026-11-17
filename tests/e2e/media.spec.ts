@@ -7,63 +7,64 @@ async function open(page: Page, path: string, scheme: "light" | "dark" = "dark",
   await page.goto(path);
 }
 
-test.describe("hero portrait: Spider-Man reveal", () => {
+test.describe("hero portrait: Spider-Man, then the real photo", () => {
+  const settled = (page: Page) => expect(page.locator('.pswap[data-intro="done"]')).toHaveCount(1, { timeout: 15_000 });
+
   for (const scheme of ["light", "dark"] as const) {
-    test(`shows the Spider-Man photo first and dissolves to the real photo (${scheme})`, async ({ page }, info) => {
+    test(`rests on the real photo after the intro; hover brings Spider-Man back (${scheme})`, async ({ page }, info) => {
       test.skip(info.project.name === "mobile", "Hover; the touch test covers phones.");
       await open(page, "/?view=quick", scheme);
       const fig = page.locator(".pswap").first();
-      const top = fig.locator(".pswap-illustrated img");
-      const bottom = fig.locator(".pswap-real img");
-      await expect(top).toHaveAttribute("src", /spiderman-mask/);
-      await expect(bottom).toHaveAttribute("src", /sree-real/);
-      await expect(fig).toHaveAttribute("data-state", "illustrated");
+      await expect(fig.locator(".pswap-illustrated img")).toHaveAttribute("src", /spiderman-mask/);
+      await expect(fig.locator(".pswap-real img")).toHaveAttribute("src", /sree-real/);
       const frame = fig.locator(".pswap-photo");
       // Layout size (offset*), not the painted box: the print tilts on hover by design.
       const size = () => frame.evaluate((e) => [(e as HTMLElement).offsetWidth, (e as HTMLElement).offsetHeight]);
       const box = await size();
-      // Dissolve timing: about 800 ms (V12: slightly slower than the original 650 ms).
-      const t = await fig.locator(".pswap-illustrated").evaluate((e) => getComputedStyle(e).transitionDuration);
-      expect(t).toContain("0.8s");
-      const btn = page.getByRole("button", { name: "Reveal Sree's portrait" });
-      await btn.hover();
+      await settled(page);
       await expect(fig).toHaveAttribute("data-state", "real");
-      await expect(page.getByRole("button", { name: "Show Spider-Man portrait" })).toBeVisible();
       await expect.poll(() => fig.locator(".pswap-illustrated").evaluate((e) => getComputedStyle(e).opacity)).toBe("0");
-      await page.mouse.move(2, 2);
+      // Hover dissolves (about 800 ms) back to Spider-Man; leaving returns the real photo.
+      expect(await fig.locator(".pswap-illustrated").evaluate((e) => getComputedStyle(e).transitionDuration)).toContain("0.8s");
+      await page.getByRole("button", { name: "Show Spider-Man portrait" }).hover();
       await expect(fig).toHaveAttribute("data-state", "illustrated");
       await expect.poll(() => fig.locator(".pswap-illustrated").evaluate((e) => getComputedStyle(e).opacity)).toBe("1");
+      await page.mouse.move(2, 2);
+      await expect(fig).toHaveAttribute("data-state", "real");
       // No layout shift from the reveal: the photo frame keeps its size.
       expect(await size()).toEqual(box);
     });
   }
 
-  test("keyboard: Enter reveals, Space restores", async ({ page }, info) => {
+  test("keyboard: Enter shows Spider-Man, Space returns the real photo", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Keyboard path; desktop covers it.");
     await open(page, "/?view=quick");
-    const btn = page.getByRole("button", { name: "Reveal Sree's portrait" });
-    await btn.focus();
+    await settled(page);
+    await page.getByRole("button", { name: "Show Spider-Man portrait" }).focus();
     await page.keyboard.press("Enter");
-    await expect(page.locator(".pswap").first()).toHaveAttribute("data-state", "real");
-    await page.keyboard.press(" ");
     await expect(page.locator(".pswap").first()).toHaveAttribute("data-state", "illustrated");
+    await expect(page.getByRole("button", { name: "Reveal Sree's portrait" })).toBeFocused();
+    await page.keyboard.press(" ");
+    await expect(page.locator(".pswap").first()).toHaveAttribute("data-state", "real");
   });
 
-  test("touch: first tap reveals, second restores", async ({ page }, info) => {
+  test("touch: first tap shows Spider-Man, second returns the real photo", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "Touch device only.");
     await open(page, "/?view=quick");
+    await settled(page);
     const hit = page.locator(".pswap-hit").first();
     await hit.tap();
-    await expect(page.locator(".pswap").first()).toHaveAttribute("data-state", "real");
-    await hit.tap();
     await expect(page.locator(".pswap").first()).toHaveAttribute("data-state", "illustrated");
+    await hit.tap();
+    await expect(page.locator(".pswap").first()).toHaveAttribute("data-state", "real");
   });
 
-  test("reduced motion: a quick crossfade, no opening mask", async ({ page }, info) => {
+  test("reduced motion: the real photo straight away, no opening mask", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Same CSS on every device.");
     await open(page, "/?view=quick", "dark", "reduce");
     const layer = page.locator(".pswap-illustrated").first();
     expect(await layer.evaluate((e) => getComputedStyle(e).maskImage)).toBe("none");
+    expect(await layer.evaluate((e) => getComputedStyle(e).opacity)).toBe("0");
     // The site-wide reduced-motion rule makes the switch effectively instant.
     expect(parseFloat(await layer.evaluate((e) => getComputedStyle(e).transitionDuration))).toBeLessThanOrEqual(0.2);
   });

@@ -52,9 +52,8 @@ test.describe("Quick View (default)", () => {
     // Removed homepage sections are gone entirely, and no chart loads on the homepage.
     for (const label of ["Approach", "What I build", "Selected work", "Lab", "Sree AI"]) await expect(page.locator(`main > section[aria-label="${label}"]`)).toHaveCount(0);
     await expect(page.locator(".js-plotly-plot")).toHaveCount(0);
-    // The hero intro stays short.
-    const intro = await page.locator(".hero-title + p, .lede").first().innerText();
-    expect(intro.split(/\s+/).length).toBeLessThan(40);
+    // The hero stays short: no intro paragraph under the statement (V13).
+    await expect(page.locator(".hero-stage .lede")).toHaveCount(0);
     expect(errors.filter((e) => /hydrat|did not match/i.test(e)), errors.join("\n")).toEqual([]);
   });
 

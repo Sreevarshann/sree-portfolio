@@ -27,9 +27,11 @@ test.describe("portrait hint and labels", () => {
   test("desktop: a readable hint under the photo, its notch pointing up at the image", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Pointer layout.");
     await page.goto("/?view=quick");
+    // V13: the hint appears once the identity intro settles on the real photo.
+    await expect(page.locator('.pswap[data-intro="done"]')).toHaveCount(1, { timeout: 15_000 });
     const note = page.locator(".pswap-note").first();
-    await expect(note).toHaveText(/Hover to reveal the real me/);
-    await expect(note.locator(".pswap-note-touch-in")).toBeHidden();
+    await expect(note).toHaveText(/Hover to see Spider-Man/);
+    await expect(note.locator(".pswap-note-touch-spider")).toBeHidden();
     const g = await page.evaluate(() => {
       const r = (s: string) => document.querySelector(s)!.getBoundingClientRect();
       const notch = r(".pswap-note-notch");
@@ -44,16 +46,17 @@ test.describe("portrait hint and labels", () => {
     expect(g.notch.top).toBeLessThan(g.note.top);
     expect(g.note.top).toBeGreaterThan(g.print.bottom - 12); // below the print (the print is tilted a few degrees)
     expect(g.note.top - g.photo.bottom).toBeLessThan(110);
-    // While the real photo shows, the hint steps aside (no contradictory instruction).
-    await page.getByRole("button", { name: "Reveal Sree's portrait" }).hover();
+    // While Spider-Man shows under the pointer, the hint steps aside (no contradictory instruction).
+    await page.getByRole("button", { name: "Show Spider-Man portrait" }).hover();
     await expect.poll(() => note.evaluate((e) => getComputedStyle(e).opacity)).toBe("0");
   });
 
-  test("phone: 'Tap to reveal', then 'Tap again for Spider-Man'; never over the headline", async ({ page }, info) => {
+  test("phone: 'Tap to see Spider-Man', then 'Tap again for the real me'; never over the headline", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "Touch layout.");
     await page.goto("/?view=quick");
+    await expect(page.locator('.pswap[data-intro="done"]')).toHaveCount(1, { timeout: 15_000 });
     const note = page.locator(".pswap-note").first();
-    await expect(note).toHaveText(/Tap to reveal the real me/);
+    await expect(note).toHaveText(/Tap to see Spider-Man/);
     const size = await note.evaluate((e) => parseFloat(getComputedStyle(e).fontSize));
     expect(size).toBeGreaterThanOrEqual(14);
     const [n, h1] = await page.evaluate(() => [document.querySelector(".pswap-note")!.getBoundingClientRect().toJSON(), document.querySelector(".hero-id")!.getBoundingClientRect().toJSON()]);
@@ -61,13 +64,14 @@ test.describe("portrait hint and labels", () => {
     expect(n.left).toBeGreaterThanOrEqual(0);
     expect(n.right).toBeLessThanOrEqual(page.viewportSize()!.width);
     await page.locator(".pswap-hit").first().tap();
-    await expect(note).toHaveText(/Tap again for Spider-Man/);
+    await expect(note).toHaveText(/Tap again for the real me/);
   });
 
   test("rapid hover in and out reverses smoothly and never sticks half-way", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Hover.");
     await page.goto("/?view=quick");
-    const btn = page.getByRole("button", { name: "Reveal Sree's portrait" });
+    await expect(page.locator('.pswap[data-intro="done"]')).toHaveCount(1, { timeout: 15_000 });
+    const btn = page.locator(".pswap-hit").first();
     const layer = page.locator(".pswap-illustrated").first();
     for (let i = 0; i < 4; i++) {
       await btn.hover();
@@ -75,8 +79,9 @@ test.describe("portrait hint and labels", () => {
       await page.mouse.move(2, 2);
       await page.waitForTimeout(120);
     }
-    await expect(page.locator(".pswap").first()).toHaveAttribute("data-state", "illustrated");
-    await expect.poll(() => layer.evaluate((e) => getComputedStyle(e).opacity), { timeout: 3000 }).toBe("1");
+    // After the intro the real photo is the resting state.
+    await expect(page.locator(".pswap").first()).toHaveAttribute("data-state", "real");
+    await expect.poll(() => layer.evaluate((e) => getComputedStyle(e).opacity), { timeout: 3000 }).toBe("0");
   });
 
   test("every personal photo label says only Sree", async ({ page }) => {

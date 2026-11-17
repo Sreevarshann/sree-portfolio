@@ -19,8 +19,8 @@ test.describe("hero identity hierarchy", () => {
     await expect(page).toHaveTitle(/Sreevarshan Sathiyamurthy/);
     const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
     expect(ld.join("")).toContain("Sreevarshan Sathiyamurthy");
-    // No redundant "Hi, I'm Sree" in the intro.
-    await expect(page.locator(".lede").first()).not.toContainText("Hi, I'm");
+    // No intro paragraph in the hero (V13).
+    await expect(page.locator(".hero-stage .lede")).toHaveCount(0);
   });
 
   for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440, 1920, 2560]) {

@@ -29,7 +29,8 @@ test.describe("V5 hero", () => {
     await page.goto("/?view=detailed");
     await expect(page.locator("h1")).toHaveText("Hey, I'm Sreevarshan Sathiyamurthy.");
     await expect(page.getByText("Available for full-time opportunities")).toBeVisible();
-    await expect(page.locator("main").getByText(/a Boston-based engineer building AI agents, data platforms and full-stack applications/)).toBeVisible();
+    // V13: the professional intro paragraph is gone from the hero.
+    await expect(page.locator("main").getByText(/a Boston-based engineer building AI agents/)).toHaveCount(0);
     for (const [name, slug] of [
       ["RightRev", "rightrev"],
       ["Flare Innovation", "flare-innovation"],
