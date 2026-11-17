@@ -65,7 +65,7 @@ export const skillClusters: SkillCluster[] = [
     blurb: "The parts that let a system be trusted in production.",
     skills: [
       { name: "OAuth & RBAC", usedIn: ["rightrev", "aegis-ai", "reviewpilot"] },
-      { name: "Multi-tenant isolation", usedIn: ["rightrev", "reviewpilot", "workmesh"] },
+      { name: "Multi-tenant isolation", usedIn: ["reviewpilot", "workmesh"] },
       { name: "Automated testing (pytest, Vitest, Playwright)", usedIn: ["rightrev", "tunelab", "reviewpilot", "workmesh", "sourceatlas"] },
       { name: "GitHub Actions CI/CD", usedIn: ["flare-innovation", "aegis-ai", "tunelab", "reviewpilot"] },
       { name: "Docker", usedIn: ["flare-innovation", "google-mlops-expo", "aegis-ai", "workmesh"] },

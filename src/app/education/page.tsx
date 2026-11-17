@@ -28,7 +28,7 @@ function InstitutionMark({ logo, fallback }: { logo: InstitutionLogo; fallback: 
 
 export const metadata: Metadata = {
   title: "Education",
-  description: "M.S. Data Analytics Engineering, Northeastern University (GPA 3.95, expected Dec 2026). B.E. Electronics and Communication Engineering, Anna University, through its affiliated Sri Sairam Engineering College (CGPA 8.7/10, 2024).",
+  description: "M.S. Data Analytics Engineering, Northeastern University (GPA 3.95, expected Dec 2026). B.E. Electronics and Communication Engineering, Anna University, through its affiliated Sri Sairam Engineering College (GPA 3.5/4.0, 2024).",
   alternates: { canonical: "/education" },
 };
 

@@ -40,12 +40,12 @@ export const experience: Experience[] = [
     summary:
       "AI agents on Snowflake that turn revenue data into answers business teams can use without manual analysis.",
     highlights: [
-      "Developed Snowflake Cortex AI agents, SQL stored procedures and Model Context Protocol (MCP) integrations for financial revenue insights.",
-      "Migrated 18 AI agents to production and audited 200+ Snowflake views along the way.",
-      "Investigated and fixed a tenant isolation defect during the migration; used OAuth and role-based access control (RBAC) to protect customer data.",
+      "Developed Snowflake Cortex AI agents, SQL stored procedures and Model Context Protocol (MCP) integrations to automate financial reporting, so teams retrieve accurate revenue insights without manual data analysis.",
+      "Migrated 18 AI agents to production and audited 200+ Snowflake views.",
+      "Implemented OAuth, role-based access control (RBAC) and REST APIs to protect customer data and keep reporting secure and reliable.",
       "Integrated Salesforce CRM APIs with five AI agents.",
-      "Automated SQL and JSON validation tests to catch data errors before they reached financial reports.",
-      "Built frontend features and backend API integrations with senior engineers, incorporating code review feedback to improve usability and maintainability.",
+      "Built automated SQL and JSON validation tests to verify data accuracy, troubleshoot integration failures and keep financial reporting reliable.",
+      "Collaborated with senior engineers on frontend features and API integrations, applying code review feedback to improve usability, resolve technical issues and deliver maintainable features.",
     ],
     outcomes: [
       { value: "18", label: "AI agents migrated to production" },
@@ -68,17 +68,15 @@ export const experience: Experience[] = [
     summary:
       "Pipelines and dashboards for IoT operations data, with quality checks that stopped bad records before reporting.",
     highlights: [
-      "Built Power BI dashboards on PostgreSQL and Airtable APIs to track operational KPIs, cutting reporting latency by 30%.",
-      "Automated extraction with Python ETL pipelines for 1M+ IoT records in PostgreSQL and Airtable, with schema checks that catch bad data before reporting.",
-      "Improved device reliability by 25% by detecting sensor anomalies in Python and preparing data with SQL transformations; benchmarked PySpark at scale.",
-      "Supported the full lifecycle of Python data workflows, from development and automated testing to GitHub Actions CI/CD and Docker packaging.",
+      "Developed Power BI dashboards integrating PostgreSQL and Airtable APIs to track operational KPIs and improve reporting efficiency for engineering and business teams.",
+      "Engineered Python ETL pipelines processing 1M+ IoT records using PostgreSQL and Airtable, with automated PyTest schema validation to improve data quality.",
+      "Improved device reliability through Python-based sensor anomaly detection and SQL transformations, using PySpark to optimize large-scale data processing.",
+      "Implemented GitHub Actions CI/CD pipelines for automated testing and builds, containerizing data workflows with Docker for consistent, reliable deployments.",
     ],
     outcomes: [
       { value: "1M+", label: "IoT records through Python ETL" },
-      { value: "30%", label: "lower reporting latency" },
-      { value: "25%", label: "improvement in device reliability" },
     ],
-    stack: ["Python", "SQL", "PostgreSQL", "Airtable API", "Power BI", "PySpark", "Docker", "GitHub Actions"],
+    stack: ["Python", "SQL", "PostgreSQL", "Airtable API", "Power BI", "PySpark", "PyTest", "Docker", "GitHub Actions"],
     motif: "pipeline",
   },
   {
