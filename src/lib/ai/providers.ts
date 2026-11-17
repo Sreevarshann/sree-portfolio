@@ -9,6 +9,7 @@ import type { FallbackReason } from "./protocol";
  *   ASK_SREE_PROVIDER = "groq" | "anthropic"   (default: groq when GROQ_API_KEY is set)
  *   GROQ_API_KEY / ANTHROPIC_API_KEY           credentials for the chosen provider
  *   ASK_SREE_MODEL                             optional model override
+ *   ASK_SREE_FALLBACK_MODEL                    Groq model tried once when rate limited ("off" to disable)
  *   ASK_SREE_API_BASE_URL                      optional endpoint override (tests, proxies)
  */
 export type ProviderName = "groq" | "anthropic";
@@ -60,7 +61,9 @@ export function getProvider(env: NodeJS.ProcessEnv = process.env): ChatProvider 
   if (!key) return null;
   const model = env.ASK_SREE_MODEL?.trim() || DEFAULT_MODELS[name];
   const base = env.ASK_SREE_API_BASE_URL?.trim();
-  return name === "groq" ? groqProvider(key, model, base) : anthropicProvider(key, model, base);
+  const fallback = env.ASK_SREE_FALLBACK_MODEL?.trim();
+  const groqFallback = fallback === "off" ? null : fallback || DEFAULT_GROQ_FALLBACK;
+  return name === "groq" ? groqProvider(key, model, base, groqFallback) : anthropicProvider(key, model, base);
 }
 
 /* ------------------------------------------------------------------ Groq */
@@ -90,22 +93,26 @@ export function retryAfterMs(h: string | null, now = Date.now()): number | null 
   return Number.isNaN(at) ? null : Math.max(0, at - now);
 }
 
-export function groqProvider(apiKey: string, model: string, baseURL = "https://api.groq.com/openai/v1"): ChatProvider {
-  const reasoningModel = /gpt-oss/.test(model);
+/** Groq model used once when the primary is rate limited (it has its own rate bucket). */
+export const DEFAULT_GROQ_FALLBACK = "openai/gpt-oss-20b";
+
+export function groqProvider(apiKey: string, model: string, baseURL = "https://api.groq.com/openai/v1", fallbackModel: string | null = DEFAULT_GROQ_FALLBACK): ChatProvider {
   return {
     name: "groq",
     model,
     async stream({ system, messages, maxTokens, signal, onText }) {
-      const body = JSON.stringify({
-        model,
-        messages: [{ role: "system", content: system }, ...messages],
-        stream: true,
-        max_completion_tokens: maxTokens,
-        // Low temperature: answers should restate the portfolio, not improvise.
-        temperature: 0.2,
-        // gpt-oss reasons before answering: keep it short and out of the response.
-        ...(reasoningModel ? { reasoning_effort: "low", include_reasoning: false } : {}),
-      });
+      const bodyFor = (m: string) =>
+        JSON.stringify({
+          model: m,
+          messages: [{ role: "system", content: system }, ...messages],
+          stream: true,
+          max_completion_tokens: maxTokens,
+          // Low temperature: answers should restate the portfolio, not improvise.
+          temperature: 0.2,
+          // gpt-oss reasons before answering: keep it short and out of the response.
+          ...(/gpt-oss/.test(m) ? { reasoning_effort: "low", include_reasoning: false } : {}),
+        });
+      const body = bodyFor(model);
       const timeout = AbortSignal.timeout(TIMEOUT_MS());
       const combined = AbortSignal.any([signal, timeout]);
 
@@ -138,6 +145,22 @@ export function groqProvider(apiKey: string, model: string, baseURL = "https://a
           }
         }
         break;
+      }
+      // Still rate limited: answer once with the fallback model rather than show "busy".
+      if (res?.status === 429 && fallbackModel && fallbackModel !== model) {
+        await res.body?.cancel().catch(() => {});
+        console.warn(`[ask-sree] ${model} rate limited; answering with ${fallbackModel}`);
+        try {
+          res = await fetch(`${baseURL.replace(/\/$/, "")}/chat/completions`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", Accept: "text/event-stream" },
+            body: bodyFor(fallbackModel),
+            signal: combined,
+          });
+        } catch (err) {
+          if (signal.aborted) throw err;
+          throw new ProviderError(timeout.aborted ? "timeout" : "network_error", "unavailable");
+        }
       }
       if (!res) throw new ProviderError("network_error", "unavailable");
       if (!res.ok || !res.body) {

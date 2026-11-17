@@ -195,3 +195,30 @@ describe("/api/chat with Groq", () => {
     expect(await GET().json()).toEqual({ ok: true, configured: true });
   });
 });
+
+describe("rate-limit fallback", () => {
+  const limited = () => new Response("rate limited", { status: 429, headers: { "retry-after": "20" } });
+
+  it("answers with the fallback model when the primary stays rate limited", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    fetchMock.mockResolvedValueOnce(limited()).mockResolvedValueOnce(sse([delta("Hello from the fallback.", "stop"), "data: [DONE]\n\n"]));
+    const { text } = await run();
+    expect(text).toBe("Hello from the fallback.");
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).model).toBe("openai/gpt-oss-120b");
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body).model).toBe("openai/gpt-oss-20b");
+  });
+
+  it("reports busy only when the fallback is rate limited too, or disabled", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    fetchMock.mockResolvedValueOnce(limited()).mockResolvedValueOnce(limited());
+    await expect(run()).rejects.toMatchObject({ reason: "busy" });
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValueOnce(limited());
+    await expect(run(groqProvider(KEY, "openai/gpt-oss-120b", "https://groq.test/openai/v1", null))).rejects.toBeInstanceOf(ProviderError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("the fallback model is configurable and can be turned off", () => {
+    expect(getProvider(env({ GROQ_API_KEY: KEY, ASK_SREE_FALLBACK_MODEL: "off" }))).not.toBeNull();
+  });
+});
