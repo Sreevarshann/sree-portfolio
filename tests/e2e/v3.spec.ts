@@ -26,7 +26,7 @@ test("SS monogram is in the navbar and returns home", async ({ page }) => {
 
 test("hero shows the full name as the page heading", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Sreevarshan Sathiyamurthy");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Hey, I'm Sreevarshan Sathiyamurthy.");
   await expect(page).toHaveTitle(/Sreevarshan Sathiyamurthy/);
 });
 

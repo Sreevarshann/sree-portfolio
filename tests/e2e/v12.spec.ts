@@ -56,7 +56,7 @@ test.describe("portrait hint and labels", () => {
     await expect(note).toHaveText(/Tap to reveal the real me/);
     const size = await note.evaluate((e) => parseFloat(getComputedStyle(e).fontSize));
     expect(size).toBeGreaterThanOrEqual(14);
-    const [n, h1] = await page.evaluate(() => [document.querySelector(".pswap-note")!.getBoundingClientRect().toJSON(), document.querySelector(".hero-name")!.getBoundingClientRect().toJSON()]);
+    const [n, h1] = await page.evaluate(() => [document.querySelector(".pswap-note")!.getBoundingClientRect().toJSON(), document.querySelector(".hero-id")!.getBoundingClientRect().toJSON()]);
     expect(n.bottom).toBeLessThanOrEqual(h1.top);
     expect(n.left).toBeGreaterThanOrEqual(0);
     expect(n.right).toBeLessThanOrEqual(page.viewportSize()!.width);

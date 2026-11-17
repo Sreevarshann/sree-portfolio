@@ -239,3 +239,13 @@ All photos and video come from one typed manifest, `src/content/media.ts`; compo
 **Ask AI hand-off.** "Ask AI about this" opens the existing assistant with a canonical question and the canonical ids (`context: { skills, topics }`). The server validates the ids (format and catalog membership) and pins the matching records; clients cannot supply evidence. Questions that name a skill or an undocumented technology in free text pin the same records. A "Not documented: X" record tells the model X was never used.
 
 **Recruiter Mode.** A General | Recruiter switch in the chat header changes starter prompts and answer framing (direct, related or transferable, not documented; no scores). "Compare a job description" maps pasted text against the catalog in the browser; the text is not sent or stored, and only canonical names reach the model if the visitor asks for a summary. The commitment gate also drops fit percentages and ATS-style scores.
+
+## Hero identity
+
+**Hierarchy.** The hero introduces the person before the work: "Hey, I'm" (small, cool blue), "Sreevarshan." (the largest type on the page, one line at every width from 320px, accent period), "Most people call me Sree." (mid-size, serif italic on the nickname), then "I build intelligent systems, from data to interface." as a secondary headline. Sizes at 1440px: 24 / 127 / 27 / 50px; at 390px: 18 / 58 / 19 / 30px.
+
+**Semantics.** One h1 contains the first three visible words plus a visually hidden surname, so assistive technology and crawlers read "Hey, I'm Sreevarshan Sathiyamurthy." The full name also stays in the title, metadata and structured data.
+
+**Motion.** CSS only, no new JavaScript: "Hey, I'm" fades in, the name rises inside a mask (visible from the first frame), the accent period follows, then the nickname, statement, intro and actions. Reduced motion shows everything at once.
+
+**Portrait label.** The print's label reads "Sree", centred across the image width, 15 to 17px sans.

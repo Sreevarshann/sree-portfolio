@@ -27,7 +27,7 @@ test.describe("V5 hero", () => {
   test("shows the full name, availability, intro and company identities", async ({ page }) => {
     // V7: the hero's company row is part of Detailed View (Quick View has the experience snapshot).
     await page.goto("/?view=detailed");
-    await expect(page.locator("h1")).toHaveText("Sreevarshan Sathiyamurthy");
+    await expect(page.locator("h1")).toHaveText("Hey, I'm Sreevarshan Sathiyamurthy.");
     await expect(page.getByText("Available for full-time opportunities")).toBeVisible();
     await expect(page.locator("main").getByText(/a Boston-based engineer building AI agents, data platforms and full-stack applications/)).toBeVisible();
     for (const [name, slug] of [
