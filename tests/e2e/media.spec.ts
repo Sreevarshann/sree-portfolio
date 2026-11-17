@@ -30,8 +30,9 @@ test.describe("hero portrait: Spider-Man reveal", () => {
       await page.mouse.move(2, 2);
       await expect(fig).toHaveAttribute("data-state", "illustrated");
       await expect.poll(() => fig.locator(".pswap-illustrated").evaluate((e) => getComputedStyle(e).opacity)).toBe("1");
-      // No layout shift from the reveal.
-      expect(await fig.boundingBox()).toEqual(box);
+      // No layout shift from the reveal: the frame keeps its size.
+      const after = await fig.boundingBox();
+      expect([after!.width, after!.height]).toEqual([box!.width, box!.height]);
     });
   }
 

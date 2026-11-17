@@ -211,3 +211,13 @@ Navigation mapping (`HOME_SECTIONS` in `src/lib/nav.ts`): hero → Home (SS), ac
 **Sree AI.** One model call per message. Deterministic intents add `hiring`, `casual`, `private` and `knowledge`, and each question gets an answer mode that the user turn names. The system prompt separates five kinds of statement (verified facts, evidence-based assessments, general knowledge, humour, unknowns), so the assistant can be warm and confident without inventing biography. A sentence gate drops guarantees, commitments on Sree's behalf, money, literal superlatives and immigration claims before they are streamed. A short Groq rate limit is retried once. The published availability line is a shared profile fact. Evaluation method and results: `docs/ai-eval/`.
 
 **Resume.** Every resume link carries the PDF's hash (`?v=`), so a new file is never served from a stale cache; `tests/unit/resume.test.ts` keeps the version in step with the file.
+
+## V11: real media
+
+All photos and video come from one typed manifest, `src/content/media.ts`; components read paths, sizes, alt text and captions from it. Every file is a derivative of the original Sree supplied: WebP or H.264 MP4, auto-oriented, with all metadata (including GPS) stripped. Nothing is generated or retouched; the only edits are pixelated QR codes and a third party's name (the badge's host) for privacy.
+
+**Hero portrait.** The Spider-Man mask photo is the default top layer; the real photograph sits beneath in the same 4:5 frame (both photos share pose and framing, so no warping is needed). Hover, tap, Enter or Space dissolves the masked photo over about 650 ms: an opacity fade with a soft radial opening that grows from the pointer (a registered `--pswap-r`), while the real photo settles from a hair of zoom. The toggle's label names the next action. Reduced motion switches instantly.
+
+**Achievement media.** Each achievement section on `/achievements` shows its own media between the summary and the technical details, so the homepage cards stay compact. SAUVC: the task-pass video (portrait, 1080p or 720p by viewport and Save-Data, attached only near the viewport, muted autoplay when in view, paused when away) beside its three photos. Google MLOps Expo: the Charlie demo featured above three thumbnails, and no video player. Photos open in a native `<dialog>` lightbox with captions, arrow keys, swipe, Escape, scroll lock and focus return.
+
+**Ranking counter.** The 320 to 6 count reserves the widest value in tabular `ch` units, so every frame stays inside the numeral's box (which the scroll-driven rise clips to), and the running overlay carries its own text fill in light mode.
