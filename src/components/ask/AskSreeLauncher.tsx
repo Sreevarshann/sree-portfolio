@@ -44,10 +44,7 @@ export function AskSreeLauncher() {
   // transitions, never per scroll frame; a refresh deep in the page or a
   // back/forward restore gets the right state from the first callback.
   useEffect(() => {
-    if (!mobile || pathname !== "/") {
-      setCompact(false);
-      return;
-    }
+    if (!mobile || pathname !== "/") return;
     const hero = document.querySelector<HTMLElement>('[data-nav-section="hero"]');
     if (!hero) return;
     const io = new IntersectionObserver(([e]) => setCompact(!e.isIntersecting), { rootMargin: "0px 0px -30% 0px", threshold: 0 });
@@ -108,7 +105,7 @@ export function AskSreeLauncher() {
         aria-label={open ? "Close" : "Ask My AI"}
         tabIndex={!pastHero && !open ? -1 : undefined}
         aria-hidden={!pastHero && !open ? true : undefined}
-        data-compact={compact && !open ? "" : undefined}
+        data-compact={compact && mobile && pathname === "/" && !open ? "" : undefined}
         className={`ask-launcher glass group fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[55] inline-flex items-center rounded-full py-1.5 pl-1.5 text-sm font-medium text-fg transition-[transform,opacity,box-shadow] duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 hover:shadow-[var(--glow)] active:scale-[0.97] sm:right-6 sm:bottom-6 ${
           (open && mobile) || (!pastHero && !open) ? "pointer-events-none translate-y-4 opacity-0" : ""
         }`}
