@@ -59,7 +59,10 @@ export function ExperienceTimeline({ compact = false, headingLevel = 3 }: { comp
                   <RoleArt motif={e.motif} />
                 </div>
               </div>
-              <dl className="grid grid-cols-1 gap-px border-t border-line bg-line sm:grid-cols-3">
+              <dl
+                className="grid grid-cols-1 gap-px border-t border-line bg-line sm:[grid-template-columns:repeat(var(--n),minmax(0,1fr))]"
+                style={{ ["--n" as string]: e.outcomes.length } as React.CSSProperties}
+              >
                 {e.outcomes.map((o) => (
                   <div key={o.label} className="bg-bg-elev px-6 py-4">
                     <dt className="sr-only">{o.label}</dt>
