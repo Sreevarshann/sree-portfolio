@@ -33,6 +33,37 @@ test.describe("homepage information architecture (V9)", () => {
     }
   });
 
+  for (const [w, view, scheme] of [[1440, "quick", "light"], [1440, "detailed", "dark"], [1024, "detailed", "light"], [820, "quick", "dark"]] as const) {
+    test(`achievement cards are one aligned pair at ${w}px (${view}, ${scheme})`, async ({ page }, info) => {
+      test.skip(info.project.name !== "desktop", "Viewport set explicitly.");
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto(`/?view=${view}`);
+      await page.locator('main > section[aria-label="Achievements"]').scrollIntoViewIfNeeded();
+      const r = await page.evaluate(() => {
+        const cards = [...document.querySelectorAll<HTMLElement>(".ach-card")];
+        const top = (c: HTMLElement, s: string) => { const e = c.querySelector<HTMLElement>(s); return e && e.offsetParent ? e.getBoundingClientRect().top : null; };
+        const rows = ["ach-rank", "ach-viz", "ach-label", "ach-title", "ach-project", "ach-desc", "ach-actions"].map((k) => ({ k, a: top(cards[0], "." + k), b: top(cards[1], "." + k) }));
+        const box = cards.map((c) => c.getBoundingClientRect());
+        return { rows, heights: box.map((b) => b.height), sameRow: Math.abs(box[0].top - box[1].top) < 0.5, radius: cards.map((c) => getComputedStyle(c).borderRadius) };
+      });
+      expect(r.sameRow).toBe(true);
+      expect(Math.abs(r.heights[0] - r.heights[1])).toBeLessThanOrEqual(0.5);
+      for (const row of r.rows) if (row.a !== null) expect(Math.abs(row.a - row.b!), row.k).toBeLessThanOrEqual(0.5);
+      expect(r.radius[0]).toBe(r.radius[1]);
+      // Aligned without padding the pair out: no taller than the content needs.
+      expect(Math.max(...r.heights)).toBeLessThan(view === "quick" ? 420 : 520);
+    });
+  }
+
+  test("achievement cards stack compactly on phones", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/?view=quick");
+    const hs = await page.locator(".ach-card").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()));
+    expect(hs[1].top).toBeGreaterThan(hs[0].bottom); // stacked
+    for (const h of hs) expect(h.height).toBeLessThan(380);
+  });
+
   test("project gallery links every case study and repository", async ({ page }) => {
     await page.goto("/?view=detailed");
     const g = page.locator('main > section[aria-label="Projects"] .v-detailed');
