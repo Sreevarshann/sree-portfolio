@@ -105,9 +105,9 @@ test.describe("achievement media", () => {
     await open(page, "/achievements");
     const media = page.locator("#sauvc .ach-media");
     await media.scrollIntoViewIfNeeded();
-    // Either it is playing (muted autoplay) or the large play button is offered.
-    const playing = await media.locator("video").evaluate((v) => !(v as HTMLVideoElement).paused);
-    if (!playing) await expect(media.getByRole("button", { name: /^Play video: / })).toBeVisible();
+    // Either it is playing (muted autoplay) or the play control is offered. The
+    // label follows the state, so accept either (autoplay may start mid-check).
+    await expect(media.getByRole("button", { name: /^(Play|Pause) video: / })).toBeVisible();
     await page.locator("#google-mlops-expo").scrollIntoViewIfNeeded();
     await expect.poll(() => media.locator("video").evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
   });
