@@ -57,7 +57,7 @@ test.describe("V6 technology index", () => {
       // Columns are balanced: the index is not taller than the content needs.
       const groupBottoms = await page.$$eval(".tech-index-group", (gs) => gs.map((g) => g.getBoundingClientRect().bottom + scrollY));
       expect(open.index.bottom - Math.max(...groupBottoms), `trailing space at ${width}px`).toBeLessThanOrEqual(32);
-      const columns = await page.$eval(".tech-index-body", (b) => getComputedStyle(b).columnCount);
+      const columns = await page.$eval(".tech-index-groups", (b) => getComputedStyle(b).columnCount);
       expect(columns).toBe(width >= 1024 ? "3" : width >= 640 ? "2" : "1");
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
     }
@@ -88,6 +88,7 @@ test.describe("V6 technology index", () => {
     await expect(tools.locator("summary")).toHaveText("Explore My Stack", { useInnerText: true });
     await page.locator(".tech-index summary").click();
     const rows = tools.locator(".tech-index-row");
+    await expect(rows.first()).toBeVisible(); // the explorer mounts on demand (V12)
     expect(await rows.count()).toBeGreaterThan(30);
     for (const row of await rows.all()) await expect(row.locator(".tech-index-where a").first()).toBeVisible();
     // Internal links in the index resolve.
@@ -100,6 +101,7 @@ test.describe("V6 technology index", () => {
       await page.emulateMedia({ colorScheme: scheme });
       await page.goto("/");
       await page.locator(".tech-index summary").click();
+      await expect(page.locator(".tech-index-row").first()).toBeVisible();
       const [name, where] = await page.$eval(".tech-index-row", (r) => [getComputedStyle(r.querySelector(".tech-index-name")!).color, getComputedStyle(r.querySelector(".tech-index-where")!).color]);
       expect(name).not.toBe(where); // names and context are visually distinct
     });

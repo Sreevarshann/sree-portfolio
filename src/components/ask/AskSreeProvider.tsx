@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { ChatLink, ChatSource, FallbackReason, SourceRef, StreamEvent } from "@/lib/ai/protocol";
+import type { ChatContext, ChatLink, ChatMode, ChatSource, FallbackReason, SourceRef, StreamEvent } from "@/lib/ai/protocol";
 
 export type ChatMessage = {
   id: string;
@@ -16,6 +16,10 @@ export type ChatMessage = {
   fallback?: { reason: FallbackReason; links: ChatLink[] };
   /** Follow-up questions offered under the answer. */
   suggestions?: string[];
+  /** Catalog ids this question was asked about (Skill Explorer hand-off, job description mapping). */
+  context?: ChatContext;
+  /** Set on a job-description mapping card (rendered locally, never sent to the model). */
+  report?: import("@/lib/skillSearch").JdReport;
 };
 
 type Ctx = {
@@ -24,7 +28,13 @@ type Ctx = {
   closeChat: () => void;
   messages: ChatMessage[];
   busy: boolean;
-  send: (text: string) => void;
+  send: (text: string, context?: ChatContext) => void;
+  /** Open the assistant and ask at once (Skill Explorer hand-off). */
+  ask: (text: string, context?: ChatContext) => void;
+  /** Adds a locally built job-description mapping to the conversation. */
+  addReport: (report: import("@/lib/skillSearch").JdReport) => void;
+  mode: ChatMode;
+  setMode: (m: ChatMode) => void;
   stop: () => void;
   retry: () => void;
   clear: () => void;
@@ -35,6 +45,7 @@ type Ctx = {
 
 const AskCtx = createContext<Ctx | null>(null);
 const STORAGE_KEY = "ask-sree:v3";
+const MODE_KEY = "ask-sree:mode";
 export const MAX_INPUT = 1000;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -44,6 +55,8 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mode, setModeState] = useState<ChatMode>("general");
+  const modeRef = useRef<ChatMode>("general");
   const abortRef = useRef<AbortController | null>(null);
   const launcherRef = useRef<HTMLButtonElement | null>(null);
   const loaded = useRef(false);
@@ -56,6 +69,10 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(raw) as ChatMessage[];
         // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate from sessionStorage once on mount
         setMessages(parsed.map((m) => (m.status === "streaming" ? { ...m, status: "stopped" } : m)));
+      }
+      if (sessionStorage.getItem(MODE_KEY) === "recruiter") {
+        modeRef.current = "recruiter";
+        setModeState("recruiter");
       }
     } catch {}
     loaded.current = true;
@@ -79,15 +96,15 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       const payload = history
-        .filter((m) => m.content.trim() && m.status !== "error" && !m.fallback)
+        .filter((m) => m.content.trim() && m.status !== "error" && !m.fallback && !m.report)
         .slice(-12)
-        .map((m) => ({ role: m.role, content: m.content }));
+        .map((m) => (m.context && m.role === "user" ? { role: m.role, content: m.content, context: m.context } : { role: m.role, content: m.content }));
 
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: payload }),
+          body: JSON.stringify({ messages: payload, mode: modeRef.current }),
           signal: ctrl.signal,
         });
         if (!res.body) throw new Error("No response body");
@@ -146,21 +163,40 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
   );
 
   const send = useCallback(
-    (text: string) => {
+    (text: string, context?: ChatContext) => {
       const t = text.trim().slice(0, MAX_INPUT);
       if (!t || busy) return;
       setDraft("");
       setOpen(true);
-      void run([...messages, { id: uid(), role: "user", content: t, status: "done" }]);
+      void run([...messages, { id: uid(), role: "user", content: t, status: "done", ...(context ? { context } : {}) }]);
     },
     [busy, messages, run],
   );
+  const ask = useCallback(
+    (text: string, context?: ChatContext) => {
+      setOpen(true);
+      send(text, context);
+    },
+    [send],
+  );
+  const addReport = useCallback((report: import("@/lib/skillSearch").JdReport) => {
+    setOpen(true);
+    setMessages((ms) => [...ms, { id: uid(), role: "assistant", content: "", status: "done", report }]);
+  }, []);
+  const setMode = useCallback((m: ChatMode) => {
+    modeRef.current = m;
+    setModeState(m);
+    try {
+      sessionStorage.setItem(MODE_KEY, m);
+    } catch {}
+  }, []);
 
   const stop = useCallback(() => abortRef.current?.abort(), []);
 
   const retry = useCallback(() => {
     if (busy) return;
     const lastUser = [...messages].reverse().findIndex((m) => m.role === "user");
+    if (messages[messages.length - 1]?.report) return;
     if (lastUser < 0) return;
     const idx = messages.length - 1 - lastUser;
     void run(messages.slice(0, idx + 1));
@@ -206,8 +242,8 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ open, openChat, closeChat, messages, busy, send, stop, retry, clear, draft, setDraft, launcherRef }),
-    [open, openChat, closeChat, messages, busy, send, stop, retry, clear, draft],
+    () => ({ open, openChat, closeChat, messages, busy, send, ask, addReport, mode, setMode, stop, retry, clear, draft, setDraft, launcherRef }),
+    [open, openChat, closeChat, messages, busy, send, ask, addReport, mode, setMode, stop, retry, clear, draft],
   );
   return <AskCtx.Provider value={value}>{children}</AskCtx.Provider>;
 }

@@ -135,7 +135,7 @@ test.describe("onboarding coach mark", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true }));
   });
-  const coachOf = (page: Page) => page.getByRole("dialog", { name: "Want the full portfolio?" });
+  const coachOf = (page: Page) => page.getByRole("dialog", { name: "Want the full experience?" });
 
   for (const width of WIDTHS) {
     test(`points at the switch and stays on screen at ${width}px`, async ({ page }) => {
@@ -160,11 +160,11 @@ test.describe("onboarding coach mark", () => {
       const iy = Math.max(0, Math.min(box.bottom, h.y + h.height) - Math.max(box.top, h.y));
       expect(ix * iy, "coach overlaps the headline").toBe(0);
       await expect(page.getByRole("group", { name: "Portfolio view" })).toHaveAttribute("aria-describedby", "view-coach-body");
-      await expect(coach).toContainText("Click here to switch to Detailed View and explore my complete experience, projects, and technical work.");
+      await expect(coach).toContainText("Switch to Detailed View to explore all my projects, experience, and technical work.");
     });
   }
 
-  test("disappears on its own about 3 seconds after it becomes visible, and never returns", async ({ page }) => {
+  test("disappears on its own about 3 seconds after it becomes visible, and returns on the next visit", async ({ page }) => {
     await page.goto("/");
     const coach = coachOf(page);
     await expect(coach).toBeVisible({ timeout: 15_000 });
@@ -173,26 +173,31 @@ test.describe("onboarding coach mark", () => {
     const elapsed = Date.now() - shownAt;
     expect(elapsed, "stays at least ~3 s").toBeGreaterThanOrEqual(2_600);
     expect(elapsed, "then closes").toBeLessThanOrEqual(4_500);
+    // V12: nothing is remembered; a same-tab refresh is a new homepage entry.
     await page.reload();
-    await page.waitForTimeout(4_500);
-    await expect(page.locator(".coach")).toHaveCount(0);
+    await expect(coachOf(page)).toBeVisible({ timeout: 15_000 });
   });
 
-  test("the close button dismisses it immediately; it is not shown again", async ({ page }) => {
+  test("the close button dismisses it immediately; one entry shows it once", async ({ page }) => {
     await page.goto("/");
     const coach = coachOf(page);
     await expect(coach).toBeVisible({ timeout: 15_000 });
     await coach.getByRole("button", { name: "Dismiss" }).click();
     await expect(coach).toBeHidden({ timeout: 1_000 });
-    await page.reload();
-    await page.waitForTimeout(4_500);
+    // Not re-shown by re-renders, theme changes or waiting on the same entry.
+    await page.getByRole("button", { name: /switch to (light|dark) theme/i }).first().click().catch(() => {});
+    await page.waitForTimeout(4_000);
     await expect(page.locator(".coach")).toHaveCount(0);
+    // A refresh is a new entry.
+    await page.reload();
+    await expect(coachOf(page)).toBeVisible({ timeout: 15_000 });
+    expect(await page.evaluate(() => Object.keys(localStorage).filter((k) => k.includes("coach")))).toEqual([]);
   });
 
   test("clicking the hint switches to Detailed View", async ({ page }) => {
     await page.goto("/");
     const coach = coachOf(page);
-    await coach.getByRole("button", { name: /Click here to switch to Detailed View/ }).click({ timeout: 15_000 });
+    await coach.getByRole("button", { name: /Switch to Detailed View/ }).click({ timeout: 15_000 });
     await expect.poll(() => view(page)).toBe("detailed");
     await expect(coach).toBeHidden();
   });
@@ -258,6 +263,7 @@ test.describe("Explore My Stack", () => {
       await pill.scrollIntoViewIfNeeded();
       await expect(pill).toHaveAccessibleName("Explore My Stack");
       await expect(pill).toHaveAttribute("aria-controls", "tech-index-body");
+      await page.locator(".skill-explorer").waitFor({ state: "attached" }); // mounts at idle (V12)
       const before = await page.locator("#tech-index-body").innerHTML();
       const box = (await pill.boundingBox())!;
       expect(box.height).toBeGreaterThanOrEqual(44); // comfortable touch target

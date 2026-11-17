@@ -22,9 +22,9 @@ test.describe("hero portrait: Spider-Man reveal", () => {
       // Layout size (offset*), not the painted box: the print tilts on hover by design.
       const size = () => frame.evaluate((e) => [(e as HTMLElement).offsetWidth, (e as HTMLElement).offsetHeight]);
       const box = await size();
-      // Dissolve timing: about 650 ms (opacity and the radial opening).
+      // Dissolve timing: about 800 ms (V12: slightly slower than the original 650 ms).
       const t = await fig.locator(".pswap-illustrated").evaluate((e) => getComputedStyle(e).transitionDuration);
-      expect(t).toContain("0.65s");
+      expect(t).toContain("0.8s");
       const btn = page.getByRole("button", { name: "Reveal Sree's portrait" });
       await btn.hover();
       await expect(fig).toHaveAttribute("data-state", "real");
@@ -88,8 +88,10 @@ test.describe("achievement media", () => {
     expect(await video.evaluate((v) => (v as HTMLVideoElement).muted && (v as HTMLVideoElement).playsInline)).toBe(true);
     await media.scrollIntoViewIfNeeded();
     await expect.poll(() => video.getAttribute("src")).toMatch(/task-pass-(720|1080)\.mp4$/);
-    // Controls: play or pause, and sound.
-    await expect(media.getByRole("button", { name: /Play video|Pause video/ }).first()).toBeVisible();
+    // V12: no native controls or control bar; the frame is the play/pause button, plus a discreet sound toggle.
+    expect(await video.evaluate((v) => (v as HTMLVideoElement).controls)).toBe(false);
+    await expect(media.locator(".ach-video-bar, .ach-video-big")).toHaveCount(0);
+    await expect(media.getByRole("button", { name: /^(Play|Pause) video: / })).toBeVisible();
     await expect(media.getByRole("button", { name: "Turn sound on" })).toBeVisible();
     const ids = await media.locator(".ach-thumb").evaluateAll((els) => els.map((e) => e.getAttribute("data-media-id")));
     expect(ids).toEqual(["sauvc-team", "sauvc-auv", "sauvc-opening"]);
@@ -104,7 +106,7 @@ test.describe("achievement media", () => {
     await media.scrollIntoViewIfNeeded();
     // Either it is playing (muted autoplay) or the large play button is offered.
     const playing = await media.locator("video").evaluate((v) => !(v as HTMLVideoElement).paused);
-    if (!playing) await expect(media.getByRole("button", { name: "Play video" }).first()).toBeVisible();
+    if (!playing) await expect(media.getByRole("button", { name: /^Play video: / })).toBeVisible();
     await page.locator("#google-mlops-expo").scrollIntoViewIfNeeded();
     await expect.poll(() => media.locator("video").evaluate((v) => (v as HTMLVideoElement).paused)).toBe(true);
   });

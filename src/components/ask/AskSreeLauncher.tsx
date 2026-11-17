@@ -24,9 +24,12 @@ export function AskSreeLauncher() {
   const panel = useRef<HTMLDivElement>(null);
   const [mobile, setMobile] = useState(false);
   const [heroScrolled, setHeroScrolled] = useState(false);
-  const pastHero = pathname !== "/" || heroScrolled;
+  // Phones: compact (logo only) from Achievements onward on the homepage.
+  const [compact, setCompact] = useState(false);
+  const pastHero = pathname !== "/" || heroScrolled || mobile;
 
-  // On the home page the hero already offers "Ask Sree"; reveal the launcher after it.
+  // On the home page the hero already offers "Ask My AI" on larger screens;
+  // reveal the launcher after it there. Phones show it from the start.
   useEffect(() => {
     if (pathname !== "/") return;
     const on = () => setHeroScrolled(window.scrollY > window.innerHeight * 0.6);
@@ -34,6 +37,20 @@ export function AskSreeLauncher() {
     window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, [pathname]);
+
+  // Phones on the homepage: expanded while the hero fills the screen, compact
+  // once Achievements reaches the lower third (the hero's bottom passes 70% of
+  // the viewport). One IntersectionObserver: React state only changes on the
+  // transitions, never per scroll frame; a refresh deep in the page or a
+  // back/forward restore gets the right state from the first callback.
+  useEffect(() => {
+    if (!mobile || pathname !== "/") return;
+    const hero = document.querySelector<HTMLElement>('[data-nav-section="hero"]');
+    if (!hero) return;
+    const io = new IntersectionObserver(([e]) => setCompact(!e.isIntersecting), { rootMargin: "0px 0px -30% 0px", threshold: 0 });
+    io.observe(hero);
+    return () => io.disconnect();
+  }, [mobile, pathname]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 639px)");
@@ -85,15 +102,19 @@ export function AskSreeLauncher() {
         onClick={() => (open ? closeChat() : openChat())}
         aria-expanded={open}
         aria-controls="ask-sree-panel"
+        aria-label={open ? "Close" : "Ask My AI"}
         tabIndex={!pastHero && !open ? -1 : undefined}
         aria-hidden={!pastHero && !open ? true : undefined}
-        className={`glass group fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[55] inline-flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4 text-sm font-medium text-fg transition-[transform,opacity,box-shadow] duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 hover:shadow-[var(--glow)] active:scale-[0.97] sm:right-6 sm:bottom-6 ${
+        data-compact={compact && mobile && pathname === "/" && !open ? "" : undefined}
+        className={`ask-launcher glass group fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[55] inline-flex items-center rounded-full py-1.5 pl-1.5 text-sm font-medium text-fg transition-[transform,opacity,box-shadow] duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 hover:shadow-[var(--glow)] active:scale-[0.97] sm:right-6 sm:bottom-6 ${
           (open && mobile) || (!pastHero && !open) ? "pointer-events-none translate-y-4 opacity-0" : ""
         }`}
       >
         <SreeMark size={34} state={busy ? "thinking" : "idle"} />
-        <span>{open ? "Close" : "Ask My AI"}</span>
-        <kbd aria-hidden="true" className="mono ml-1 hidden rounded-md border border-line px-1.5 text-[0.62rem] text-fg-muted lg:inline">⌘K</kbd>
+        <span className="ask-launcher-label" aria-hidden="true">
+          <span>{open ? "Close" : "Ask My AI"}</span>
+          <kbd className="mono ml-1 hidden rounded-md border border-line px-1.5 text-[0.62rem] text-fg-muted lg:inline">⌘K</kbd>
+        </span>
       </button>
 
       <div
@@ -111,7 +132,10 @@ export function AskSreeLauncher() {
       </div>
       <style>{`@keyframes ask-in{from{opacity:0;transform:translateY(22px) scale(.94);transform-origin:bottom right;filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
         .ask-panel{--glass-tint-strong: color-mix(in oklab, var(--bg) 86%, transparent)}
-        @media (max-width:639px){@keyframes ask-in{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}}`}</style>
+        @media (max-width:639px){@keyframes ask-in{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}}
+        .ask-launcher-label{display:inline-flex;align-items:center;overflow:hidden;white-space:nowrap;max-width:12rem;padding:0 1rem 0 .5rem;opacity:1;transition:max-width 420ms var(--ease-emph),padding 420ms var(--ease-emph),opacity 260ms var(--ease-out)}
+        .ask-launcher[data-compact] .ask-launcher-label{max-width:0;padding:0 .375rem 0 0;opacity:0}
+        @media (prefers-reduced-motion: reduce){.ask-launcher-label{transition:none}}`}</style>
     </>
   );
 }

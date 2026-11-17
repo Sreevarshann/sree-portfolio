@@ -352,6 +352,14 @@
 :root[data-theme="light"] .pswap-placeholder svg { color: #2b63df; }
 :root[data-theme="light"] .pswap-placeholder-mark { color: var(--accent-fg); opacity: 0.9; }
 :root[data-theme="light"] .pswap-caption { color: rgb(var(--ink) / 0.56); }
+:root[data-theme="light"] .pswap-note {
+  background: rgb(255 255 255 / 0.86);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 0 0 1px rgb(43 99 223 / 0.26),
+    0 10px 24px -14px rgb(var(--shade) / 0.4);
+}
+:root[data-theme="light"] .pswap-note-notch { box-shadow: -1px -1px 0 0 rgb(43 99 223 / 0.26); }
 
 /* ------------------------------------------------------------ project stages */
 /* Each screenshot is a precise digital object: a white mat, a hairline, and
@@ -606,7 +614,7 @@
 
 /* ------------------------------------------------------------ coach mark */
 :root[data-theme="light"] .coach {
-  background: rgb(255 255 255 / 0.9);
+  background: rgb(255 255 255 / 0.95);
   box-shadow:
     inset 0 1px 0 #fff,
     0 0 0 1px rgb(43 99 223 / 0.18),

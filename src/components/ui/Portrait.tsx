@@ -79,9 +79,8 @@ export function Portrait({
       </div>
       </div>
       {!small && (
-        <figcaption className="mono mt-5 flex items-center justify-between text-[0.66rem] uppercase tracking-[0.14em] text-fg-muted">
-          <span>Sreevarshan · Boston</span>
-          <span>42.36° N</span>
+        <figcaption className="mono mt-5 text-[0.66rem] uppercase tracking-[0.14em] text-fg-muted">
+          <span>Sree</span>
         </figcaption>
       )}
       <style>{`

@@ -6,7 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { MAX_INPUT, useAskSree, type ChatMessage } from "./AskSreeProvider";
-import { DETAILED_QUESTIONS, MORE_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
+import { DETAILED_QUESTIONS, MORE_QUESTIONS, RECRUITER_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
+import { JdReportCard, JobDescriptionPanel, ModeSwitch } from "./RecruiterTools";
 import { useViewMode } from "@/lib/viewMode";
 import { normalizeMarkdown } from "@/lib/ai/markdown";
 import { renderCitationMarkers, resolveCitations, stripCitationMarkers, type Citation } from "@/lib/ai/citations";
@@ -15,6 +16,7 @@ import { profile } from "@/content/profile";
 
 export const GREETING = "Hey! I'm Sree's AI assistant. Ask me about his experience, projects, achievements, or what he's building.";
 export const SUBTITLE = "Answers from Sree's portfolio";
+export const RECRUITER_GREETING = "Recruiter Mode: ask about specific skills, or paste a job description and I'll map each requirement to verified evidence, related experience or a gap.";
 
 const FALLBACK_COPY: Record<FallbackReason, string> = {
   unavailable: "I can't write an answer right now because my connection to the language model is down. These pages from the portfolio cover your question:",
@@ -166,7 +168,9 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
         <SreeMark size={28} state={streaming ? "thinking" : "idle"} />
       </div>
       <div className="min-w-0 flex-1">
-        {m.fallback ? (
+        {m.report ? (
+          <JdReportCard report={m.report} />
+        ) : m.fallback ? (
           <FallbackCard reason={m.fallback.reason} links={m.fallback.links} />
         ) : m.content ? (
           <div className={`md ${streaming ? "caret" : ""}`}>
@@ -205,7 +209,7 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
             </ul>
           </div>
         )}
-        {!streaming && (m.content || m.status === "error" || m.fallback) && (
+        {!streaming && !m.report && (m.content || m.status === "error" || m.fallback) && (
           <div className="-ml-2 mt-2 flex gap-0.5">
             {m.content && !m.fallback && <CopyButton text={stripCitationMarkers(m.content)} />}
             {isLast && (
@@ -225,7 +229,9 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
 export function ChatView({ variant, onClose }: { variant: "floating" | "page"; onClose?: () => void }) {
   // Starter prompts follow the homepage presentation; any question still works.
   const view = useViewMode();
-  const { messages, busy, send, stop, clear, draft, setDraft } = useAskSree();
+  const { messages, busy, send, stop, clear, draft, setDraft, mode } = useAskSree();
+  const [jdOpen, setJdOpen] = useState(false);
+  const recruiter = mode === "recruiter";
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const stick = useRef(true);
@@ -280,6 +286,14 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
           </>
         )}
       </div>
+      <div className="flex items-center justify-between gap-3 px-4 pb-3">
+        <ModeSwitch />
+        {recruiter && (
+          <button type="button" className="jd-open" aria-expanded={jdOpen} onClick={() => setJdOpen((v) => !v)} disabled={busy}>
+            {jdOpen ? "Close job description" : "Compare a job description"}
+          </button>
+        )}
+      </div>
       <div className="mx-4 h-px bg-gradient-to-r from-transparent via-line-strong to-transparent" aria-hidden="true" />
 
       <div
@@ -296,10 +310,10 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
               <div className="mt-0.5 shrink-0">
                 <SreeMark size={28} />
               </div>
-              <p className="rounded-[20px] rounded-tl-[6px] bg-[var(--glass-lo)] px-4 py-3 text-[0.98rem] leading-relaxed text-fg ring-1 ring-line">{GREETING}</p>
+              <p className="rounded-[20px] rounded-tl-[6px] bg-[var(--glass-lo)] px-4 py-3 text-[0.98rem] leading-relaxed text-fg ring-1 ring-line">{recruiter ? RECRUITER_GREETING : GREETING}</p>
             </div>
             <ul className="mt-5 grid grid-cols-2 gap-2" aria-label="Suggested questions">
-              {(view === "detailed" ? DETAILED_QUESTIONS : SUGGESTED_QUESTIONS).map((q, i) => (
+              {(recruiter ? RECRUITER_QUESTIONS : view === "detailed" ? DETAILED_QUESTIONS : SUGGESTED_QUESTIONS).map((q, i) => (
                 <li key={q} className="msg-in" style={{ animationDelay: `${120 + i * 60}ms` }}>
                   <button
                     type="button"
@@ -312,7 +326,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
                 </li>
               ))}
             </ul>
-            {variant === "page" && (
+            {variant === "page" && !recruiter && (
               <>
                 <p className="eyebrow mt-8">More to ask</p>
                 <ul className="mt-3 flex flex-wrap gap-2">
@@ -340,6 +354,11 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
         {status}
       </p>
 
+      {recruiter && jdOpen && (
+        <div className="px-3 pb-2">
+          <JobDescriptionPanel onDone={() => setJdOpen(false)} />
+        </div>
+      )}
       <form
         className="px-3 pb-3"
         onSubmit={(e) => {
@@ -364,7 +383,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
                 send(draft);
               }
             }}
-            placeholder="Ask about his work…"
+            placeholder={recruiter ? "Ask about a skill or requirement…" : "Ask about his work…"}
             className="chat-input max-h-40 min-h-[28px] flex-1 resize-none bg-transparent py-1 text-[16px] leading-6 text-fg outline-none placeholder:text-fg-muted focus-visible:outline-none sm:text-[0.95rem]"
           />
           {busy ? (

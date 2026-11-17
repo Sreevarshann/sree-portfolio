@@ -29,8 +29,10 @@ export type Intent =
  *   casual    playful and honest; unknown personal facts stay unknown
  *   private   brief, friendly decline; nothing guessed or leaked
  *   knowledge general explanation, not presented as a fact about Sree
+ *   recruiter evidence mapped to requirements: direct, related, not documented
+ *             (chosen by the visitor's Recruiter Mode toggle, never inferred)
  */
-export type Mode = "facts" | "hiring" | "casual" | "private" | "knowledge";
+export type Mode = "facts" | "hiring" | "casual" | "private" | "knowledge" | "recruiter";
 
 export type EntityKind = "experience" | "project" | "achievement" | "education" | "resume";
 export type Entity = { kind: EntityKind; id: string; label: string };

@@ -139,7 +139,7 @@ test.describe("V5 technology marquee", () => {
     await page.goto("/");
     await page.locator(".tech-index summary").click();
     const index = page.locator(".tech-index");
-    await expect(index.getByRole("link", { name: "Sree AI (this site)" })).toHaveAttribute("href", "/ask");
+    await expect(index.getByRole("link", { name: "Sree AI (this site)" }).first()).toHaveAttribute("href", "/ask");
     await expect(index.locator(".tech-index-row", { hasText: /^Snowflake Cortex/ }).getByRole("link", { name: "RightRev" })).toHaveAttribute("href", "/experience#rightrev");
   });
 });

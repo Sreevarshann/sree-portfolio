@@ -120,7 +120,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
             is placed in the right column. */}
         <div className="mt-8 grid gap-10 md:mt-12 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
           <div
-            className="hero-portrait hero-fade mx-auto mb-10 w-[min(70vw,300px)] lg:col-start-2 lg:row-start-1 lg:mx-0 lg:mb-0 lg:w-full"
+            className="hero-portrait hero-fade mx-auto mb-[4.75rem] w-[min(70vw,300px)] lg:col-start-2 lg:row-start-1 lg:mx-0 lg:mb-0 lg:w-full"
             data-parallax="0.12"
             data-parallax-min="1024"
             style={{ ["--enter-delay" as string]: "0.2s" }}

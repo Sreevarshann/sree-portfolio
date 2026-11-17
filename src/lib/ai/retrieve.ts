@@ -1,5 +1,18 @@
 import { knowledge, type KnowledgeChunk } from "./knowledge";
 import { analyze, NAME_TOKENS, type Analysis, type Entity, type Intent } from "./intent";
+import { skillsInText } from "@/lib/skillSearch";
+import { skillById, topicById } from "@/content/skillCatalog";
+
+/** Catalog skills and related topics to pin: canonical ids only (unknown ids are ignored). */
+export type SkillPins = { skills?: string[]; topics?: string[] };
+
+function pinIds(p: SkillPins | undefined): string[] {
+  if (!p) return [];
+  return [
+    ...(p.topics ?? []).filter((t) => topicById.has(t)).map((t) => `topic-${t}`),
+    ...(p.skills ?? []).filter((t) => skillById.has(t)).map((t) => `skill-${t}`),
+  ];
+}
 
 /**
  * Intent-aware retrieval over the portfolio knowledge base.
@@ -195,7 +208,7 @@ function entityChunks(e: Entity, focus: string) {
 
 export type RetrievalResult = { chunks: KnowledgeChunk[]; analysis: Analysis };
 
-export function retrieveWithAnalysis(question: string, k = 6, inherited?: Analysis): RetrievalResult {
+export function retrieveWithAnalysis(question: string, k = 6, inherited?: Analysis, pins?: SkillPins): RetrievalResult {
   const own = analyze(question);
   const useInherited = !!inherited && own.followUp && inherited.entities.length > 0;
   const analysis: Analysis = useInherited
@@ -216,9 +229,23 @@ export function retrieveWithAnalysis(question: string, k = 6, inherited?: Analys
   const push = (id: string) => {
     if (byId.has(id) && !ordered.includes(id)) ordered.push(id);
   };
-  // Named entities first: they are the subject of the question.
-  for (const e of analysis.entities) entityChunks(e, question).forEach(push);
-  if (!analysis.entities.length) (primary === "general" ? ["profile"] : pinnedFor(primary)).forEach(push);
+  // Skills and technologies the question names (or the Skill Explorer handed
+  // over): their verified catalog records, at most four. A named technology
+  // that is not documented pins its "not documented" record, so the answer
+  // can never turn it into experience.
+  const named = skillsInText(question);
+  const skillPins = [...new Set([...pinIds(pins), ...pinIds(named)])].slice(0, 4);
+  // Named entities first: they are the subject of the question. Otherwise the
+  // intent's authoritative record leads. Skill records follow the first of
+  // these, unless the Skill Explorer handed them over (then they lead).
+  const lead = analysis.entities.length
+    ? analysis.entities.flatMap((e) => entityChunks(e, question).slice(0, skillPins.length ? 2 : undefined))
+    : primary === "general" ? (skillPins.length ? [] : ["profile"]) : pinnedFor(primary).slice(0, skillPins.length ? 2 : undefined);
+  const explicit = !!(pins?.skills?.length || pins?.topics?.length);
+  if (explicit) skillPins.forEach(push);
+  lead.slice(0, 1).forEach(push);
+  skillPins.forEach(push);
+  lead.slice(1).forEach(push);
   // Secondary intents get their single most authoritative record.
   for (const i of analysis.intents.slice(1)) pinnedFor(i).slice(0, i === "skills" ? 2 : 1).forEach(push);
 
@@ -229,6 +256,8 @@ export function retrieveWithAnalysis(question: string, k = 6, inherited?: Analys
       if (chunk.id === "resume-event-processing" && !asksResume) s = 0;
       if (chunk.id === "contact" && !analysis.intents.includes("contact")) s = 0;
       if (chunk.id === "site-map" && primary !== "assistant" && primary !== "general") s = 0;
+      // Skill and topic records enter only when named (pinned above), never by keyword overlap.
+      if (chunk.id.startsWith("skill-") || chunk.id.startsWith("topic-")) s = 0;
       return { chunk, score: s };
     })
     .filter((s) => s.score > 0.8)
@@ -271,7 +300,7 @@ function entitiesFromAnswer(text: string): Entity[] {
  * without a named topic ("what stack did he use there?") inherits the
  * entities of the most recent turn that had one.
  */
-export function retrieveConversation(history: Turn[], k = 6): RetrievalResult {
+export function retrieveConversation(history: Turn[], k = 6, pins?: SkillPins): RetrievalResult {
   const userTurns = history.filter((m) => m.role === "user");
   const latest = userTurns[userTurns.length - 1]?.content ?? "";
   let inherited: Analysis | undefined;
@@ -288,7 +317,13 @@ export function retrieveConversation(history: Turn[], k = 6): RetrievalResult {
     const answer = prior[i + 1]?.role === "assistant" ? entitiesFromAnswer(prior[i + 1].content).slice(0, 1) : [];
     if (answer.length) inherited = { ...asked, entities: answer };
   }
-  return retrieveWithAnalysis(latest, k, inherited);
+  // A bare follow-up ("is that the same thing?") keeps the skills the previous question named.
+  let carried = pins;
+  if (!pins?.skills?.length && !pins?.topics?.length && analyze(latest).followUp && !skillsInText(latest).skills.length && !skillsInText(latest).topics.length) {
+    const prevUser = prior.filter((m) => m.role === "user").pop();
+    if (prevUser) carried = skillsInText(prevUser.content);
+  }
+  return retrieveWithAnalysis(latest, carried?.skills?.length || carried?.topics?.length ? k + 1 : k, inherited, carried);
 }
 
 /** Back-compatible helper used by older callers and tests: user turns only. */

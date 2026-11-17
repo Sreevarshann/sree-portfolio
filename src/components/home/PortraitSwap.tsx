@@ -9,7 +9,7 @@ import type { PortraitPair } from "@/lib/portrait";
  *
  * With both assets present it starts on the masked (Spider-Man) photo, which
  * dissolves to reveal the real photograph underneath: an opacity fade with a
- * soft radial opening that grows from the pointer (~650 ms). Both are real
+ * soft radial opening that grows from the pointer (~800 ms). Both are real
  * photographs sharing the same frame; nothing is morphed or generated.
  * - mouse / pen: hover to reveal, leave to return
  * - touch, keyboard (Enter / Space) and click: the frame is a toggle button
@@ -96,22 +96,22 @@ export function PortraitSwap({ pair, priority = false, className = "" }: { pair:
           <span className="pswap-gloss" aria-hidden="true" />
         </div>
         <figcaption className="pswap-caption">
-          <span>Sreevarshan</span>
-          <span>Boston, MA</span>
+          <span>Sree</span>
         </figcaption>
       </div>
+      {/* The hint sits under the print, its notch pointing straight up at the
+          photograph. Purely visual (the button's label carries the action) and
+          never intercepts pointer events. */}
       <p className="pswap-note" aria-hidden="true">
-        <svg width="34" height="26" viewBox="0 0 34 26" fill="none" className="pswap-arrow">
-          <path d="M2 23C9 22 20 18 27 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-          <path d="M21.5 7.5L27.4 5.2l.9 6.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <span className="pswap-note-notch" />
         {mode === "pair" ? (
           <>
-            <span className="pswap-note-hover">hover for the real me</span>
-            <span className="pswap-note-touch">tap for the real me</span>
+            <span className="pswap-note-hover">Hover to reveal the real me</span>
+            <span className="pswap-note-touch pswap-note-touch-in">Tap to reveal the real me</span>
+            <span className="pswap-note-touch pswap-note-touch-out">Tap again for Spider-Man</span>
           </>
         ) : (
-          <span>portrait arriving soon</span>
+          <span>Portrait arriving soon</span>
         )}
       </p>
     </figure>

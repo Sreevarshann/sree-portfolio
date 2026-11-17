@@ -2,8 +2,8 @@ import { profile } from "@/content/profile";
 import { experience } from "@/content/experience";
 import { education, certifications, achievements } from "@/content/credentials";
 import { projects } from "@/content/projects";
-import { skillClusters, evidenceLabels } from "@/content/skills";
 import { technologies, evidence as techEvidence, TECH_CATEGORIES } from "@/content/technologies";
+import { EVIDENCE_KIND_LABEL, SKILL_CATEGORIES, evidence as skillEvidence, relatedTopics, skillById, skills as catalogSkills, type Skill } from "@/content/skillCatalog";
 
 /**
  * The Sree AI knowledge base, built only from the typed portfolio content
@@ -161,6 +161,11 @@ for (const a of achievements) {
   });
 }
 
+/* Skills: every chunk below comes from the verified skill catalog, the same
+   source the Skill Explorer renders, so the two can never disagree. */
+const shortSkill = (sk: Skill) => sk.name.replace(/\s*\(.*\)\s*$/, "");
+const trainingOnly = (sk: Skill) => sk.uses.every((x) => ["course", "coursework"].includes(skillEvidence[x.at]?.kind));
+
 add({
   id: "tech-usage",
   title: "Tools & technologies - where each was used",
@@ -169,14 +174,57 @@ add({
   label: "Tools & technologies",
   blurb: "The technologies he uses and where he used each one.",
   text: `Tools and technologies, skills, tech stack: ${technologies.map((t) => t.name).join(", ")}.`,
-  // Only tools with a documented usage context are facts. Tools without one are
-  // not mentioned at all: listing them (even as "not used") let the model claim them.
+  // Only tools with a documented usage context (from the skill catalog) are facts.
+  // Tools without one are not mentioned at all: listing them (even as "not used") let the model claim them.
   facts: TECH_CATEGORIES.flatMap((cat) =>
     technologies
       .filter((t) => t.category === cat && t.usedIn.length > 0)
       .map((t) => `${t.name} (${cat}): used at/in ${t.usedIn.map((id) => techEvidence[id]?.label ?? id).join(", ")}.`),
   ),
 });
+
+for (const sk of catalogSkills) {
+  const cat = SKILL_CATEGORIES.find((c) => c.id === sk.category)!.label;
+  add({
+    id: `skill-${sk.id}`,
+    title: `Skill: ${sk.name}`,
+    section: "Skills",
+    href: `/?stack=${encodeURIComponent(shortSkill(sk))}#tools`,
+    label: `${shortSkill(sk)} (Explore My Stack)`,
+    blurb: sk.uses[0].what,
+    text: `${sk.name} ${sk.aliases.join(" ")} ${cat}. ${sk.uses.map((x) => `${skillEvidence[x.at]?.label}: ${x.what}`).join(" ")}`,
+    facts: [
+      trainingOnly(sk)
+        ? `${sk.name} (${cat}): documented only through training or coursework, not applied or professional work. Say exactly that.`
+        : `${sk.name} (${cat}): verified, documented hands-on usage.`,
+      ...sk.uses.map((x) => {
+        const ev = skillEvidence[x.at];
+        const where = ev?.kind === "work" ? `${ev.label} (professional work)` : `${ev?.label ?? x.at} (${EVIDENCE_KIND_LABEL[ev?.kind ?? "project"].toLowerCase()})`;
+        return `${where}: ${x.what}`;
+      }),
+      sk.related?.length ? `Related verified skills: ${sk.related.map((r) => skillById.get(r)?.name).filter(Boolean).join(", ")}.` : "",
+    ].filter(Boolean),
+  });
+}
+
+for (const t of relatedTopics) {
+  const via = t.via.map((v) => skillById.get(v)!).filter(Boolean);
+  add({
+    id: `topic-${t.id}`,
+    title: `Not documented: ${t.name}`,
+    section: "Skills",
+    href: `/?stack=${encodeURIComponent(t.name.split(/,| or /)[0].trim())}#tools`,
+    label: "Explore My Stack",
+    blurb: t.summary,
+    text: `${t.name} ${t.aliases.join(" ")}. ${t.overlap}`,
+    facts: [
+      `${t.name}: NOT documented anywhere on Sree's portfolio or resume. Never say or imply he has used it.`,
+      `Closest verified experience (${t.kind === "related" ? "a related technology with overlapping purpose" : "transferable concepts from a different tool category"}): ${via.map((sk) => `${sk.name} at ${sk.uses.slice(0, 2).map((x) => skillEvidence[x.at]?.label).join(" and ")}`).join("; ")}.`,
+      `What overlaps and what does not: ${t.overlap}`,
+      `${t.name}-specific experience would still need to be developed or demonstrated; Sree can speak to it directly.`,
+    ],
+  });
+}
 
 add({
   id: "resume-event-processing",
@@ -230,17 +278,17 @@ for (const p of projects) {
   });
 }
 
-for (const c of skillClusters) {
+for (const c of SKILL_CATEGORIES) {
+  const list = catalogSkills.filter((sk) => sk.category === c.id);
   add({
+    // Ids kept stable for retrieval pins: skills-ai, skills-data, ...
     id: `skills-${c.id}`,
-    title: `Skills - ${c.title}`,
-    section: "About",
-    href: "/about#skills",
-    label: "Skills map",
-    blurb: c.blurb,
-    text: `${c.title}: ${c.blurb} ${c.skills
-      .map((s) => `${s.name} (used in: ${s.usedIn.map((u) => evidenceLabels[u]?.label ?? u).join(", ")})`)
-      .join("; ")}.`,
+    title: `Skills - ${c.label}`,
+    section: "Skills",
+    href: "/#tools",
+    label: "Tools & technologies",
+    blurb: `${c.label}: ${list.map((sk) => sk.name).join(", ")}.`,
+    text: `${c.label}: ${list.map((sk) => `${sk.name} (used in: ${sk.uses.map((x) => skillEvidence[x.at]?.label ?? x.at).join(", ")})`).join("; ")}.`,
   });
 }
 

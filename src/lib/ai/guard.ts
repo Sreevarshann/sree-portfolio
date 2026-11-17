@@ -11,10 +11,19 @@ export const chatRequestSchema = z
         z.object({
           role: z.enum(["user", "assistant"]),
           content: z.string().trim().min(1).max(6000),
+          // Canonical catalog ids only; unknown ids are dropped server-side.
+          context: z
+            .object({
+              skills: z.array(z.string().regex(/^[a-z0-9-]{1,40}$/)).max(16).optional(),
+              topics: z.array(z.string().regex(/^[a-z0-9-]{1,40}$/)).max(8).optional(),
+            })
+            .strict()
+            .optional(),
         }),
       )
       .min(1)
       .max(40),
+    mode: z.enum(["general", "recruiter"]).optional(),
   })
   .superRefine((v, ctx) => {
     const last = v.messages[v.messages.length - 1];
