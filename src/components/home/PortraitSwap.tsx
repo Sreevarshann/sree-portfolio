@@ -7,11 +7,14 @@ import type { PortraitPair } from "@/lib/portrait";
 /**
  * Editorial hero portrait: a slightly rotated photographic print.
  *
- * With both assets present it starts on the illustrated portrait and reveals
- * the photograph through a circular mask that grows from the pointer:
+ * With both assets present it starts on the masked (Spider-Man) photo, which
+ * dissolves to reveal the real photograph underneath: an opacity fade with a
+ * soft radial opening that grows from the pointer (~650 ms). Both are real
+ * photographs sharing the same frame; nothing is morphed or generated.
  * - mouse / pen: hover to reveal, leave to return
- * - touch, keyboard and click: the frame is a toggle button (aria-pressed)
- * - reduced motion: a short crossfade instead of the mask and tilt
+ * - touch, keyboard (Enter / Space) and click: the frame is a toggle button
+ *   whose label names the next action
+ * - reduced motion: a short crossfade instead of the opening and tilt
  * Both images share the same box and crop, so nothing shifts; the frame has
  * its own background, so there is no white flash before decode.
  *
@@ -44,8 +47,7 @@ export function PortraitSwap({ pair, priority = false, className = "" }: { pair:
             <button
               type="button"
               className="pswap-hit"
-              aria-pressed={showReal}
-              aria-label="Show photograph of Sreevarshan Sathiyamurthy"
+              aria-label={showReal ? "Show Spider-Man portrait" : "Reveal Sree's portrait"}
               onPointerEnter={(e) => {
                 lastPointer.current = e.pointerType;
                 if (e.pointerType === "touch") return;
@@ -69,14 +71,14 @@ export function PortraitSwap({ pair, priority = false, className = "" }: { pair:
                 if (lastPointer.current === "touch") setHover(false);
               }}
             >
-              <span className="pswap-layer pswap-illustrated">
-                <Image src={illustrated!} alt="" fill priority={priority} sizes={sizes} className="object-cover" style={{ objectPosition }} />
-              </span>
-              <span className="pswap-layer pswap-real" style={{ ["--ox" as string]: `${origin.x}%`, ["--oy" as string]: `${origin.y}%` }}>
-                {/* Eager (low priority) so the first hover never reveals an empty frame. */}
+              {/* Bottom: the real photograph, eager (low priority) so the first reveal never shows an empty frame. */}
+              <span className="pswap-layer pswap-real">
                 <Image src={real!} alt="" fill loading="eager" fetchPriority="low" sizes={sizes} className="object-cover" style={{ objectPosition }} />
               </span>
-              <span className="sr-only">{showReal ? "Showing the photograph." : "Showing the illustrated portrait."}</span>
+              {/* Top: the Spider-Man mask photo, which dissolves away. */}
+              <span className="pswap-layer pswap-illustrated" style={{ ["--ox" as string]: `${origin.x}%`, ["--oy" as string]: `${origin.y}%` }}>
+                <Image src={illustrated!} alt="" fill priority={priority} sizes={sizes} className="object-cover" style={{ objectPosition }} />
+              </span>
             </button>
           ) : mode === "single" ? (
             <Image

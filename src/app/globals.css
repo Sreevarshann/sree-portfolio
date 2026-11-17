@@ -1429,18 +1429,29 @@ a:focus-visible > .ss-mark .ss-rule {
 .pswap-layer {
   position: absolute;
   inset: 0;
-  transition: transform 900ms var(--ease-emph), clip-path 760ms var(--ease-emph), opacity 300ms var(--ease-out);
+  transition: transform 900ms var(--ease-emph), opacity 300ms var(--ease-out);
 }
-.pswap-real {
-  clip-path: circle(0% at var(--ox, 50%) var(--oy, 50%));
-  transform: scale(1.06);
+/* The reveal: the masked photo on top dissolves (opacity) through a soft radial
+   opening that grows from the pointer (fully opaque while closed: the soft edge
+   trails the opening radius); the real photo beneath settles from a
+   hair of zoom. --pswap-r is registered so the opening animates smoothly. */
+@property --pswap-r {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
 }
-.pswap[data-state="real"] .pswap-real {
-  clip-path: circle(150% at var(--ox, 50%) var(--oy, 50%));
-  transform: scale(1);
+.pswap-real { transform: scale(1.025); }
+.pswap[data-state="real"] .pswap-real { transform: scale(1); }
+.pswap-illustrated {
+  --pswap-r: 0%;
+  -webkit-mask-image: radial-gradient(circle at var(--ox, 50%) var(--oy, 50%), transparent calc(var(--pswap-r) - 32%), #000 var(--pswap-r));
+  mask-image: radial-gradient(circle at var(--ox, 50%) var(--oy, 50%), transparent calc(var(--pswap-r) - 32%), #000 var(--pswap-r));
+  transition: --pswap-r 650ms var(--ease-emph), opacity 650ms cubic-bezier(0.4, 0, 0.2, 1), transform 900ms var(--ease-emph);
 }
 .pswap[data-state="real"] .pswap-illustrated {
-  transform: scale(1.04);
+  --pswap-r: 140%;
+  opacity: 0;
+  transform: scale(1.02);
 }
 .pswap-gloss {
   pointer-events: none;
@@ -1517,13 +1528,10 @@ a:focus-visible > .ss-mark .ss-rule {
     transition: none;
   }
   .pswap-real,
-  .pswap[data-state="real"] .pswap-real {
-    clip-path: none;
-    transform: none;
-  }
-  .pswap-real { opacity: 0; }
-  .pswap[data-state="real"] .pswap-real { opacity: 1; }
+  .pswap[data-state="real"] .pswap-real,
   .pswap[data-state="real"] .pswap-illustrated { transform: none; }
+  .pswap-illustrated,
+  .pswap[data-state="real"] .pswap-illustrated { -webkit-mask-image: none; mask-image: none; }
   .pswap-layer { transition: opacity 160ms linear; }
 }
 
