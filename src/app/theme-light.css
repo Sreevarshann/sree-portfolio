@@ -447,6 +447,14 @@
   background-clip: text;
   color: transparent;
 }
+/* The running count is an absolutely positioned overlay, which a parent's
+   background-clip: text does not paint; it carries its own copy of the ink. */
+:root[data-theme="light"] .rank-reveal .rank-run {
+  background: linear-gradient(180deg, #101d33 35%, #2b5bd0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
 /* ------------------------------------------------------------ contact */
 /* The closing line sits in cold, clear air: a soft ice light behind the words

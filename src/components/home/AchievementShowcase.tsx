@@ -27,7 +27,7 @@ export function AchievementShowcase() {
           style={{ ["--i" as string]: i } as React.CSSProperties}
         >
           {/* Row 1: ranking numeral and graphic, in a shared-height region. */}
-          <div className="ach-head flex items-start justify-between gap-6">
+          <div className="ach-head flex items-start justify-between gap-4 sm:gap-6">
             {a.stages ? (
               <RankCounter from={parseInt(a.stages[0].value, 10)} to={a.rank.place} suffix={a.rank.suffix} className={RANK} />
             ) : (
@@ -37,7 +37,7 @@ export function AchievementShowcase() {
                 <span aria-hidden="true" className="serif-accent align-top text-[0.32em] text-accent-fg">{a.rank.suffix}</span>
               </p>
             )}
-            <div className="ach-viz flex h-[76px] w-[38%] max-w-[200px] shrink-0 items-center justify-center opacity-90 transition-[opacity,transform] duration-500 group-hover:scale-[1.03] group-hover:opacity-100 md:h-[clamp(96px,8.4vw,124px)] md:w-[42%]">
+            <div className="ach-viz flex h-[76px] w-[38%] min-w-0 max-w-[200px] shrink items-center justify-center opacity-90 transition-[opacity,transform] duration-500 group-hover:scale-[1.03] group-hover:opacity-100 md:h-[clamp(96px,8.4vw,124px)] md:w-[42%] md:shrink-0">
               <div className="max-h-full w-full">
                 {a.stages ? <TeamField total={320} qualified={130} shortlisted={20} place={a.rank.place} cols={20} /> : <Podium place={a.rank.place} />}
               </div>

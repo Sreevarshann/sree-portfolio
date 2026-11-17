@@ -1285,6 +1285,12 @@ a:focus-visible > .ss-mark .ss-rule {
   .signal-node:nth-child(even):nth-last-child(-n + 2) .signal-label { left: auto; right: 0; text-align: right; }
   .signal-node:last-child .signal-label { max-width: none; overflow: visible; }
 }
+/* Reserve the widest count (tabular digits) so no frame of 320 to 6 is clipped. */
+.rank-counter {
+  min-width: calc(var(--rank-digits, 1) * 1ch + 0.04em);
+  font-variant-numeric: tabular-nums;
+}
+.rank-counter .rank-run { white-space: nowrap; }
 .rank-counter .rank-run { visibility: hidden; }
 .rank-counter[data-counting] .rank-run { visibility: visible; }
 .rank-counter[data-counting] .rank-final { visibility: hidden; }
