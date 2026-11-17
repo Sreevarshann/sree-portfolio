@@ -45,7 +45,10 @@ export function RankCounter({ from, to, suffix, className = "" }: { from: number
     };
   }, [from, to]);
   return (
-    <p ref={wrap} className={`rank-counter relative ${className}`}>
+    // The box reserves the width of the widest value (the field size, e.g. "320"),
+    // so every frame of the count stays inside it: the scroll-driven rise clips to
+    // this box, and in light mode the numeral is painted with background-clip: text.
+    <p ref={wrap} className={`rank-counter relative ${className}`} style={{ ["--rank-digits" as string]: String(Math.max(from, to)).length } as React.CSSProperties}>
       <span className="sr-only">{`${to}${suffix} place`}</span>
       <span aria-hidden="true" className="rank-final tabular-nums">{to}</span>
       <span aria-hidden="true" className="rank-final serif-accent align-top text-[0.32em] text-accent-fg">{suffix}</span>
