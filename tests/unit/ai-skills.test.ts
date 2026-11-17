@@ -86,6 +86,15 @@ describe("Sree AI and the skill catalog", () => {
     expect(extra.res.status).toBe(400);
   });
 
+  it("a job-description summary keeps every requested skill record in the context", async () => {
+    const { retrieveConversation } = await import("@/lib/ai/retrieve");
+    const skills = ["python", "sql", "airflow", "dbt", "kafka", "aws"];
+    const topics = ["databricks", "kubernetes"];
+    const ids = retrieveConversation([{ role: "user", content: "Summarize how Sree's verified experience maps to a role asking for: Python, SQL, Apache Airflow, dbt, Kafka, AWS, Databricks, Kubernetes, Java." }], 6, { skills, topics }).chunks.map((c) => c.id);
+    for (const s of skills) expect(ids, s).toContain(`skill-${s}`);
+    for (const t of topics) expect(ids, t).toContain(`topic-${t}`);
+  });
+
   it("follow-ups keep the previous question's skill", async () => {
     const { retrieveConversation } = await import("@/lib/ai/retrieve");
     const ids = retrieveConversation([
@@ -118,5 +127,7 @@ describe("Sree AI and the skill catalog", () => {
     expect(SYSTEM_PROMPT).toMatch(/Not documented: X/);
     expect(SYSTEM_PROMPT).toMatch(/Snowflake is not Databricks/);
     expect(SYSTEM_PROMPT).toMatch(/No fit scores, percentages/);
+    expect(SYSTEM_PROMPT).toMatch(/training only/);
+    expect(SYSTEM_PROMPT).toMatch(/never put any other text in square brackets/);
   });
 });

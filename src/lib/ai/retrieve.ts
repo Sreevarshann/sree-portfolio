@@ -234,7 +234,10 @@ export function retrieveWithAnalysis(question: string, k = 6, inherited?: Analys
   // that is not documented pins its "not documented" record, so the answer
   // can never turn it into experience.
   const named = skillsInText(question);
-  const skillPins = [...new Set([...pinIds(pins), ...pinIds(named)])].slice(0, 4);
+  const explicitCount = pinIds(pins).length;
+  // Explicit hand-offs (a job description lists many requirements) keep every
+  // requested record, so nothing the visitor asked about is missing from the context.
+  const skillPins = [...new Set([...pinIds(pins), ...pinIds(named)])].slice(0, Math.max(4, Math.min(12, explicitCount)));
   // Named entities first: they are the subject of the question. Otherwise the
   // intent's authoritative record leads. Skill records follow the first of
   // these, unless the Skill Explorer handed them over (then they lead).
@@ -323,7 +326,8 @@ export function retrieveConversation(history: Turn[], k = 6, pins?: SkillPins): 
     const prevUser = prior.filter((m) => m.role === "user").pop();
     if (prevUser) carried = skillsInText(prevUser.content);
   }
-  return retrieveWithAnalysis(latest, carried?.skills?.length || carried?.topics?.length ? k + 1 : k, inherited, carried);
+  const pinned = pinIds(carried).length;
+  return retrieveWithAnalysis(latest, pinned ? Math.max(k + 1, Math.min(14, pinned + 2)) : k, inherited, carried);
 }
 
 /** Back-compatible helper used by older callers and tests: user turns only. */
