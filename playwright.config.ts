@@ -9,9 +9,10 @@ export default defineConfig({
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
-  // The one-time onboarding coach mark is marked as seen so it never overlaps
-  // other tests; tests/e2e/v7.spec.ts opts back in with an empty storage state.
-  use: { baseURL, trace: "retain-on-failure", storageState: { cookies: [], origins: [{ origin: new URL(baseURL).origin, localStorage: [{ name: "sree:coach:view", value: "done" }] }] } },
+  // The onboarding coach mark appears on every homepage visit; automated runs
+  // opt out (honoured only under webdriver) so it never overlaps other tests.
+  // tests/e2e/v7.spec.ts and v12.spec.ts opt back in with an empty storage state.
+  use: { baseURL, trace: "retain-on-failure", storageState: { cookies: [], origins: [{ origin: new URL(baseURL).origin, localStorage: [{ name: "sree:e2e:no-coach", value: "1" }] }] } },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
     { name: "mobile", use: { ...devices["Pixel 7"] } },

@@ -49,7 +49,7 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
     return () => window.removeEventListener("pageshow", onShow);
   }, []);
   useEffect(() => {
-    if (getView() !== "quick") return;
+    if (getView() !== "quick" || automatedOptOut()) return;
     let cancelled = false;
     let delay = 0;
     const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 600));
@@ -199,3 +199,15 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
 }
 
 export const COACH_BODY_ID = `${COACH_ID}-body`;
+
+/**
+ * Automated test runs (navigator.webdriver) may opt out so the hint does not
+ * overlap unrelated assertions. Real visitors are never suppressed.
+ */
+function automatedOptOut() {
+  try {
+    return navigator.webdriver === true && localStorage.getItem("sree:e2e:no-coach") === "1";
+  } catch {
+    return false;
+  }
+}
