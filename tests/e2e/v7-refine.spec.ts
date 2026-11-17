@@ -42,8 +42,10 @@ test.describe("homepage information architecture (V9)", () => {
       await page.locator('main > section[aria-label="Achievements"]').scrollIntoViewIfNeeded();
       const r = await page.evaluate(() => {
         const cards = [...document.querySelectorAll<HTMLElement>(".ach-card")];
-        const top = (c: HTMLElement, s: string) => { const e = c.querySelector<HTMLElement>(s); return e && e.offsetParent ? e.getBoundingClientRect().top : null; };
-        const rows = ["ach-rank", "ach-viz", "ach-label", "ach-title", "ach-project", "ach-desc", "ach-actions"].map((k) => ({ k, a: top(cards[0], "." + k), b: top(cards[1], "." + k) }));
+        // Rows align at their top edge; the result label is bottom-aligned in its row (it
+        // sits on the title even when one label wraps), so it is compared at its bottom.
+        const edge = (c: HTMLElement, s: string) => { const e = c.querySelector<HTMLElement>(s); if (!e || !e.offsetParent) return null; const r = e.getBoundingClientRect(); return s === ".ach-label" ? r.bottom : r.top; };
+        const rows = ["ach-rank", "ach-viz", "ach-label", "ach-title", "ach-project", "ach-desc", "ach-actions"].map((k) => ({ k, a: edge(cards[0], "." + k), b: edge(cards[1], "." + k) }));
         const box = cards.map((c) => c.getBoundingClientRect());
         return { rows, heights: box.map((b) => b.height), sameRow: Math.abs(box[0].top - box[1].top) < 0.5, radius: cards.map((c) => getComputedStyle(c).borderRadius) };
       });
