@@ -45,13 +45,17 @@ export async function POST(req: Request) {
 
   const history = normalizeHistory(parsed.data.messages);
   const latest = history[history.length - 1].content;
-  const { chunks, analysis } = retrieveConversation(history, 6);
+  // Skill Explorer / job-description hand-off: canonical ids only (validated in retrieval).
+  const pins = parsed.data.messages[parsed.data.messages.length - 1].context;
+  const { chunks, analysis } = retrieveConversation(history, 6, pins);
   const suggestions = suggestFollowUps(analysis, latest);
   // The answer mode follows the latest question; a bare follow-up inherits only
   // a professional mode, never "private" or "casual" from an earlier turn.
   const own = analyze(latest);
   const inherited = modeOf(analysis);
-  const mode: Mode = own.intents[0] !== "general" ? modeOf(own) : inherited === "private" || inherited === "casual" ? "facts" : inherited;
+  const base: Mode = own.intents[0] !== "general" ? modeOf(own) : inherited === "private" || inherited === "casual" ? "facts" : inherited;
+  // Recruiter Mode reframes professional answers; private and playful questions keep their own mode.
+  const mode: Mode = parsed.data.mode === "recruiter" && base !== "private" && base !== "casual" ? "recruiter" : base;
   const fallback = (reason: FallbackReason): StreamEvent[] => [
     { type: "fallback", reason, links: fallbackLinks(chunks) },
     { type: "suggestions", items: suggestions },

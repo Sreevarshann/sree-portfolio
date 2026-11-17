@@ -63,6 +63,10 @@ export const COMMITMENTS: RegExp[] = [
   /\b(?:led|leading|leads|headed|heading|captained|captaining|captain of)\b[^.!?]{0,25}\bteam\b/i,
   /\b(?:he is|he's|he has|he holds|he's got)(?: a| an| on| on an?)? (?:u\.?s\.? citizen|green card|permanent resident|h-?1b|(?:stem )?opt\b|f-?1)/i,
   /\b(?:does not|doesn't|will not|won't|does|will|would) (?:need|require) (?:visa )?sponsorship\b/i,
+  // Recruiter answers: no invented fit scores or ATS ratings.
+  /\b\d{1,3}\s?%\s?(?:match|fit|compatib|alignment|aligned|qualified|overlap)/i,
+  /\b(?:fit|match|ats|compatibility) (?:score|rating)\b/i,
+  /\b(?:scores?|rates?|rated) (?:a |an )?\d+(?:\.\d+)?\s?(?:\/|out of)\s?10\b/i,
 ];
 
 /** The first commitment pattern a sentence matches, if any. */

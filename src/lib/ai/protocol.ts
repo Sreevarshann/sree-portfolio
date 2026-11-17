@@ -1,3 +1,13 @@
+/**
+ * Optional structured context sent with a question. Only canonical catalog ids
+ * travel: the server looks up the verified facts itself and ignores unknown ids,
+ * so a client cannot supply its own "evidence".
+ */
+export type ChatContext = { skills?: string[]; topics?: string[] };
+
+/** Answer framing chosen in the chat header. "recruiter" maps evidence to requirements. */
+export type ChatMode = "general" | "recruiter";
+
 /** Newline-delimited JSON events streamed from /api/chat to the client. */
 export type ChatSource = { title: string; href: string; section: string; id?: string };
 
@@ -35,6 +45,16 @@ export const DETAILED_QUESTIONS = [
   "Walk me through the AEGIS AI architecture",
   "Compare his AI projects",
   "What engineering decisions shaped SourceAtlas?",
+] as const;
+
+/** Starter prompts in Recruiter Mode: role requirements and evidence. */
+export const RECRUITER_QUESTIONS = [
+  "Does Sree have React experience?",
+  "Where has Sree used Snowflake?",
+  "What are his strongest data engineering skills?",
+  "Which projects demonstrate AI engineering?",
+  "Has he worked with Databricks?",
+  "What projects demonstrate full-stack development?",
 ] as const;
 
 /** Extra prompts on the full-page view (no overlap with either starter set). */
