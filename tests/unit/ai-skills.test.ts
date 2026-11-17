@@ -128,6 +128,7 @@ describe("Sree AI and the skill catalog", () => {
     expect(SYSTEM_PROMPT).toMatch(/Snowflake is not Databricks/);
     expect(SYSTEM_PROMPT).toMatch(/No fit scores, percentages/);
     expect(SYSTEM_PROMPT).toMatch(/training only/);
+    expect(SYSTEM_PROMPT).toMatch(/never tables/);
     expect(SYSTEM_PROMPT).toMatch(/never put any other text in square brackets/);
   });
 });
