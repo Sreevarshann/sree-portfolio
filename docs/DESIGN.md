@@ -249,3 +249,17 @@ All photos and video come from one typed manifest, `src/content/media.ts`; compo
 **Motion.** CSS only, no new JavaScript: "Hey, I'm" fades in, the name rises inside a mask (visible from the first frame), the accent period follows, then the nickname, statement, intro and actions. Reduced motion shows everything at once.
 
 **Portrait label.** The print's label reads "Sree", centred across the image width, 15 to 17px sans.
+
+## V13: identity reveal
+
+**Story.** The hero opens on "Hey, I'm Spiderman." beside the masked photograph. After a two-second hold the middle letters `piderm` fracture into shards and rebuild as `reevarsh`, while the photograph dissolves to the real one. At three seconds both settle on "Hey, I'm Sreevarshan." and the real photo. It plays once per page load and never loops.
+
+**Layout.** Two parts. The identity row keeps the original two columns: the introduction on the left ("Hey, I'm", the name, "Most people call me Sree.") and the original portrait column on the right (`clamp(250px, 24vw, 350px)`, frame, tilt and caption unchanged). The two are vertically centred on each other (the name's midpoint is within 1px of the image's at 1024 to 2560px). Below both, centred across the hero: "I build intelligent systems, from data to interface." and the three actions. The professional intro paragraph is gone. Phones and tablets stack: portrait, introduction, statement, centred actions.
+
+**Letters.** `S` and `an.` are real DOM glyphs throughout; only the middle changes. At 2.0 s the hook measures every glyph slot (viewport space, then converted against the heading's new box), rasterises `piderm` and `reevarsh` in the displayed font, samples their ink on a 1.5 to 2.6px grid, and pairs points left to right (`src/lib/identityMorph.ts`, deterministic and unit tested). Phase A: shards (Voronoi cells around six seeds per letter) drift and turn slightly, opening crack lines. Phases B and C: each point travels a curved path to its target with a short left-to-right stagger, tinted toward the accent in flight. Phase D: the crisp letters fade in under the particles, then the particles fade, and the canvas is removed. `an.` slides with FLIP transforms only.
+
+**One clock.** One `requestAnimationFrame` loop drives the particles, the slide, the lock-in and the photo (published as `--intro-photo`, eased 0 to 1 over exactly 2.0 to 3.0 s). The portrait's CSS reads it while `data-intro="running"`; the frame never moves, zooms or recrops. The intro waits for the font and both photos to decode (up to 6 s) so it never plays broken.
+
+**After.** The real photo is the resting state. Hover brings Spider-Man back; tap and Enter/Space toggle. Activating the portrait during the intro skips to the end. The hint reads "Hover to see Spider-Man" or "Tap to see Spider-Man" / "Tap again for the real me", and appears only once the intro settles.
+
+**Accessibility and fallbacks.** The h1 always reads "Hey, I'm Sreevarshan Sathiyamurthy." (the visible letters are generated content in an `aria-hidden` word). Reduced motion and no-JavaScript visitors get the final name and real photo immediately, with no particles.
