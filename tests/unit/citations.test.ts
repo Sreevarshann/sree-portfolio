@@ -104,6 +104,6 @@ describe("claim validation", () => {
   it("flags figures that the context does not contain", () => {
     const ctx = ctxFor("What did he build at RightRev?");
     expect(unsupportedClaims("He migrated 18 agents and audited 200+ views [S1].", ctx)).toEqual([]);
-    expect(unsupportedClaims("He migrated 25 agents, cutting costs by 40% [S1].", ctx).map((f) => f.value)).toEqual(expect.arrayContaining(["25", "40%"]));
+    expect(unsupportedClaims("He migrated 37 agents, cutting costs by 40% [S1].", ctx).map((f) => f.value)).toEqual(expect.arrayContaining(["37", "40%"]));
   });
 });
