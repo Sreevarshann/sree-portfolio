@@ -1,11 +1,12 @@
 import type { FallbackReason, StreamEvent } from "@/lib/ai/protocol";
 import { chatRequestSchema, checkRate, clientKey, createStreamRedactor, normalizeHistory, sameOrigin } from "@/lib/ai/guard";
 import { retrieveConversation } from "@/lib/ai/retrieve";
+import { analyze, modeOf, type Mode } from "@/lib/ai/intent";
 import { suggestFollowUps } from "@/lib/ai/intent";
 import { SYSTEM_PROMPT, buildUserTurn, sourceId } from "@/lib/ai/prompt";
 import { isAllowedHref } from "@/lib/ai/allowlist";
 import { resolveCitations, type SourceRef } from "@/lib/ai/citations";
-import { groundingText, unsupportedClaims } from "@/lib/ai/validate";
+import { createCommitmentGate, groundingText, unsupportedClaims } from "@/lib/ai/validate";
 import { fallbackLinks } from "@/lib/ai/sources";
 import { getProvider, providerKeyName, ProviderError, selectedProvider, type Turn } from "@/lib/ai/providers";
 
@@ -44,6 +45,11 @@ export async function POST(req: Request) {
   const latest = history[history.length - 1].content;
   const { chunks, analysis } = retrieveConversation(history, 6);
   const suggestions = suggestFollowUps(analysis, latest);
+  // The answer mode follows the latest question; a bare follow-up inherits only
+  // a professional mode, never "private" or "casual" from an earlier turn.
+  const own = analyze(latest);
+  const inherited = modeOf(analysis);
+  const mode: Mode = own.intents[0] !== "general" ? modeOf(own) : inherited === "private" || inherited === "casual" ? "facts" : inherited;
   const fallback = (reason: FallbackReason): StreamEvent[] => [
     { type: "fallback", reason, links: fallbackLinks(chunks) },
     { type: "suggestions", items: suggestions },
@@ -68,7 +74,7 @@ export async function POST(req: Request) {
 
   const messages: Turn[] = history.map((m, i) =>
     i === history.length - 1
-      ? { role: "user", content: buildUserTurn(m.content, chunks, analysis.entities.map((e) => e.label).join(", ") || undefined) }
+      ? { role: "user", content: buildUserTurn(m.content, chunks, analysis.entities.map((e) => e.label).join(", ") || undefined, mode) }
       : { role: m.role, content: m.content },
   );
 
@@ -82,6 +88,8 @@ export async function POST(req: Request) {
     async start(controller) {
       const send = (e: StreamEvent) => controller.enqueue(line(e));
       const redactor = createStreamRedactor();
+      // Drops whole sentences that would commit Sree or state money or immigration facts.
+      const gate = createCommitmentGate((_, hit) => console.warn(`[ask-sree] dropped a sentence (${hit.slice(0, 40)})`));
       let emitted = false;
       let answer = "";
       send({ type: "sourceMap", items: sourceMap });
@@ -92,7 +100,7 @@ export async function POST(req: Request) {
           maxTokens: MAX_TOKENS,
           signal: abort.signal,
           onText: (text) => {
-            const out = redactor.push(text);
+            const out = gate.push(redactor.push(text));
             if (out) {
               emitted = true;
               answer += out;
@@ -100,7 +108,7 @@ export async function POST(req: Request) {
             }
           },
         });
-        const tail = redactor.flush();
+        const tail = gate.push(redactor.flush()) + gate.flush();
         if (tail) {
           emitted = true;
           answer += tail;
@@ -125,8 +133,12 @@ export async function POST(req: Request) {
           const { label, reason } = err instanceof ProviderError ? err : { label: (err as Error)?.name ?? "unknown", reason: "unavailable" as FallbackReason };
           console.error(`[ask-sree] ${provider.name} model error: ${label}`);
           // Keep the words already generated (still redacted) before reporting the cut-off.
-          const tail = emitted ? redactor.flush() : "";
-          if (tail) send({ type: "delta", text: tail });
+          // Includes any sentence the gate was still holding when the stream broke.
+          const tail = gate.push(redactor.flush()) + gate.flush();
+          if (tail) {
+            emitted = true;
+            send({ type: "delta", text: tail });
+          }
           if (!emitted) {
             for (const e of fallback(reason)) send(e);
           } else {

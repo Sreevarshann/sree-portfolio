@@ -44,7 +44,7 @@ function Availability() {
   return (
     <p className="availability">
       <span className="availability-dot" aria-hidden="true" />
-      <span>Available for full-time opportunities</span>
+      <span>{profile.availability}</span>
     </p>
   );
 }
