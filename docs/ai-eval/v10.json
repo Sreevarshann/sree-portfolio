@@ -1,0 +1,637 @@
+{
+  "base": "https://sreevarshansathiyamurthy.vercel.app",
+  "label": "v10",
+  "at": "2026-11-17T04:48:44.326Z",
+  "single": [
+    {
+      "trial": 1,
+      "q": "Who is Sree?",
+      "status": 200,
+      "answer": "Sreevarshan Sathiyamurthy (preferred name Sree, monogram “SS”) is an engineer based in Boston, Massachusetts who works across AI engineering, data engineering, and software engineering [S1]. He is currently pursuing a Master of Science in Data Analytics Engineering at Northeastern University with a GPA of 3.95/4.0, expected to graduate in December 2026 [S1][S3]. His most recent professional experience was as a Software & Data Engineer Intern at RightRev from January 2026 to July 2026, where he built Snowflake Cortex AI agents and related data pipelines [S1][S2]. He is available for full‑time opportunities [S1].",
+      "sources": [
+        "About Sree",
+        "Northeastern University",
+        "RightRev"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1392,
+      "totalMs": 1543,
+      "words": 92
+    },
+    {
+      "trial": 1,
+      "q": "Can I hire Sree?",
+      "status": 200,
+      "answer": "Sree is actively looking for a full‑time role and is ready to join a team right away [S1]. He brings production‑grade AI engineering experience from his recent internship at RightRev, where he migrated 18 Snowflake Cortex AI agents to production, audited over 200 Snowflake views, and integrated five agents with Salesforce CRM [S2]. He also has a strong track record in data and software engineering - building end‑to‑end pipelines for IoT data at Flare Innovation, and delivering a real‑time MBTA chatbot that achieved 92 % precision on retrieval‑augmented queries at the Google MLOps Expo [S4]. His academic background (MS in Data Analytics Engineering, GPA 3.95, expected Dec 2026) and proven problem‑solving in autonomous systems (6th place globally at the Singapore AUV Challenge) further demonstrate the blend of analytical rigor and practical delivery you’d want in an AI/Data/Software engineer [S1][S3].\n\nIf you think Sree’s mix of AI agent development, data pipeline expertise, and full‑stack product experience aligns with your needs, the quickest way to start a conversation is to email him at sreevarshan.dev@gmail.com. He’ll be happy to discuss how his skills can add value to your organization.",
+      "sources": [
+        "About Sree",
+        "RightRev",
+        "Google MLOps Expo",
+        "Singapore AUV Challenge"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 884,
+      "totalMs": 1411,
+      "words": 186
+    },
+    {
+      "trial": 1,
+      "q": "Why should we hire him?",
+      "status": 200,
+      "answer": "You should consider Sreevarshan because he already delivers production‑grade AI and data solutions that directly impact business outcomes.  \n\n* At RightRev he built and migrated **18 Snowflake Cortex AI agents** to production, audited **200+ Snowflake views**, and integrated **5 agents** with Salesforce CRM, all while implementing OAuth, RBAC and REST APIs to keep financial reporting secure and reliable【S2】.  \n \n* Earlier, as a Data Analyst & Engineer at Flare Innovation, he created pipelines and dashboards for IoT operations data and added quality‑check logic that stopped bad records before they reached reports, demonstrating end‑to‑end data‑product thinking【S1】.  \n* His academic record (GPA 3.95/4.0 in a Master’s program) and competition success (6th place globally in the Singapore AUV Challenge) further prove his technical depth and problem‑solving ability【S1】【S3】.  \n\nTogether, these experiences show that Sree can design, implement, and maintain robust AI‑driven data products, protect sensitive data, and deliver measurable value - exactly the skill set a modern AI/Data/Software engineering team needs.  \n\nIf you’re interested in moving forward, the quickest way to start a conversation is to email him at **sreevarshan.dev@gmail.com**.",
+      "sources": [
+        "RightRev",
+        "About Sree",
+        "Singapore AUV Challenge"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 749,
+      "totalMs": 1350,
+      "words": 175
+    },
+    {
+      "trial": 1,
+      "q": "Is Sree smart?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 516,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "Can he dance?",
+      "status": 200,
+      "answer": "He’s got the moves for data pipelines, but I don’t have any record of his dance‑floor skills - so that’s a mystery you’ll have to ask Sree about!",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 523,
+      "totalMs": 524,
+      "words": 28
+    },
+    {
+      "trial": 1,
+      "q": "Does he have a girlfriend?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 300,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "What does he do at RightRev?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 3671,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "What are his strongest technical skills?",
+      "status": 200,
+      "answer": "His strongest technical skills are:\n\n- **AI/agentic systems** - building agents, retrieval‑augmented generation, LLM evaluation, and using frameworks such as LangGraph, Snowflake Cortex, Model Context Protocol, and RAG across projects like RightRev, NEXUS AI, AEGIS AI, InsightForge, SourceAtlas and Charlie (MBTA) [S2][S1].\n\n- **Data engineering** - designing pipelines, ETL with Python, SQL, Snowflake, PostgreSQL, Kafka/Redpanda streaming, dbt, Apache Airflow, PySpark, and DuckDB, plus data‑quality and schema‑check mechanisms used at RightRev, Flare Innovation, AEGIS AI, InsightForge and NEXUS AI [S3][S1].\n\n- **Full‑stack software development** - building product surfaces and APIs with TypeScript, React, Next.js, FastAPI, NestJS, REST integrations, OAuth/RBAC, server‑sent events, and multi‑tenant isolation in ReviewPilot, WorkMesh, NEXUS AI, AEGIS AI and other projects [S4][S5][S1].\n\n- **Machine learning & computer vision** - applying scikit‑learn, MLflow, YOLOv5 and OpenCV for perception and control tasks, notably in the autonomous underwater vehicle work at Sri Sairam Techno Incubator [S2][S1].\n\nThese areas are repeatedly highlighted across his roles and toolsets, indicating they are his core technical strengths.",
+      "sources": [
+        "Skills map",
+        "Tools & technologies"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 693,
+      "totalMs": 1336,
+      "words": 162
+    },
+    {
+      "trial": 1,
+      "q": "Can he build an AI agent for my business?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 231,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "What's his greatest achievement?",
+      "status": 200,
+      "answer": "His most notable accomplishment to date is placing 6th overall out of more than 320 international teams in the Singapore AUV Challenge, where his team built autonomous navigation, object‑detection and reinforcement‑learning control for an underwater vehicle and achieved a 92 % success rate in pool tests [S1]. He also earned a 3rd‑place finish at the Google MLOps Expo for the “Charlie” MBTA real‑time chatbot project, which combined live data pipelines, delay‑prediction models and a retrieval‑augmented GPT assistant [S2].",
+      "sources": [
+        "Singapore AUV Challenge",
+        "Google MLOps Expo"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 776,
+      "totalMs": 906,
+      "words": 78
+    },
+    {
+      "trial": 1,
+      "q": "Does he know LangGraph?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 3489,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "What projects prove his data engineering skills?",
+      "status": 200,
+      "answer": "AEGIS AI demonstrates his data‑engineering expertise through a streaming pipeline that validates events, applies watermarks, deduplicates, computes features in Redis, scores with a calibrated model and persists results atomically, while dbt models the warehouse [S1].  \n\nInsightForge showcases his ability to build robust data pipelines: the LLM‑driven planner generates typed operations and sandboxed SQL, which run through multiple isolation layers before touching data, and every numeric explanation is verified against computed results [S5].  \n\nWorkMesh highlights his skill in designing data‑centric back‑ends: a modular NestJS monolith on PostgreSQL uses row‑level security, a transactional outbox, BullMQ and Socket.IO to deliver permission‑aware visibility and impact‑analysis across company work items [S7].  \n\nReviewPilot further evidences his data‑engineering work by integrating deterministic rule processing with a BullMQ worker that parses diffs, runs static analysis, applies a grounded model pass and streams progress via SSE [S6].",
+      "sources": [
+        "AEGIS AI",
+        "InsightForge",
+        "WorkMesh",
+        "ReviewPilot"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1098,
+      "totalMs": 1298,
+      "words": 138
+    },
+    {
+      "trial": 1,
+      "q": "Can he explain his AEGIS architecture?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 344,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "What is retrieval-augmented generation?",
+      "status": 200,
+      "answer": "Retrieval‑augmented generation (RAG) is a technique that combines a large language model with an external information source. The model first retrieves relevant documents or passages (often via vector similarity or keyword search), then conditions its generation on that retrieved context so the output is grounded in up‑to‑date or domain‑specific facts rather than relying solely on the model’s internal knowledge. This approach improves factual accuracy, allows the system to answer queries about recent data, and lets developers control which sources the model can cite.\n\nSree has applied RAG in several of his projects. In the “SourceAtlas” research engine he built a LangGraph pipeline that performs hybrid retrieval, reranking and claim verification before generating answers, achieving 92.3 % answer correctness and 95.8 % citation correctness [​S4]. He also used RAG for the “Charlie” MBTA real‑time chatbot, where a GPT‑powered assistant retrieves transit information from live pipelines and delivers accurate responses, reaching 92 % precision on route and schedule questions [​S5].",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1975,
+      "totalMs": 2256,
+      "words": 158
+    },
+    {
+      "trial": 1,
+      "q": "Tell me something funny about Sree.",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 2291,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "What are his weaknesses?",
+      "status": 200,
+      "answer": "I don’t have a detailed list of his personal blind spots - Sree keeps that under wraps - but anyone who’s juggling AI, data and software engineering while finishing a master’s with a 3.95 GPA probably has a lot on his plate, so time‑management and saying “no” can be a challenge. If you need the full picture, the best bet is to ask Sree himself.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 672,
+      "totalMs": 699,
+      "words": 65
+    },
+    {
+      "trial": 1,
+      "q": "How can I contact him?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 1249,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "Can he move to another city?",
+      "status": 200,
+      "answer": "Sree is currently based in Boston, Massachusetts, and his availability is listed as “Available for full‑time opportunities” on his portfolio [S1].  If relocation is a key factor for your role, the best next step is to reach out to him directly by email at sreevarshan.dev@gmail.com [S5] to discuss his preferences and any potential logistics.",
+      "sources": [
+        "About Sree",
+        "Contact"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 789,
+      "totalMs": 904,
+      "words": 54
+    },
+    {
+      "trial": 1,
+      "q": "What salary does he expect?",
+      "status": 200,
+      "answer": "I’m sorry, but I don’t have that information. If you’d like to discuss compensation, you can reach out to Sree directly at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1599,
+      "totalMs": 1633,
+      "words": 23
+    },
+    {
+      "trial": 1,
+      "q": "Tell me something about him that isn't on his resume.",
+      "status": 200,
+      "answer": "He’s got a knack for turning underwater robots into “deep‑sea detectives” - the same YOLO‑trained vision system that helped his team snag 6th place at the Singapore AUV Challenge also makes him the go‑to guy when friends need a clever way to spot a lost sock in the laundry (though the sock‑finding results are still a work‑in‑progress). Beyond the projects you see on his résumé, the rest of his story is best heard straight from Sree himself.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 2915,
+      "totalMs": 2926,
+      "words": 77
+    },
+    {
+      "trial": 2,
+      "q": "Who is Sree?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 343,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "Can I hire Sree?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 200,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "Why should we hire him?",
+      "status": 200,
+      "answer": "You should hire Sreevarshan because he already delivers production‑grade AI and data solutions that directly impact business outcomes.  \n\n* At RightRev he built Snowflake Cortex AI agents, SQL stored procedures and Model Context Protocol integrations that automated financial reporting, migrated 18 agents to production, audited 200+ Snowflake views and connected five agents to Salesforce  - all while implementing OAuth, RBAC and secure REST APIs [S2].  \n* Earlier, as a Data Analyst & Engineer at Flare Innovation, he created pipelines and dashboards for IoT operations data and added quality‑check logic that stopped bad records before they reached reports [S1].  \n* His autonomous‑vehicle work earned a 6th‑place finish among 320+ teams at the Singapore AUV Challenge, demonstrating end‑to‑end perception, reinforcement‑learning control and ROS integration [S3].  \n* He also led a RAG‑based real‑time chatbot for Boston’s MBTA that achieved 92 % precision on transit queries, using a full stack of Python, Airflow, PySpark, Azure ML, Docker and Prometheus [S4].  \n\nThese projects show he can design, implement and ship complex AI, data‑engineering and full‑stack systems, guard‑rail security, and measurable performance improvements - exactly the capabilities most AI‑focused teams need.  \n\nHe is currently available for full‑time roles and can be reached directly at sreevarshan.dev@gmail.com to discuss how his experience aligns with your team’s goals.",
+      "sources": [
+        "RightRev",
+        "About Sree",
+        "Singapore AUV Challenge",
+        "Google MLOps Expo"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 717,
+      "totalMs": 1296,
+      "words": 209
+    },
+    {
+      "trial": 2,
+      "q": "Is Sree smart?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 261,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "Can he dance?",
+      "status": 200,
+      "answer": "He’s definitely got the rhythm for building AI agents, but I don’t have any info on his dance moves - best to ask Sree himself!",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 582,
+      "totalMs": 582,
+      "words": 25
+    },
+    {
+      "trial": 2,
+      "q": "Does he have a girlfriend?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 243,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "What does he do at RightRev?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 280,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "What are his strongest technical skills?",
+      "status": 200,
+      "answer": "His strongest technical skills are:\n\n- **AI/agentic systems** - building and evaluating LLM‑driven agents, Retrieval‑Augmented Generation, LangGraph, Model Context Protocol, and Snowflake Cortex integrations [S2][S5]  \n- **Data engineering** - designing robust pipelines with Python ETL, SQL, Snowflake, PostgreSQL, Kafka/Redpanda streaming, dbt, Apache Airflow, PySpark, and DuckDB, plus data‑quality and schema‑check frameworks [S3][S5]  \n- **Full‑stack software development** - creating product‑grade front‑ends and APIs using TypeScript, React, Next.js, FastAPI, NestJS, and implementing OAuth/RBAC, multi‑tenant isolation, and real‑time server‑sent events [S4][S5]  \n- **DevOps and delivery** - CI/CD with GitHub Actions, containerization with Docker, monitoring with Prometheus, and automated testing (pytest, Vitest, Playwright) [S5]  \n\nThese areas are repeatedly highlighted across his roles and skill maps.",
+      "sources": [
+        "Skills map"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1831,
+      "totalMs": 2258,
+      "words": 111
+    },
+    {
+      "trial": 2,
+      "q": "Can he build an AI agent for my business?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 263,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "What's his greatest achievement?",
+      "status": 200,
+      "answer": "His most notable accomplishment to date is placing 3rd at the Google MLOps Expo with the “Charlie” MBTA Real‑Time Chatbot project, which combined live transit data pipelines, delay‑prediction features and a retrieval‑augmented GPT assistant [S2]. He also achieved a top‑six finish (6th overall) among 320+ teams at the Singapore AUV Challenge, building autonomous navigation and object‑detection for an underwater vehicle [S1].",
+      "sources": [
+        "Google MLOps Expo",
+        "Singapore AUV Challenge"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 3831,
+      "totalMs": 3900,
+      "words": 61
+    },
+    {
+      "trial": 2,
+      "q": "Does he know LangGraph?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 250,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "What projects prove his data engineering skills?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 326,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "Can he explain his AEGIS architecture?",
+      "status": 200,
+      "answer": "AEGIS AI’s architecture is built as a streaming fraud‑detection pipeline that runs locally with Docker Compose. It starts with a seeded simulator that generates synthetic card‑transaction events for 60 000 customers and 1 200 merchants across two tenants, injecting five fraud scenarios and deliberate defects [S2]. The events are published to Redpanda (a Kafka‑compatible single‑binary stack) on the **transactions.v1** topic (three partitions) [S1][S3]. A consumer validates each event, applies per‑partition watermarks, deduplicates, computes online features in Redis, scores the transaction with a calibrated model, and then atomically persists results to PostgreSQL while only committing the Redpanda offsets after the database commit [S1][S3]. Malformed events are routed to a dead‑letter topic and a quarantine table [S3]. Downstream, dbt builds a warehouse with staging models and marts refreshed every two minutes, while LangGraph runs tool‑based investigations and a six‑page React dashboard displays the alerts [S2][S4]. Key engineering decisions include using Redpanda instead of Kafka for a lightweight local stack, at‑least‑once delivery with idempotent writes, sharing the same feature implementation between training and serving, and calibrating model probabilities so the alert threshold is meaningful [S1].",
+      "sources": [
+        "AEGIS AI"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 799,
+      "totalMs": 1327,
+      "words": 182
+    },
+    {
+      "trial": 2,
+      "q": "What is retrieval-augmented generation?",
+      "status": 200,
+      "answer": "Retrieval‑augmented generation (RAG) is a technique that combines a large language model (LLM) with an external information store. The LLM first retrieves relevant documents or passages from a database (often via vector similarity or keyword search) and then conditions its generation on that retrieved context, allowing it to produce answers that are grounded in up‑to‑date or domain‑specific data rather than relying solely on the model’s internal knowledge.\n\nSree has applied RAG in several projects. In SourceAtlas he built a LangGraph pipeline that performs hybrid retrieval, reranking and claim‑by‑claim verification before generating answers, achieving 92.3 % answer correctness and 95.8 % citation correctness [S4]. He also used RAG for the “Charlie” MBTA real‑time chatbot, where a GPT‑powered assistant retrieves transit information and combines it with live delay‑prediction features to answer rider queries [S5].",
+      "sources": [
+        "SourceAtlas",
+        "Google MLOps Expo"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 4102,
+      "totalMs": 4406,
+      "words": 132
+    },
+    {
+      "trial": 2,
+      "q": "Tell me something funny about Sree.",
+      "status": 200,
+      "answer": "Sree once built an AI “assistant” for Snowflake that could answer revenue questions without any human help - so now the only thing he’s missing is a coffee‑making robot to keep his late‑night coding sessions fueled! (He built those Snowflake AI agents during his RightRev internship [S1])",
+      "sources": [
+        "About Sree"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 756,
+      "totalMs": 756,
+      "words": 47
+    },
+    {
+      "trial": 2,
+      "q": "What are his weaknesses?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 217,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "How can I contact him?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 255,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "Can he move to another city?",
+      "status": 200,
+      "answer": "Sree is currently based in Boston, Massachusetts, and his profile states that he is **available for full‑time opportunities** [S1].  If relocation is a key factor for your role, I recommend reaching out directly to discuss his preferences and any potential constraints. You can contact him by email at **sreevarshan.dev@gmail.com** [S5].",
+      "sources": [
+        "About Sree",
+        "Contact"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 597,
+      "totalMs": 750,
+      "words": 50
+    },
+    {
+      "trial": 2,
+      "q": "What salary does he expect?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 251,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "Tell me something about him that isn't on his resume.",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 295,
+      "words": 0
+    }
+  ],
+  "conversations": [
+    [
+      {
+        "q": "Can I hire Sree?",
+        "status": 200,
+        "answer": "Sree is actively looking for full‑time opportunities and would be a strong addition to any AI, data, or software engineering team. He brings production‑grade AI experience from his recent internship at RightRev, where he migrated 18 Snowflake Cortex agents to production, audited over 200 Snowflake views, and integrated five agents with Salesforce CRM - all while implementing OAuth, RBAC and REST APIs to keep financial reporting secure and reliable [S2]. Earlier, he built end‑to‑end pipelines and dashboards for IoT operations at Flare Innovation, and demonstrated advanced perception and control work on an autonomous underwater vehicle that placed 6th globally at the Singapore AUV Challenge [S3]. His academic background includes a Master of Science in Data Analytics Engineering (GPA 3.95) from Northeastern University, expected Dec 2026, and a strong track record of delivering data‑centric products with verifiable outputs [S1].\n\nIf you’re interested in hiring Sree, the quickest way to start the conversation is to email him at **sreevarshan.dev@gmail.com** [S5]. He can then share his resume, discuss fit for your role, and arrange a meeting.",
+        "sources": [
+          "RightRev",
+          "Singapore AUV Challenge",
+          "About Sree",
+          "Contact"
+        ],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 787,
+        "totalMs": 1228,
+        "words": 173
+      },
+      {
+        "q": "What did he do at RightRev?",
+        "status": 200,
+        "answer": "",
+        "sources": [],
+        "fallback": "busy",
+        "error": null,
+        "firstTokenMs": null,
+        "totalMs": 180,
+        "words": 0
+      },
+      {
+        "q": "Can you explain the AI agents?",
+        "status": 200,
+        "answer": "",
+        "sources": [],
+        "fallback": "busy",
+        "error": null,
+        "firstTokenMs": null,
+        "totalMs": 229,
+        "words": 0
+      }
+    ],
+    [
+      {
+        "q": "Does he know LangGraph?",
+        "status": 200,
+        "answer": "Yes, he has used LangGraph in multiple projects, including NEXUS AI, SourceAtlas, InsightForge and AEGIS AI【S1】.",
+        "sources": [
+          "Tools & technologies"
+        ],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 696,
+        "totalMs": 697,
+        "words": 16
+      },
+      {
+        "q": "Which project used it?",
+        "status": 200,
+        "answer": "",
+        "sources": [],
+        "fallback": "busy",
+        "error": null,
+        "firstTokenMs": null,
+        "totalMs": 228,
+        "words": 0
+      },
+      {
+        "q": "How does that project keep the agents in check?",
+        "status": 200,
+        "answer": "",
+        "sources": [],
+        "fallback": "busy",
+        "error": null,
+        "firstTokenMs": null,
+        "totalMs": 307,
+        "words": 0
+      }
+    ],
+    [
+      {
+        "q": "Can he dance?",
+        "status": 200,
+        "answer": "He’s definitely got the rhythm for code, but I don’t have any info on his dance moves - so that’s a mystery you’ll have to ask Sree about!",
+        "sources": [],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 485,
+        "totalMs": 486,
+        "words": 28
+      },
+      {
+        "q": "Okay, so what is he actually good at?",
+        "status": 200,
+        "answer": "",
+        "sources": [],
+        "fallback": "busy",
+        "error": null,
+        "firstTokenMs": null,
+        "totalMs": 310,
+        "words": 0
+      }
+    ]
+  ]
+}

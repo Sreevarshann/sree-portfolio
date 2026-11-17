@@ -12,7 +12,7 @@ import { getProvider, providerKeyName, ProviderError, selectedProvider, type Tur
 
 export const maxDuration = 60;
 
-const MAX_TOKENS = Number(process.env.ASK_SREE_MAX_TOKENS ?? 1200);
+const MAX_TOKENS = Number(process.env.ASK_SREE_MAX_TOKENS ?? 800);
 
 const encoder = new TextEncoder();
 const line = (e: StreamEvent) => encoder.encode(JSON.stringify(e) + "\n");

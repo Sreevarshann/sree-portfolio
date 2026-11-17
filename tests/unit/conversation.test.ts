@@ -101,3 +101,21 @@ describe("provider rate-limit retry", () => {
     expect(retryAfterMs("soon")).toBeNull();
   });
 });
+
+describe("V10 hotfix: honesty and reliability", () => {
+  it("forbids invented anecdotes, weaknesses and embellished availability", () => {
+    expect(SYSTEM_PROMPT).toMatch(/Never invent anecdotes, habits, hobbies, stories, preferences, friends, weaknesses or "fun facts"/);
+    expect(SYSTEM_PROMPT).toMatch(/For weaknesses, do not name any/);
+    expect(SYSTEM_PROMPT).toMatch(/never add "right away", "immediately", "ready to join"/);
+    expect(SYSTEM_PROMPT).toMatch(/never open with "I'm sorry"/);
+    expect(SYSTEM_PROMPT).toMatch(/something not on his resume/);
+  });
+
+  it("the gate drops start-date commitments the evaluation caught", () => {
+    const g = createCommitmentGate();
+    const text = g.push("Sree is open to full-time roles [S1]. He is ready to join a team right away. He can start next week. He brings production AI work [S2].") + g.flush();
+    expect(text).not.toMatch(/ready to join|can start/);
+    expect(text).toContain("open to full-time roles");
+    expect(text).toContain("production AI work");
+  });
+});
