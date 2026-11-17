@@ -78,11 +78,9 @@ export function AchievementVideo({ video }: { video: MediaVideo }) {
       el.pause();
     };
     // tryAutoplay reads refs only; it is stable for this effect's lifetime.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [video.sources]);
 
   // The source attaches asynchronously; once it is there, start if already in view.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => tryAutoplay(), [src]);
 
   const showFlash = (kind: "play" | "pause") => {
