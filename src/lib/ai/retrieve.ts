@@ -131,6 +131,10 @@ const INTENT_SECTIONS: Record<Intent, string[]> = {
   contact: ["Contact"],
   fit: ["About", "Experience", "Projects"],
   assistant: ["About", "Site"],
+  hiring: ["About", "Experience", "Achievements", "Projects", "Contact"],
+  casual: ["About", "Achievements"],
+  private: ["About", "Contact"],
+  knowledge: ["About", "Projects", "Skills"],
   general: [],
 };
 
@@ -158,6 +162,17 @@ function pinnedFor(intent: Intent): string[] {
       return ["profile", "exp-rightrev", "skills-ai", "skills-data"];
     case "assistant":
       return ["profile", "site-map"];
+    // Hiring: who he is (with availability), the latest role, both results, how to reach him.
+    case "hiring":
+      return ["profile", "exp-rightrev", ...ids("ach-"), "contact"];
+    // Casual: the profile and achievements, so humour can still point at real evidence.
+    case "casual":
+      return ["profile", ...ids("ach-")];
+    case "private":
+      return ["profile", "contact"];
+    // General knowledge: the profile anchors it; the question's own terms find related work.
+    case "knowledge":
+      return ["profile"];
     default:
       return [];
   }

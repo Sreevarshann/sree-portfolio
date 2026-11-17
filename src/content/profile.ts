@@ -15,8 +15,16 @@ export const profile = {
     scholar: "https://scholar.google.com/citations?user=ENfDDDQAAAAJ&hl=en",
     tableau: "https://public.tableau.com/app/profile/sreevarshan.sathiyamurthy/vizzes",
   },
-  resumePath: "/Sreevarshan-Sathiyamurthy-Resume.pdf",
+  /** Stable public URL of the resume PDF. */
+  resumeFile: "/Sreevarshan-Sathiyamurthy-Resume.pdf",
+  /** First 12 hex of the PDF's SHA-256: changes with the file, so links never hit a stale copy. */
+  resumeVersion: "6e2a6e91a9f8",
+  get resumePath() {
+    return `${this.resumeFile}?v=${this.resumeVersion}`;
+  },
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://sree-portfolio.vercel.app",
+  /** Public availability line shown in the hero and known to Sree AI. */
+  availability: "Available for full-time opportunities",
   headline: "I design intelligent systems, engineer the data underneath them, and ship the software around them.",
   /** Short first-person introduction for the About page (about 90 words in total). */
   intro: {

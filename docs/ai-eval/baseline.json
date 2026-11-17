@@ -1,0 +1,665 @@
+{
+  "base": "https://sreevarshansathiyamurthy.vercel.app",
+  "label": "baseline",
+  "at": "2026-11-17T01:21:53.596Z",
+  "single": [
+    {
+      "trial": 1,
+      "q": "Who is Sree?",
+      "status": 200,
+      "answer": "Sreevarshan Sathiyamurthy, who goes by Sree (also referred to as “SS”), is an AI Engineer, Data Engineer, and Software Engineer based in Boston, Massachusetts [S1]. He is currently completing a Master of Science in Data Analytics Engineering at Northeastern University with a 3.95 GPA, expected to graduate in December 2026 [S1][S3]. His recent professional experience includes a Software & Data Engineer internship at RightRev, where he built AI agents on Snowflake to automate revenue reporting [S1][S2].",
+      "sources": [
+        "About Sree",
+        "Northeastern University",
+        "RightRev"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1232,
+      "totalMs": 1480,
+      "words": 76
+    },
+    {
+      "trial": 1,
+      "q": "Can I hire Sree?",
+      "status": 200,
+      "answer": "I’m an AI assistant for Sree’s portfolio, so I can’t arrange hiring directly. If you’re interested in discussing a role with him, please email him at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 715,
+      "totalMs": 815,
+      "words": 27
+    },
+    {
+      "trial": 1,
+      "q": "Why should we hire him?",
+      "status": 200,
+      "answer": "Sreevarshan has a strong blend of AI, data‑engineering and full‑stack software experience that directly matches the needs of most data‑driven product teams. He delivered production‑grade Snowflake Cortex AI agents that turned raw revenue data into actionable answers, migrated 18 agents to production, audited more than 200 Snowflake views and integrated five agents with Salesforce APIs, all while implementing OAuth, RBAC and REST APIs to keep the system secure and reliable【S2】. His earlier work at Flare Innovation built end‑to‑end pipelines, quality‑gate checks and Power BI dashboards for IoT operations data, demonstrating his ability to create trustworthy data products from ingestion to visualization【S1】【S4】. Across his roles he has used the core technologies listed for his projects - SQL, Snowflake, Python ETL, PostgreSQL, and AI‑agent frameworks such as LangGraph and Model Context Protocol - showing depth in both the tools and the architectural patterns needed for modern intelligent systems【S3】【S4】. Together with a 3.95 / 4.0 GPA in a Master’s program and a proven track record of collaborating with senior engineers on frontend and API features, he brings both technical competence and a collaborative mindset that can accelerate your AI‑enabled analytics initiatives.",
+      "sources": [
+        "RightRev",
+        "About Sree"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 607,
+      "totalMs": 1108,
+      "words": 188
+    },
+    {
+      "trial": 1,
+      "q": "Is Sree smart?",
+      "status": 200,
+      "answer": "I don’t have specific information about that, but you can reach out to Sree directly at sreevarshan.dev@gmail.com for any further questions.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 561,
+      "totalMs": 617,
+      "words": 21
+    },
+    {
+      "trial": 1,
+      "q": "Can he dance?",
+      "status": 200,
+      "answer": "I only have information about Sreevarshan’s professional background and projects, so I can’t speak to his dancing abilities. I can help with details about his AI, data, or software engineering experience, or his education and achievements. If you need a personal answer, you might email him at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 491,
+      "totalMs": 632,
+      "words": 48
+    },
+    {
+      "trial": 1,
+      "q": "Does he have a girlfriend?",
+      "status": 200,
+      "answer": "I’m an AI assistant for Sreevarshan’s portfolio and can only provide information about his professional background and projects. For personal questions, you’d need to contact him directly at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 2131,
+      "totalMs": 2261,
+      "words": 29
+    },
+    {
+      "trial": 1,
+      "q": "What does he do at RightRev?",
+      "status": 200,
+      "answer": "At RightRev, Sree works as a Software & Data Engineer Intern (Jan 2026 - Jul 2026) building AI‑driven reporting solutions on Snowflake. He creates Snowflake Cortex AI agents, SQL stored procedures and Model Context Protocol (MCP) integrations that automatically turn revenue data into actionable answers, migrates agents to production, audits Snowflake views, and secures the system with OAuth, role‑based access control and REST APIs. He also integrates Salesforce CRM APIs with several agents and implements automated SQL/JSON validation tests to ensure data accuracy and reliable financial reporting [S1].",
+      "sources": [
+        "RightRev"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 496,
+      "totalMs": 747,
+      "words": 88
+    },
+    {
+      "trial": 1,
+      "q": "What are his strongest technical skills?",
+      "status": 200,
+      "answer": "His strongest technical skills are:\n\n- **AI/agentic systems** - building agents, retrieval‑augmented generation, LLM evaluation, and using frameworks such as LangGraph, Snowflake Cortex, Model Context Protocol, and RAG [ S2 ]  \n- **Data engineering** - designing SQL‑based pipelines, Python ETL, Snowflake, PostgreSQL, dbt, Apache Airflow, PySpark, and streaming with Kafka/Redpanda, plus data‑quality checks [ S3 ]  \n- **Full‑stack software development** - creating TypeScript/React front‑ends, Next.js applications, FastAPI (and NestJS) back‑ends, REST APIs, and real‑time features with server‑sent events [ S4 ]  \n- **DevOps, security and delivery** - using Git/GitHub, GitHub Actions CI/CD, Docker, OAuth/RBAC, multi‑tenant isolation, automated testing (pytest, Vitest, Playwright), and monitoring with Prometheus [ S5 ]  \n\nThese areas cover the core technologies and practices he has applied across his roles at RightRev, Flare Innovation, and other projects.",
+      "sources": [
+        "Skills map"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 946,
+      "totalMs": 1439,
+      "words": 129
+    },
+    {
+      "trial": 1,
+      "q": "Can he build an AI agent for my business?",
+      "status": 200,
+      "answer": "Yes, Sree has built several agentic AI systems that generate verifiable, evidence‑backed outputs, such as the AEGIS AI streaming fraud platform, the NEXUS AI multi‑agent workspace, and InsightForge’s autonomous data analyst, all of which combine LangGraph orchestration, LLM planning, and strict validation steps [S1][S2][S5]. His focus on “Agentic AI systems with verifiable outputs” and experience designing end‑to‑end pipelines - from data ingestion and feature computation to model scoring and result verification - means he can create a custom AI agent tailored to your business’s data and workflow needs [S8]. For a detailed discussion of scope, timeline, and integration, please email him at sreevarshan.dev@gmail.com.",
+      "sources": [
+        "AEGIS AI",
+        "NEXUS AI",
+        "InsightForge",
+        "About Sree"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 697,
+      "totalMs": 1014,
+      "words": 103
+    },
+    {
+      "trial": 1,
+      "q": "What's his greatest achievement?",
+      "status": 200,
+      "answer": "His most notable achievement to date is leading the autonomous‑underwater‑vehicle team to a 6th‑place finish out of more than 320 international teams at the Singapore AUV Challenge, where they qualified among the top 130, were shortlisted to the final 20 and demonstrated autonomous navigation, object detection and reinforcement‑learning control with a 92 % success rate [S1]. He also earned a 3rd‑place award at the Google MLOps Expo for the “Charlie” real‑time MBTA chatbot project [S2].",
+      "sources": [
+        "Singapore AUV Challenge",
+        "Google MLOps Expo"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1145,
+      "totalMs": 1863,
+      "words": 75
+    },
+    {
+      "trial": 1,
+      "q": "Does he know LangGraph?",
+      "status": 200,
+      "answer": "Yes, he has hands‑on experience with LangGraph, which he used to build the agent and mission workflows in projects such as NEXUS AI and InsightForge [S4][S5][S6].",
+      "sources": [
+        "NEXUS AI",
+        "InsightForge"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 615,
+      "totalMs": 843,
+      "words": 26
+    },
+    {
+      "trial": 1,
+      "q": "What projects prove his data engineering skills?",
+      "status": 200,
+      "answer": "Sree’s data‑engineering abilities are demonstrated in several of his projects:\n\n- **AEGIS AI** - builds a streaming fraud‑detection pipeline that validates events, deduplicates, computes features in Redis, scores with a model and writes results atomically to a warehouse modelled with dbt [S1].  \n- **NEXUS AI** - includes a DuckDB data lab that lets users run ad‑hoc SQL queries as part of an AI‑driven research workspace [S2].  \n- **InsightForge** - lets an LLM plan and execute sandboxed SQL against a data store, with multiple isolation layers and verification of every numeric result [S5].  \n- **ReviewPilot** - processes code diffs through a NestJS API and a BullMQ worker pipeline that parses, applies static rules and runs a model review, persisting the results [S6].  \n- **WorkMesh** - implements a modular NestJS monolith on PostgreSQL with row‑level security, transactional outbox, BullMQ and Socket.IO to manage permissions‑aware visibility of work items [S7].",
+      "sources": [
+        "AEGIS AI",
+        "NEXUS AI",
+        "InsightForge",
+        "ReviewPilot",
+        "WorkMesh"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 758,
+      "totalMs": 1216,
+      "words": 147
+    },
+    {
+      "trial": 1,
+      "q": "Can he explain his AEGIS architecture?",
+      "status": 200,
+      "answer": "AEGIS AI is built as a streaming fraud‑detection platform that runs locally with Docker Compose. A seeded simulator creates synthetic customers, merchants and fraud scenarios, then publishes events to Redpanda (a Kafka‑compatible broker) on the transactions.v1 topic (three partitions) [S1][S2].  \n\nA consumer reads those events, validates them, applies per‑partition watermarks, deduplicates, computes online features in Redis, scores each transaction with a calibrated model (trained via MLflow), and writes results atomically to PostgreSQL; offsets are only committed after the database commit, ensuring at‑least‑once delivery with idempotent writes [S1][S3].  \n\nDownstream, dbt builds a warehouse with staging models and marts every two minutes, while LangGraph runs tool‑based investigations and a six‑page React dashboard (React 18, TypeScript, Vite, Tailwind) displays alerts and investigation details [S1][S2][S4].  \n\nKey engineering choices include using Redpanda instead of Kafka for a single‑binary stack, sharing the same feature implementation between training and serving, and handling malformed events via a dead‑letter topic and a quarantine table [S1][S3].",
+      "sources": [
+        "AEGIS AI"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 680,
+      "totalMs": 1253,
+      "words": 156
+    },
+    {
+      "trial": 1,
+      "q": "What is retrieval-augmented generation?",
+      "status": 200,
+      "answer": "Retrieval‑augmented generation (RAG) is a technique that combines a language model with a search over external data so the model can ground its answers in actual documents. In Sree’s projects, RAG is used to pull relevant passages (e.g., live MBTA transit data or research PDFs), verify those passages, and then let the model generate responses that cite the retrieved evidence [S2][S4]. This approach improves answer accuracy and citation correctness by ensuring the generated text is anchored to verifiable sources.",
+      "sources": [
+        "Google MLOps Expo",
+        "SourceAtlas"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 588,
+      "totalMs": 809,
+      "words": 79
+    },
+    {
+      "trial": 1,
+      "q": "Tell me something funny about Sree.",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 180,
+      "words": 0
+    },
+    {
+      "trial": 1,
+      "q": "What are his weaknesses?",
+      "status": 200,
+      "answer": "I don’t have information on Sreevarshan’s weaknesses in the provided portfolio. You may want to email him directly at sreevarshan.dev@gmail.com for any further details.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 500,
+      "totalMs": 569,
+      "words": 24
+    },
+    {
+      "trial": 1,
+      "q": "How can I contact him?",
+      "status": 200,
+      "answer": "You can reach Sreevarshan by email at sreevarshan.dev@gmail.com, and also connect with him on LinkedIn or GitHub as listed on his portfolio page [S1].",
+      "sources": [
+        "Contact"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 512,
+      "totalMs": 590,
+      "words": 24
+    },
+    {
+      "trial": 1,
+      "q": "Can he move to another city?",
+      "status": 200,
+      "answer": "I don’t have information about Sreevarshan’s willingness or ability to relocate. You can ask him directly by emailing sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 472,
+      "totalMs": 532,
+      "words": 19
+    },
+    {
+      "trial": 1,
+      "q": "What salary does he expect?",
+      "status": 200,
+      "answer": "I don’t have information about Sreevarshan’s salary expectations; you can discuss that directly by emailing him at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 523,
+      "totalMs": 581,
+      "words": 18
+    },
+    {
+      "trial": 1,
+      "q": "Tell me something about him that isn't on his resume.",
+      "status": 200,
+      "answer": "Sree enjoys building end‑to‑end AI‑driven systems that combine robust data pipelines with safe, verifiable language‑model components. For example, he created **SourceAtlas**, a locally run research engine that verifies every claim against its source, handles conflict detection and prevents prompt‑injection attacks, all orchestrated with LangGraph and Docker Compose [S3]. He also designed **InsightForge**, a full‑stack analytics platform where model proposals are policy‑checked and executed in isolated DuckDB workers, with a Next.js UI that streams results via Server‑Sent Events [S4]. In addition, he built **AEGIS AI**, a streaming fraud‑detection platform that scores transactions in real time, explains alerts, and runs investigations through LangGraph, all demonstrated with a synthetic data simulator and a React dashboard [S6]. These projects showcase his focus on agentic AI, data integrity and sandboxed execution beyond the items listed on his formal résumé.",
+      "sources": [
+        "SourceAtlas",
+        "InsightForge",
+        "AEGIS AI"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 565,
+      "totalMs": 968,
+      "words": 134
+    },
+    {
+      "trial": 2,
+      "q": "Who is Sree?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 175,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "Can I hire Sree?",
+      "status": 200,
+      "answer": "I don’t have hiring details in the portfolio, so the best way to discuss any opportunities is to email Sree directly at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 481,
+      "totalMs": 540,
+      "words": 23
+    },
+    {
+      "trial": 2,
+      "q": "Why should we hire him?",
+      "status": 200,
+      "answer": "",
+      "sources": [],
+      "fallback": "busy",
+      "error": null,
+      "firstTokenMs": null,
+      "totalMs": 196,
+      "words": 0
+    },
+    {
+      "trial": 2,
+      "q": "Is Sree smart?",
+      "status": 200,
+      "answer": "I don’t have specific information about that, but you can reach out to Sree directly at sreevarshan.dev@gmail.com for any further questions.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 291,
+      "totalMs": 361,
+      "words": 21
+    },
+    {
+      "trial": 2,
+      "q": "Can he dance?",
+      "status": 200,
+      "answer": "I’m focused on Sreevarshan’s professional background and projects, so I don’t have information about his dancing abilities. If you have questions about his engineering experience or would like to connect, you can email him at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1148,
+      "totalMs": 1248,
+      "words": 36
+    },
+    {
+      "trial": 2,
+      "q": "Does he have a girlfriend?",
+      "status": 200,
+      "answer": "I’m an AI assistant for Sreevarshan’s portfolio and can only provide information about his professional background and projects. For personal questions, you’d need to contact him directly at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 363,
+      "totalMs": 445,
+      "words": 29
+    },
+    {
+      "trial": 2,
+      "q": "What does he do at RightRev?",
+      "status": 200,
+      "answer": "At RightRev, Sree works as a Software & Data Engineer Intern (Jan 2026 - Jul 2026) building AI‑driven reporting solutions on Snowflake. He creates Snowflake Cortex AI agents, SQL stored procedures and Model Context Protocol (MCP) integrations that automatically turn revenue data into actionable answers, eliminating manual analysis. He also migrated 18 agents to production, audited over 200 Snowflake views, and integrated five agents with Salesforce CRM APIs. To keep the system secure and reliable, he implemented OAuth, role‑based access control and REST APIs, and built automated SQL and JSON validation tests. [S1]",
+      "sources": [
+        "RightRev"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 1414,
+      "totalMs": 1674,
+      "words": 93
+    },
+    {
+      "trial": 2,
+      "q": "What are his strongest technical skills?",
+      "status": 200,
+      "answer": "Sree’s strongest technical skills are:\n\n- **AI/agentic systems** - building agents, retrieval‑augmented generation, LLM evaluation, and using frameworks such as LangGraph, Snowflake Cortex, Model Context Protocol, and RAG [ S2 ]  \n- **Data engineering** - designing SQL‑based pipelines, Python ETL, Snowflake, PostgreSQL, dbt, Apache Airflow, PySpark, DuckDB, and implementing data‑quality checks [ S3 ]  \n- **Full‑stack software development** - creating TypeScript/React front‑ends, Next.js applications, FastAPI services, and integrating REST APIs and Salesforce CRM [ S4 ]  \n- **DevOps and delivery** - using Git/GitHub, GitHub Actions CI/CD, Docker, automated testing (pytest, Vitest, Playwright), and monitoring with Prometheus [ S5 ]  \n- **Machine‑learning & computer‑vision** - applying scikit‑learn, MLflow, YOLOv5, OpenCV, and reinforcement‑learning techniques [ S2 ]  ",
+      "sources": [
+        "Skills map"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 696,
+      "totalMs": 1128,
+      "words": 115
+    },
+    {
+      "trial": 2,
+      "q": "Can he build an AI agent for my business?",
+      "status": 200,
+      "answer": "Yes, Sree has built several agentic AI systems that generate verifiable, explainable results, such as the streaming fraud detection platform AEGIS AI, the multi‑agent research workspace NEXUS AI, and the autonomous data analyst InsightForge, all of which combine LLM planning, tool calls, and rigorous validation of outputs [S1][S2][S5]. His focus on “agentic AI systems with verifiable outputs” and experience integrating LLMs with data pipelines and custom tooling make him well suited to create a tailored AI agent for your business needs. For a detailed discussion of requirements, timeline, and scope, please email him at sreevarshan.dev@gmail.com.",
+      "sources": [
+        "AEGIS AI",
+        "NEXUS AI",
+        "InsightForge"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 530,
+      "totalMs": 824,
+      "words": 95
+    },
+    {
+      "trial": 2,
+      "q": "What's his greatest achievement?",
+      "status": 200,
+      "answer": "His most notable achievement to date is leading the autonomous‑underwater‑vehicle team to a 6th‑place finish out of more than 320 international teams at the Singapore AUV Challenge, where they qualified among the top 130, were shortlisted to the final 20 and demonstrated autonomous navigation, object detection and reinforcement‑learning control with a 92 % success rate [S1]. He also earned a 3rd‑place award at the Google MLOps Expo for the “Charlie” real‑time MBTA chatbot project, which combined live data pipelines, delay‑prediction models and a retrieval‑augmented GPT assistant [S2].",
+      "sources": [
+        "Singapore AUV Challenge",
+        "Google MLOps Expo"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 551,
+      "totalMs": 849,
+      "words": 87
+    },
+    {
+      "trial": 2,
+      "q": "Does he know LangGraph?",
+      "status": 200,
+      "answer": "Yes, he has hands‑on experience with LangGraph, using it in multiple projects such as AEGIS AI, InsightForge, and NEXUS AI for building tool‑based investigations and agent workflows [S3][S5][S6].",
+      "sources": [
+        "AEGIS AI",
+        "InsightForge",
+        "NEXUS AI"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 2386,
+      "totalMs": 2485,
+      "words": 28
+    },
+    {
+      "trial": 2,
+      "q": "What projects prove his data engineering skills?",
+      "status": 200,
+      "answer": "Sree’s data‑engineering abilities are demonstrated in several of his projects:\n\n- **AEGIS AI** - builds a streaming fraud‑detection pipeline that validates events, deduplicates, computes features in Redis, scores with a model and writes results atomically to a warehouse modelled with dbt [S1]  \n- **NEXUS AI** - includes a DuckDB data lab and a knowledge library that combine hybrid retrieval with structured data processing for AI‑driven research [S2]  \n- **InsightForge** - runs typed operations and sandboxed SQL against data, isolates model‑generated queries in an OS‑level sandbox and verifies every numeric result [S5]  \n- **ReviewPilot** - processes code diffs through a NestJS API, uses a BullMQ worker pipeline and streams progress via SSE, persisting results in a structured store [S6]  \n- **WorkMesh** - implements a modular NestJS monolith on PostgreSQL with row‑level security, transactional outbox, BullMQ and Socket.IO to manage company‑wide work‑item data [S7]  ",
+      "sources": [
+        "AEGIS AI",
+        "NEXUS AI",
+        "InsightForge",
+        "ReviewPilot",
+        "WorkMesh"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 849,
+      "totalMs": 1306,
+      "words": 142
+    },
+    {
+      "trial": 2,
+      "q": "Can he explain his AEGIS architecture?",
+      "status": 200,
+      "answer": "AEGIS AI is built as a streaming fraud‑detection platform that runs locally with Docker Compose. A seeded simulator creates synthetic customers, merchants and fraud scenarios, then publishes events to Redpanda (a Kafka‑compatible broker) on the **transactions.v1** topic (three partitions) [S1][S2].  \n\nA consumer reads those events, validates them, applies per‑partition watermarks, deduplicates, computes online features in Redis, scores each transaction with a calibrated model (logistic regression or gradient‑boosting tracked in MLflow), and writes results atomically to PostgreSQL; offsets are only committed after the database commit, ensuring at‑least‑once delivery with idempotent writes [S1][S3].  \n\nThe pipeline also includes a dead‑letter topic and a quarantine table for malformed events, a dbt project that builds warehouse marts every two minutes, and a LangGraph‑driven investigation engine that runs tool‑based analyses. A FastAPI service provides JWT‑based RBAC and Prometheus metrics, while a six‑page React UI visualizes the stream, alerts and investigations [S1][S2][S4].",
+      "sources": [
+        "AEGIS AI"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 590,
+      "totalMs": 1240,
+      "words": 145
+    },
+    {
+      "trial": 2,
+      "q": "What is retrieval-augmented generation?",
+      "status": 200,
+      "answer": "Retrieval‑augmented generation (RAG) is a technique that combines a language model with a search over external data so the model can ground its answers in actual documents. In Sree’s projects, RAG is used to pull relevant passages (e.g., live MBTA transit data or research PDFs), verify those passages, and then let a GPT‑powered assistant generate responses that cite the retrieved evidence [S2][S4]. This approach improves answer accuracy and citation correctness by ensuring the generated text is anchored to verified sources.",
+      "sources": [
+        "Google MLOps Expo",
+        "SourceAtlas"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 829,
+      "totalMs": 1002,
+      "words": 80
+    },
+    {
+      "trial": 2,
+      "q": "Tell me something funny about Sree.",
+      "status": 200,
+      "answer": "I’m focused on Sreevarshan’s professional background and projects, so I don’t have any humorous personal anecdotes to share. If you’d like to learn more about his work, feel free to ask or email him at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 665,
+      "totalMs": 770,
+      "words": 36
+    },
+    {
+      "trial": 2,
+      "q": "What are his weaknesses?",
+      "status": 200,
+      "answer": "I don’t have information on Sreevarshan’s weaknesses in the provided portfolio. If you’d like to discuss this further, you can email him at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 460,
+      "totalMs": 588,
+      "words": 24
+    },
+    {
+      "trial": 2,
+      "q": "How can I contact him?",
+      "status": 200,
+      "answer": "You can reach Sreevarshan by email at sreevarshan.dev@gmail.com, and also connect with him on LinkedIn or GitHub as listed on his portfolio page [S1].",
+      "sources": [
+        "Contact"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 654,
+      "totalMs": 759,
+      "words": 24
+    },
+    {
+      "trial": 2,
+      "q": "Can he move to another city?",
+      "status": 200,
+      "answer": "I don’t have information about Sreevarshan’s willingness or ability to relocate. You can ask him directly by emailing sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 566,
+      "totalMs": 578,
+      "words": 19
+    },
+    {
+      "trial": 2,
+      "q": "What salary does he expect?",
+      "status": 200,
+      "answer": "I don’t have information about Sreevarshan’s salary expectations; you can reach out to him directly at sreevarshan.dev@gmail.com.",
+      "sources": [],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 288,
+      "totalMs": 342,
+      "words": 17
+    },
+    {
+      "trial": 2,
+      "q": "Tell me something about him that isn't on his resume.",
+      "status": 200,
+      "answer": "Sree enjoys building end‑to‑end AI‑powered systems that combine robust data pipelines with safe, verifiable language‑model agents. For example, he created **SourceAtlas**, a locally run “chat with your docs” engine that verifies every claim against its source, handles conflicts, and aborts when evidence is missing; it runs in Docker Compose with Ollama and uses a LangGraph pipeline for retrieval, reranking and verification [S3]. He also designed **InsightForge**, a full‑stack analytics platform where model proposals are policy‑checked and executed in isolated DuckDB workers, with a Next.js UI streaming results via Server‑Sent Events and a custom middleware to avoid gzip buffering issues [S4]. Additionally, his team placed 3rd at the Google MLOps Expo with **Charlie**, a real‑time MBTA chatbot that fuses live transit data pipelines, delay‑prediction models and a GPT‑based retrieval‑augmented assistant, achieving 92 % precision on route and schedule queries [S5]. These projects illustrate his focus on agentic AI, data integrity and production‑ready tooling beyond what is listed on his formal resume.",
+      "sources": [
+        "SourceAtlas",
+        "InsightForge",
+        "Google MLOps Expo"
+      ],
+      "fallback": null,
+      "error": null,
+      "firstTokenMs": 621,
+      "totalMs": 990,
+      "words": 160
+    }
+  ],
+  "conversations": [
+    [
+      {
+        "q": "Can I hire Sree?",
+        "status": 200,
+        "answer": "I’m an AI assistant for Sreevarshan’s portfolio, so I can’t arrange hiring directly. If you’re interested in discussing a role with him, please email sreevarshan.dev@gmail.com.",
+        "sources": [],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 617,
+        "totalMs": 696,
+        "words": 25
+      },
+      {
+        "q": "What did he do at RightRev?",
+        "status": 200,
+        "answer": "At RightRev he worked as a Software & Data Engineer Intern from January 2026 to July 2026, building AI‑driven reporting on Snowflake. He created Snowflake Cortex AI agents, SQL stored procedures and Model Context Protocol (MCP) integrations that automated financial reporting so business teams could get revenue insights without manual analysis. He migrated 18 agents to production, audited more than 200 Snowflake views, and integrated five agents with Salesforce CRM APIs. He also added security features such as OAuth, role‑based access control and REST APIs, and built automated SQL and JSON validation tests to ensure data accuracy and reliable integrations [S1].",
+        "sources": [
+          "RightRev"
+        ],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 426,
+        "totalMs": 703,
+        "words": 101
+      },
+      {
+        "q": "Can you explain the AI agents?",
+        "status": 200,
+        "answer": "Sree built AI agents on Snowflake that turn raw revenue data into direct answers for business users, eliminating the need for manual analysis. The agents are implemented as Snowflake Cortex models that run stored‑procedure logic and expose their functionality through the Model Context Protocol (MCP), allowing other services to call them via REST APIs. They retrieve the necessary data, generate a response, and return the underlying SQL query so the result can be verified and reproduced. In this setup Sree also added security layers such as OAuth and role‑based access control, and integrated the agents with Salesforce CRM APIs to pull additional context when needed [S5][S2].",
+        "sources": [
+          "RightRev",
+          "Skills map"
+        ],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 645,
+        "totalMs": 959,
+        "words": 106
+      }
+    ],
+    [
+      {
+        "q": "Does he know LangGraph?",
+        "status": 200,
+        "answer": "Yes, he has hands‑on experience with LangGraph, using it in multiple projects such as AEGIS AI, InsightForge, and NEXUS AI to orchestrate tool‑based investigations and agent workflows [S4][S5][S6].",
+        "sources": [
+          "NEXUS AI",
+          "InsightForge"
+        ],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 757,
+        "totalMs": 762,
+        "words": 28
+      },
+      {
+        "q": "Which project used it?",
+        "status": 200,
+        "answer": "",
+        "sources": [],
+        "fallback": "busy",
+        "error": null,
+        "firstTokenMs": null,
+        "totalMs": 151,
+        "words": 0
+      },
+      {
+        "q": "How does that project keep the agents in check?",
+        "status": 200,
+        "answer": "The project enforces guardrails by validating every model‑generated step before it is executed and by verifying the output against concrete evidence. In InsightForge, the LangGraph agent first proposes typed statistical operations and then SQL; each SQL statement passes four isolation layers and is checked against a sandbox before touching data, and every numeric claim in the explanation is later filled in by a verifier that compares it to the computed results [S5]. Similarly, SourceAtlas runs a bounded LangGraph pipeline that verifies each claim against its cited passage, rejects answers when evidence is insufficient, and screens retrieved passages for prompt‑injection attacks [S3]. These verification and sandboxing steps keep the agents from producing ungrounded or unsafe results.",
+        "sources": [
+          "InsightForge",
+          "SourceAtlas"
+        ],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 521,
+        "totalMs": 822,
+        "words": 115
+      }
+    ],
+    [
+      {
+        "q": "Can he dance?",
+        "status": 200,
+        "answer": "I only have information about Sreevarshan Sathiyamurthy’s professional background and projects; personal hobbies like dancing aren’t covered in his portfolio. If you’d like to ask him directly, you can email sreevarshan.dev@gmail.com.",
+        "sources": [],
+        "fallback": null,
+        "error": null,
+        "firstTokenMs": 386,
+        "totalMs": 540,
+        "words": 31
+      },
+      {
+        "q": "Okay, so what is he actually good at?",
+        "status": 200,
+        "answer": "",
+        "sources": [],
+        "fallback": "busy",
+        "error": null,
+        "firstTokenMs": null,
+        "totalMs": 215,
+        "words": 0
+      }
+    ]
+  ]
+}

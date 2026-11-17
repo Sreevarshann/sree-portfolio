@@ -129,13 +129,15 @@ test.describe("light theme: Arctic", () => {
       await open(page, path, "light");
       const hits = await page.evaluate(() => {
         // Orange, amber, peach or rust with any real opacity. Brand logos, chart
-        // series and each project's small category marks keep their own hues.
+        // series, each project's small category marks and the footer sunrise
+        // keep their own hues.
         const warm = (v: string) =>
           [...v.matchAll(/rgba?\(([\d.]+),? ([\d.]+),? ([\d.]+)(?:,? \/? ?([\d.]+))?\)/g)].some(([, r, g, b, a]) => {
             const [R, G, B, A] = [+r, +g, +b, a === undefined ? 1 : +a];
             return A > 0.04 && R > 170 && R - B > 55 && G < R - 15 && G > B - 10;
           });
-        const exempt = ".tech-logo, .js-plotly-plot, [class*='logo'], img, picture, .tech-chip-icon, .stage-dot, .signal-pulse";
+        // The footer sunrise is the one deliberate warm moment in the light theme.
+        const exempt = ".tech-logo, .js-plotly-plot, [class*='logo'], img, picture, .tech-chip-icon, .stage-dot, .signal-pulse, .footer-horizon";
         const props = ["color", "background-color", "background-image", "box-shadow", "border-top-color", "fill", "stroke", "-webkit-text-stroke-color"];
         const out: string[] = [];
         for (const el of document.querySelectorAll("body *")) {
@@ -255,5 +257,45 @@ test.describe("footer sky: day and night", () => {
     await expect.poll(() => page.locator(".footer-night").evaluate((e) => e.hasAttribute("data-offscreen"))).toBe(true);
     await open(page, "/contact", "dark", "reduce");
     expect(await page.locator(".footer-star-tw").first().evaluate((e) => getComputedStyle(e).animationName)).toBe("none");
+  });
+});
+
+test.describe("footer sunrise (light)", () => {
+  test("a golden sun above the haze, warm light only in the footer, silhouettes in light only", async ({ page }, info) => {
+    test.skip(info.project.name !== "desktop", "Same CSS on every device.");
+    await open(page, "/contact", "light", "no-preference");
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForTimeout(2600);
+    const r = await page.evaluate(() => {
+      const sun = document.querySelector(".footer-sun")!;
+      const sky = document.querySelector(".footer-sky")!;
+      const bldg = document.querySelector(".footer-horizon .bl-bldg")!;
+      const s = sun.getBoundingClientRect();
+      const k = sky.getBoundingClientRect();
+      return {
+        bg: getComputedStyle(sun).backgroundImage,
+        z: getComputedStyle(sun).zIndex,
+        visibleDisc: (k.bottom - (s.top + s.height / 2)) > 0, // the centre is above the water line
+        glow: getComputedStyle(sky, "::before").backgroundImage,
+        breathe: getComputedStyle(sky, "::before").animationName,
+        fill: getComputedStyle(bldg).fill,
+      };
+    });
+    expect(r.bg).toContain("rgb(255, 230, 161)"); // golden body
+    expect(r.bg).toContain("rgb(255, 209, 122)"); // warm limb
+    expect(r.z).toBe("1");
+    expect(r.visibleDisc).toBe(true);
+    expect(r.glow).toContain("rgba(246, 217, 190"); // peach horizon light
+    expect(r.breathe).toBe("sunrise-breathe");
+    expect(r.fill).toBe("rgb(241, 245, 251)");
+    // Off screen the breathing pauses; under reduced motion it never runs.
+    await page.evaluate(() => scrollTo(0, 0));
+    await expect.poll(() => page.locator(".footer-sky").evaluate((e) => getComputedStyle(e, "::before").animationPlayState)).toBe("paused");
+    await open(page, "/contact", "light", "reduce");
+    expect(await page.locator(".footer-sky").evaluate((e) => getComputedStyle(e, "::before").animationName)).toBe("none");
+    // Dark keeps the night scene: no sun, no silhouette fill.
+    await open(page, "/contact", "dark");
+    await expect(page.locator(".footer-sun")).toBeHidden();
+    expect(await page.locator(".footer-horizon .bl-bldg").first().evaluate((e) => getComputedStyle(e).fill)).toBe("none");
   });
 });

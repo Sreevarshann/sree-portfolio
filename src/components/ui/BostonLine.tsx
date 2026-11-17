@@ -54,6 +54,7 @@ export function BostonLine({ className = "" }: { className?: string }) {
     <svg
       ref={ref}
       className={className}
+      data-drawn={on || undefined}
       viewBox="0 0 1200 220"
       fill="none"
       stroke="currentColor"
@@ -64,14 +65,14 @@ export function BostonLine({ className = "" }: { className?: string }) {
       preserveAspectRatio="xMidYMax meet"
     >
       {towers.map(([x, w, h], i) => (
-        <path key={i} d={`M${x} ${base} V${base - h} H${x + w} V${base}`} style={draw(2 * h + w, i * 50)} opacity={0.55} />
+        <path key={i} className="bl-bldg" d={`M${x} ${base} V${base - h} H${x + w} V${base}`} style={draw(2 * h + w, i * 50)} opacity={0.55} />
       ))}
       {/* Prudential-like tower with crown and mast */}
-      <path d={`M300 ${base} V60 H344 V${base} M306 60 V48 H338 V60 M322 48 V22`} style={draw(520, 200)} />
+      <path className="bl-bldg" d={`M300 ${base} V60 H344 V${base} M306 60 V48 H338 V60 M322 48 V22`} style={draw(520, 200)} />
       {/* Hancock-like slim slab with notched side */}
-      <path d={`M512 ${base} V30 L548 26 V${base} M530 28 V${base}`} style={draw(560, 320)} />
+      <path className="bl-bldg" d={`M512 ${base} V30 L548 26 V${base} M530 28 V${base}`} style={draw(560, 320)} />
       {/* Custom House-like spire */}
-      <path d={`M716 ${base} V86 H736 V${base} M716 86 L726 58 L736 86`} style={draw(360, 420)} />
+      <path className="bl-bldg" d={`M716 ${base} V86 H736 V${base} M716 86 L726 58 L736 86`} style={draw(360, 420)} />
       {/* Zakim bridge */}
       {zakimTowers.map((tx, i) => (
         <path key={tx} d={`M${tx - 9} ${base} L${tx} 76 L${tx + 9} ${base}`} style={draw(260, 600 + i * 120)} />

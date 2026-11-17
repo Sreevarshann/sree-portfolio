@@ -195,6 +195,28 @@ describe("/api/chat", () => {
     expect(events.at(-1)?.type).toBe("done");
   });
 
+  it("never streams a commitment on Sree's behalf, but keeps the rest of the answer", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    streamImpl.mockReturnValue(fakeStream(["Absolutely, he's worth talking to. He guarantees", " your project will ship on time. He built Snowflake Cortex AI agents at RightRev [S1].", " He is available to start immediately."]));
+    const { events } = await call(ask("Can I hire Sree?"));
+    const text = events.map((e) => (e.type === "delta" ? e.text : "")).join("");
+    expect(text).toContain("he's worth talking to.");
+    expect(text).toContain("Snowflake Cortex AI agents");
+    expect(text).not.toMatch(/guarantee|available to start/i);
+  });
+
+  it("tells the model which answer mode the question needs", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    streamImpl.mockReturnValue(fakeStream(["Ok."]));
+    for (const [q, mode] of [["Can he dance?", "casual"], ["Does he have a girlfriend?", "private"], ["Can I hire Sree?", "hiring"], ["What is retrieval-augmented generation?", "knowledge"], ["What did he build at RightRev?", "facts"]] as const) {
+      streamImpl.mockClear();
+      await call(ask(q));
+      const sent = JSON.stringify(streamImpl.mock.calls[0][0]);
+      expect(sent, q).toContain(`(Mode: ${mode} (`);
+    }
+  });
+
   it("does not expose the model id from the health check", async () => {
     const { GET } = await import("@/app/api/chat/route");
     const body = await GET().json();

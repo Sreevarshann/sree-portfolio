@@ -64,6 +64,7 @@ add({
   facts: [
     `Full name: ${profile.name}. Preferred name: ${profile.displayName}. "SS" is his monogram on this website; all refer to the same person.`,
     `Based in ${profile.location}.`,
+    `Availability (as published on this site): ${profile.availability}.`,
     `Works as an engineer across AI engineering, data engineering and software engineering (${profile.roles.join(", ")}).`,
     ...education.filter((ed) => ed.status === "in-progress").map((ed) => `Studying: ${ed.degree} in ${ed.field} at ${ed.institution}, ${ed.date.toLowerCase()}; ${ed.gpaLabel} ${ed.gpa}.`),
     ...education.filter((ed) => ed.status === "completed").map((ed) => `Earlier degree: ${ed.degree} in ${ed.field}, ${ed.institution}${ed.college ? ` (${ed.college})` : ""}, ${ed.date.toLowerCase()}.`),

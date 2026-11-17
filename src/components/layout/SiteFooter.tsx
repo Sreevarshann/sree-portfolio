@@ -49,8 +49,8 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="footer-horizon relative mt-16 overflow-hidden text-fg-muted">
-        {/* Daylight only: the sun rising out of the harbor behind the Zakim cables. */}
-        <span className="footer-sky only-light" aria-hidden="true">
+        {/* Daylight only: a golden sunrise out of the harbor behind the Zakim cables. */}
+        <span className="footer-sky only-light" aria-hidden="true" data-anim-pause>
           <span className="footer-sun" />
         </span>
         {/* Night only: crescent moon and scattered stars over the harbor. */}

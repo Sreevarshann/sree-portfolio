@@ -15,7 +15,22 @@ export type Intent =
   | "contact"
   | "fit"
   | "assistant"
+  | "hiring"
+  | "casual"
+  | "private"
+  | "knowledge"
   | "general";
+
+/**
+ * How the answer should behave, derived from the intents (not a separate model
+ * call): which kind of statement leads, and whether citations are expected.
+ *   facts     verified professional facts, cited
+ *   hiring    confident, evidence-based advocacy plus a next step
+ *   casual    playful and honest; unknown personal facts stay unknown
+ *   private   brief, friendly decline; nothing guessed or leaked
+ *   knowledge general explanation, not presented as a fact about Sree
+ */
+export type Mode = "facts" | "hiring" | "casual" | "private" | "knowledge";
 
 export type EntityKind = "experience" | "project" | "achievement" | "education" | "resume";
 export type Entity = { kind: EntityKind; id: string; label: string };
@@ -40,6 +55,12 @@ const ENTITIES: (Entity & { match: RegExp })[] = [
 ];
 
 const INTENT_RULES: [Intent, RegExp][] = [
+  // Private or sensitive personal matters: never guessed, never leaked.
+  ["private", /\b(girl ?friend|boy ?friend|wife|husband|married|dating|single|relationship|crush|salary|pay(ing)?\b|compensation|how much (does|would|will) he (make|earn|charge|cost)|rate\b|age\b|how old|religio|address|phone|visa|sponsor|citizen|green card|h-?1b|\bopt\b|immigration|work authori[sz]ation)/],
+  // Hiring and recruiter questions: availability, fit, recommendation, engagements.
+  ["hiring", /\bhir(e|ing)\b|\brecruit|\bavailab|\bopen to (work|roles|opportunit)|\blooking for (a )?(job|role|work)|\bworth (talking|interviewing|hiring)|\brecommend (him|sree)\b|\b(can|could) (he|sree) (build|make|create|develop|help)\b.{0,40}\b(my|our|for (a|my|our))\b|\b(relocat|move to|start date|notice period|remote)\b|\bwork for (us|me|my)\b/],
+  // Casual, personal or playful questions.
+  ["casual", /\b(dance|danc(ing|er)|sing|cook|joke|funny|fun fact|hobb(y|ies)|free time|weekend|personality|smart|intelligent|genius|cool|favou?rite|sports?|game|music|movie|pet|coffee|tea|(not|isn't|isnt) on (his )?(resume|cv)|interesting about|like (outside|besides)|weakness(es)?|introvert|extrovert)\b/],
   ["assistant", /\b(ignore|disregard|forget)\b.{0,40}\b(instruction|prompt|rule|above)s?\b|\bsystem prompt\b|\byour (instructions|rules|prompt)\b|\bare you (an? )?(ai|bot|human|real|sree)\b|\bwho (made|built|created) you\b|\bwhat are you\b|\bjailbreak\b|\bpretend (to be|you are)\b/],
   ["contact", /\bcontact\b|\breach (him|out|sree)\b|\bget in touch\b|\bemail\b|\blinkedin\b|\bhow (do|can) i (talk|connect|speak)\b|\bresume\b|\bcv\b/],
   ["certification", /\bcertif|\bcredential|\baws\b|\bcourse(s|work)?\b|\bcisco\b/],
@@ -48,7 +69,7 @@ const INTENT_RULES: [Intent, RegExp][] = [
   ["achievement", /\bachiev|\baward|\bwon\b|\bwin\b|\bcompetition|\bchallenge\b|\bprize|\b\d+(st|nd|rd|th) place\b|\bplace[d]?\b|\brank|\bhackathon|\bexpo\b|\baccomplish/],
   ["experience", /\bexperience\b|\bwork(ed|ing)?\b(?! with)|\bjob|\bintern|\bemploy|\bcompan(y|ies)\b|\bcareer\b|\bposition\b|\brole\b(?!s? (would|does) he)|\bwork history\b/],
   ["project", /\bprojects?\b|\bbuil[td]\b|\bbuilding\b|\bgithub\b|\brepo(sitor(y|ies))?\b|\bside project|\bshipped\b|\bmade\b/],
-  ["skills", /\bskill|\bstrength|\bstrongest\b|\btech(nical)? stack\b|\btechnolog|\blanguages?\b|\btools?\b|\bgood at\b|\bexpert|\bproficien|\bframeworks?\b|\bpython\b|\bsql\b/],
+  ["skills", /\bdoes he know\b|\bfamiliar with\b|\bexperience (with|in)\b|\bskill|\bstrength|\bstrongest\b|\btech(nical)? stack\b|\btechnolog|\blanguages?\b|\btools?\b|\bgood at\b|\bexpert|\bproficien|\bframeworks?\b|\bpython\b|\bsql\b/],
   ["identity", /\bwho('s| is)\b|\babout (him|sree|sreevarshan)\b|\bintroduce\b|\bbackground\b|\bsummar|\btell me about (him|sree|sreevarshan|ss)\b|\bbio\b|\boverview\b|\bwhere is he based\b/],
 ];
 
@@ -60,6 +81,10 @@ const ANAPHORA = /\b(it|its|it's|that|this|there|those|these|they|them|their|sam
 
 export type Analysis = { intents: Intent[]; entities: Entity[]; followUp: boolean; mentionsName: boolean };
 
+/** General-knowledge question: "what is RAG?", "explain Kafka", with no reference to Sree. */
+const KNOWLEDGE = /^(what('s| is| are)|explain|define|how (does|do|is)|why (does|do|is)|what's the difference|difference between)\b/;
+const ABOUT_SREE = /\b(he|him|his|sree|sreevarshan|sathiyamurthy|ss)\b/;
+
 export function analyze(question: string): Analysis {
   const q = question.toLowerCase().replace(/[’`]/g, "'");
   const entities = ENTITIES.filter((e) => e.match.test(q)).map(({ kind, id, label }) => ({ kind, id, label }));
@@ -69,8 +94,18 @@ export function analyze(question: string): Analysis {
   const mentionsName = /\b(sree|sreevarshan|sathiyamurthy|ss)\b/.test(q);
   const words = q.split(/\s+/).filter(Boolean).length;
   const followUp = !entities.length && (ANAPHORA.test(q) || words <= 4);
+  if (!entities.length && !ABOUT_SREE.test(q) && KNOWLEDGE.test(q.trim()) && !intents.some((i) => i === "private" || i === "hiring")) intents.unshift("knowledge");
   if (!intents.length) intents.push("general");
   return { intents, entities, followUp, mentionsName };
+}
+
+/** The answer mode for an analysis: private wins, then hiring, casual and general knowledge. */
+export function modeOf(a: Pick<Analysis, "intents">): Mode {
+  if (a.intents.includes("private")) return "private";
+  if (a.intents.includes("hiring") || a.intents.includes("fit")) return "hiring";
+  if (a.intents.includes("casual")) return "casual";
+  if (a.intents[0] === "knowledge") return "knowledge";
+  return "facts";
 }
 
 /** Suggested next questions, chosen from the topic of the latest answer. */
@@ -97,6 +132,10 @@ const NEXT: Record<string, string[]> = {
   contact: ["Who is Sree?", "What did he build at RightRev?", "What is his most impressive project?"],
   fit: ["What are his strongest technical skills?", "What did he build at RightRev?", "How can I contact him?"],
   assistant: ["Who is Sree?", "What has he built?", "What did he build at RightRev?"],
+  hiring: ["What did he build at RightRev?", "What is his most impressive project?", "How can I contact him?"],
+  casual: ["What is his greatest achievement?", "What has he built recently?", "Why should we hire him?"],
+  private: ["Can I hire Sree?", "What are his strongest technical skills?", "How can I contact him?"],
+  knowledge: ["How has Sree used RAG?", "What did he build at RightRev?", "What is his most impressive project?"],
   general: ["Who is Sree?", "What has he built?", "What did he build at RightRev?"],
 };
 
