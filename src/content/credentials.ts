@@ -137,6 +137,8 @@ export type Achievement = {
   /** Sree's own LinkedIn post about the result, linked as proof. */
   proof?: { href: string; label: string };
   project: string;
+  /** Sree's part in a team result, as the sources state it (for Sree AI; never upgraded). */
+  role?: string;
   summary: string;
   details: string[];
   stack: string[];
@@ -160,6 +162,7 @@ export const achievements: Achievement[] = [
       label: "SAUVC result post",
     },
     project: "Autonomous underwater vehicle",
+    role: "Sree was a member of the team: he built the vehicle's autonomous navigation and object detection and its reinforcement-learning control. The sources do not describe him as the team's lead or captain.",
     summary:
       "An international student competition in which autonomous underwater vehicles complete navigation and manipulation tasks in a pool without human control.",
     details: [

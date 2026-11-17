@@ -152,6 +152,7 @@ for (const a of achievements) {
     ].join(" "),
     facts: [
       `Result: ${a.result} at ${a.event}${a.rank.field ? `, among ${a.rank.field}` : ""}. Project: ${a.project}.`,
+      a.role ?? "",
       a.summary,
       ...a.details,
       a.stages ? `Competition stages: ${a.stages.map((st) => `${st.value} ${st.label}`).join(" → ")}.` : "",

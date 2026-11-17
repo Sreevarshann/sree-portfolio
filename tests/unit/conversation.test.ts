@@ -119,3 +119,21 @@ describe("V10 hotfix: honesty and reliability", () => {
     expect(text).toContain("production AI work");
   });
 });
+
+describe("V10 hotfix 2: team roles and logistics", () => {
+  it("the SAUVC knowledge states his role, so a team result is not upgraded to leadership", () => {
+    const sauvc = knowledge.find((c) => c.id === "ach-sauvc")!;
+    expect(factsOf(sauvc).join("\n")).toMatch(/do not describe him as the team's lead/);
+  });
+
+  it("the gate drops a 'led the team' upgrade but keeps the result", () => {
+    const g = createCommitmentGate();
+    const text = g.push("His greatest achievement is leading the team that placed 6th of 320+ teams [S1]. His team placed 6th of 320+ teams, and he built the navigation [S1].") + g.flush();
+    expect(text).not.toMatch(/leading the team/);
+    expect(text).toContain("he built the navigation");
+  });
+
+  it("relocation answers do not speculate", () => {
+    expect(SYSTEM_PROMPT).toMatch(/do not speculate about whether something "could be feasible"/);
+  });
+});
