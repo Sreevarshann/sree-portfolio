@@ -1329,11 +1329,68 @@ a:focus-visible > .ss-mark .ss-rule {
 }
 
 /* ---------------------------------------------------------- hero layout */
-.hero-name {
-  font-size: clamp(1.15rem, 2.2vw, 1.6rem);
-  font-weight: 520;
-  letter-spacing: -0.025em;
+/* Identity first: "Hey, I'm" (small), the first name (the largest type on
+   the page), the nickname (warm, mid-size), then the engineering statement
+   as a secondary headline. */
+.hero-id {
+  margin: 0;
+}
+.hero-hey {
+  display: block;
+  font-size: clamp(1.1rem, 1.7vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--accent-fg);
+}
+.hero-first {
+  display: block;
+  margin-top: 0.06em;
+  font-family: var(--font-sans);
+  /* Fills a 320px phone without clipping; scales with the column. */
+  font-size: clamp(2.6rem, 14.8vw, 7.25rem);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  white-space: nowrap;
   color: var(--fg);
+}
+@media (min-width: 1024px) {
+  .hero-first { font-size: clamp(5rem, 8.8vw, 8.6rem); }
+}
+.hero-first-mask {
+  display: inline-block;
+  overflow: hidden;
+  /* The word rises inside this mask; the padding keeps its edges unclipped. */
+  padding: 0.04em 0.06em 0.1em 0;
+  margin: -0.04em -0.06em -0.1em 0;
+  vertical-align: bottom;
+}
+.hero-first-dot {
+  color: var(--accent);
+  margin-left: 0.01em;
+}
+.hero-nick {
+  margin-top: clamp(0.7rem, 1.4vw, 1.1rem);
+  font-size: clamp(1.2rem, 2vw, 1.7rem);
+  font-weight: 450;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  color: var(--fg-soft);
+}
+.hero-nick-name {
+  font-size: 1.22em;
+  line-height: 1;
+  color: var(--accent-fg);
+  padding-right: 0.04em;
+}
+.hero-title.display {
+  font-size: clamp(1.9rem, 6.6vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+@media (min-width: 1024px) {
+  .hero-title.display { font-size: clamp(2.4rem, 3.5vw, 3.9rem); }
 }
 .hero-facts {
   display: grid;

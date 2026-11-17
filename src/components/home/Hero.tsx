@@ -128,20 +128,37 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
             <PortraitSwap pair={portraits} priority />
           </div>
           <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-            <h1 className="hero-fade hero-name" style={{ ["--enter-delay" as string]: "0.08s" }}>
-              Sreevarshan Sathiyamurthy
+            {/* One heading: the visible lines read "Hey, I'm Sreevarshan." while
+                screen readers and crawlers read the full name in the same h1. */}
+            <h1 className="hero-id">
+              <span className="hero-hey hero-fade" style={{ ["--enter-delay" as string]: "0.05s" }}>
+                Hey, I&apos;m
+              </span>{" "}
+              <span className="hero-first kinetic-css">
+                <span className="hero-first-mask">
+                  <span className="split-char" style={{ animationDelay: "0.12s" }}>
+                    Sreevarshan<span className="sr-only"> Sathiyamurthy</span>
+                  </span>
+                  <span className="split-char hero-first-dot" style={{ animationDelay: "0.34s" }}>
+                    .
+                  </span>
+                </span>
+              </span>
             </h1>
+            <p className="hero-nick hero-fade" style={{ ["--enter-delay" as string]: "0.38s" }}>
+              Most people call me <span className="serif-accent hero-nick-name">Sree</span>.
+            </p>
             <KineticText
               as="p"
-              className="display hero-title relative z-[1] mt-5 max-w-[14ch] text-[clamp(2.9rem,9.4vw,8.4rem)] lg:text-[clamp(3.6rem,6.6vw,7.8rem)]"
-              delay={0.1}
+              className="display hero-title relative z-[1] mt-7 max-w-[19ch] md:mt-8"
+              delay={0.48}
               trigger="css"
               segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems, from data to interface."]}
             />
-            <p className="hero-fade lede mt-8 max-w-[44rem]" style={{ ["--enter-delay" as string]: "0.55s" }}>
-              Hi, I&apos;m <strong className="font-medium text-fg">Sree</strong>, a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
+            <p className="hero-fade lede mt-6 max-w-[44rem] md:mt-7" style={{ ["--enter-delay" as string]: "0.62s" }}>
+              I&apos;m a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
             </p>
-            <div className="hero-fade mt-8 flex flex-wrap gap-3" style={{ ["--enter-delay" as string]: "0.65s" }}>
+            <div className="hero-fade mt-8 flex flex-wrap gap-3" style={{ ["--enter-delay" as string]: "0.72s" }}>
               <Link href="/projects" className="btn btn-primary">
                 View projects <span className="arrow" aria-hidden="true">→</span>
               </Link>
