@@ -19,7 +19,7 @@ const INTERNAL = new Set([
   "/lab",
   "/contact",
   "/ask",
-  profile.resumePath,
+  profile.resumeFile,
   ...certifications.flatMap((c) => [c.pdf ?? "", c.verifyUrl]).filter((u) => u.startsWith("/")),
   ...projects.map((p) => `/projects/${p.slug}`),
 ]);

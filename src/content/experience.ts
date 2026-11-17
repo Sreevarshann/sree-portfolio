@@ -45,7 +45,7 @@ export const experience: Experience[] = [
       "Implemented OAuth, role-based access control (RBAC) and REST APIs to protect customer data and keep reporting secure and reliable.",
       "Integrated Salesforce CRM APIs with five AI agents.",
       "Built automated SQL and JSON validation tests to verify data accuracy, troubleshoot integration failures and keep financial reporting reliable.",
-      "Collaborated with senior engineers on frontend features and API integrations, applying code review feedback to improve usability, resolve technical issues and deliver maintainable features.",
+      "Built frontend features and REST API integrations for financial reporting, working with senior engineers to review changes and resolve integration issues.",
     ],
     outcomes: [
       { value: "18", label: "AI agents migrated to production" },

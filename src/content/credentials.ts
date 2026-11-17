@@ -1,3 +1,4 @@
+import { profile } from "./profile";
 export type InstitutionLogo = {
   light: string;
   dark: string;
@@ -171,7 +172,7 @@ export const achievements: Achievement[] = [
     evidence: [
       { label: "LinkedIn post", href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_sauvc2022-throwback-teamvaruna-ugcPost-7244625106197512192-ilNL/", note: "Sree's post about the result", kind: "linkedin" },
       { label: "Official competition site", href: "https://sauvc.org", note: "sauvc.org" },
-      { label: "Resume", href: "/Sreevarshan-Sathiyamurthy-Resume.pdf", note: "Listed under Machine Learning Engineer, 2022" },
+      { label: "Resume", href: profile.resumePath, note: "Listed under Machine Learning Engineer, 2022" },
     ],
   },
   {
@@ -194,7 +195,7 @@ export const achievements: Achievement[] = [
     stack: ["Python", "Apache Airflow", "PySpark", "Azure ML", "Docker", "Prometheus", "RAG"],
     evidence: [
       { label: "LinkedIn post", href: "https://www.linkedin.com/posts/sreevarshansathiyamurthy_mlops-machinelearning-dataengineering-ugcPost-7408534309613031425-L_Bj/", note: "Sree's post about the 3rd-place finish", kind: "linkedin" },
-      { label: "Resume", href: "/Sreevarshan-Sathiyamurthy-Resume.pdf", note: "Listed under Projects" },
+      { label: "Resume", href: profile.resumePath, note: "Listed under Projects" },
       { label: "Repository", href: "https://github.com/Sreevarshann/Charlir-MBTA", note: "Placeholder repository; source code is not yet published" },
     ],
   },
