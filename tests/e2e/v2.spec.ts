@@ -133,7 +133,7 @@ test("portrait slot renders (photo or labelled placeholder)", async ({ page, isM
   if (!isMobile) {
     await page.goto("/");
     // The hero pair is a labelled toggle (Spider-Man photo, then the real one).
-    await expect(page.getByRole("button", { name: "Reveal Sree's portrait" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Reveal Sree's portrait|Show Spider-Man portrait/ })).toBeVisible();
   }
 });
 

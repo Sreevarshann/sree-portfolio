@@ -7,13 +7,14 @@ import type { PortraitPair } from "@/lib/portrait";
 /**
  * Editorial hero portrait: a slightly rotated photographic print.
  *
- * With both assets present it starts on the masked (Spider-Man) photo, which
- * dissolves to reveal the real photograph underneath: an opacity fade with a
- * soft radial opening that grows from the pointer (~800 ms). Both are real
- * photographs sharing the same frame; nothing is morphed or generated.
- * - mouse / pen: hover to reveal, leave to return
+ * With both assets present it starts on the masked (Spider-Man) photo. The
+ * hero's identity intro dissolves it to the real photograph underneath on the
+ * same clock as the name (an opacity fade with a soft radial opening from the
+ * face). Both are real photographs sharing the same frame; nothing is morphed
+ * or generated. After the intro the real photo rests:
+ * - mouse / pen: hover brings Spider-Man back, leaving returns the real photo
  * - touch, keyboard (Enter / Space) and click: the frame is a toggle button
- *   whose label names the next action
+ *   whose label names the next action; during the intro it skips to the end
  * - reduced motion: a short crossfade instead of the opening and tilt
  * Both images share the same box and crop, so nothing shifts; the frame has
  * its own background, so there is no white flash before decode.
@@ -21,14 +22,30 @@ import type { PortraitPair } from "@/lib/portrait";
  * With one asset it shows that image statically; with none it shows an
  * intentional placeholder (no face, no generated image).
  */
-export function PortraitSwap({ pair, priority = false, className = "" }: { pair: PortraitPair; priority?: boolean; className?: string }) {
+export function PortraitSwap({
+  pair,
+  priority = false,
+  className = "",
+  intro = "done",
+  onSkip,
+}: {
+  pair: PortraitPair;
+  priority?: boolean;
+  className?: string;
+  /** The hero's identity reveal: Spider-Man while pending, dissolving while running, then the real photo rests. */
+  intro?: "pending" | "running" | "done";
+  onSkip?: () => void;
+}) {
   const { real, illustrated, focus } = pair;
   const mode = real && illustrated ? "pair" : real || illustrated ? "single" : "placeholder";
   const [hover, setHover] = useState(false);
   const [pinned, setPinned] = useState(false);
-  const [origin, setOrigin] = useState({ x: 50, y: 50 });
+  // The intro dissolve opens from the face; afterwards it follows the pointer.
+  const [origin, setOrigin] = useState({ x: 50, y: 38 });
   const lastPointer = useRef<string>("mouse");
-  const showReal = hover || pinned;
+  const settled = intro === "done";
+  // After the intro the real photo is the resting state; hover or a tap brings Spider-Man back.
+  const showReal = settled && !(hover || pinned);
 
   const at = useCallback((e: ReactPointerEvent<HTMLElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -39,7 +56,7 @@ export function PortraitSwap({ pair, priority = false, className = "" }: { pair:
   const sizes = "(min-width: 1024px) 340px, (min-width: 640px) 300px, 70vw";
 
   return (
-    <figure className={`pswap ${className}`} data-mode={mode} data-state={showReal ? "real" : "illustrated"}>
+    <figure className={`pswap ${className}`} data-mode={mode} data-intro={intro} data-state={showReal ? "real" : "illustrated"}>
       <div className="pswap-print">
         <span className="pswap-tape" aria-hidden="true" />
         <div className="pswap-photo">
@@ -50,12 +67,12 @@ export function PortraitSwap({ pair, priority = false, className = "" }: { pair:
               aria-label={showReal ? "Show Spider-Man portrait" : "Reveal Sree's portrait"}
               onPointerEnter={(e) => {
                 lastPointer.current = e.pointerType;
-                if (e.pointerType === "touch") return;
+                if (e.pointerType === "touch" || !settled) return;
                 at(e);
                 setHover(true);
               }}
               onPointerLeave={(e) => {
-                if (e.pointerType === "touch") return;
+                if (e.pointerType === "touch" || !settled) return;
                 at(e);
                 setHover(false);
               }}
@@ -64,7 +81,12 @@ export function PortraitSwap({ pair, priority = false, className = "" }: { pair:
                 at(e);
               }}
               onClick={(e) => {
-                // Mouse users already see the photo while hovering; a click pins it.
+                // During the intro, any activation jumps straight to the real photo.
+                if (!settled) {
+                  onSkip?.();
+                  return;
+                }
+                // Mouse users already see Spider-Man while hovering; a click pins it.
                 // Touch and keyboard toggle; keyboard reveals from the centre.
                 if (e.detail === 0) setOrigin({ x: 50, y: 50 });
                 setPinned((p) => !p);
@@ -106,9 +128,9 @@ export function PortraitSwap({ pair, priority = false, className = "" }: { pair:
         <span className="pswap-note-notch" />
         {mode === "pair" ? (
           <>
-            <span className="pswap-note-hover">Hover to reveal the real me</span>
-            <span className="pswap-note-touch pswap-note-touch-in">Tap to reveal the real me</span>
-            <span className="pswap-note-touch pswap-note-touch-out">Tap again for Spider-Man</span>
+            <span className="pswap-note-hover">Hover to see Spider-Man</span>
+            <span className="pswap-note-touch pswap-note-touch-spider">Tap to see Spider-Man</span>
+            <span className="pswap-note-touch pswap-note-touch-real">Tap again for the real me</span>
           </>
         ) : (
           <span>Portrait arriving soon</span>

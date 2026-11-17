@@ -11,7 +11,9 @@ import type { PortraitPair } from "@/lib/portrait";
 import { ContourEcho } from "@/components/ui/ContourEcho";
 import { LogoImage } from "@/components/ui/LogoImage";
 import { experience } from "@/content/experience";
+import { FROM, TO } from "@/lib/identityMorph";
 import { PortraitSwap } from "./PortraitSwap";
+import { useIdentityIntro } from "./useIdentityIntro";
 
 const ContourField = dynamic(() => import("./ContourField").then((m) => m.ContourField), { ssr: false });
 
@@ -79,6 +81,10 @@ function Companies() {
 export function Hero({ portraits }: { portraits: PortraitPair }) {
   const { openChat } = useAskSree();
   const [field, setField] = useState(false);
+  const rootRef = useRef<HTMLElement>(null);
+  const nameRef = useRef<HTMLSpanElement>(null);
+  const { phase, skip } = useIdentityIntro(rootRef, nameRef);
+  const intro = phase === "hold" ? "pending" : phase === "morph" ? "running" : "done";
 
   // Start the WebGL field once the main thread is idle, after first paint -
   // and only on devices that can run it comfortably. Others keep the static
@@ -98,7 +104,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
   }, []);
 
   return (
-    <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-28" aria-label="Introduction" data-nav-section="hero" data-view-anchor="hero">
+    <section ref={rootRef} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-28" aria-label="Introduction" data-nav-section="hero" data-view-anchor="hero">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="hero-wash absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_70%_40%,var(--accent-soft),transparent_70%)]" />
         <div className="hero-atmos absolute inset-0" />
@@ -115,50 +121,71 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
           </p>
         </div>
 
-        {/* Portrait first in the markup: phones and tablets show it above the
-            introduction (same visual, reading and focus order); on desktop it
-            is placed in the right column. */}
-        <div className="mt-8 grid gap-10 md:mt-12 lg:grid-cols-[minmax(0,1fr)_clamp(250px,24vw,350px)] lg:items-center lg:gap-16">
-          <div
-            className="hero-portrait hero-fade mx-auto mb-[4.75rem] w-[min(70vw,300px)] lg:col-start-2 lg:row-start-1 lg:mx-0 lg:mb-0 lg:w-full"
-            data-parallax="0.12"
-            data-parallax-min="1024"
-            style={{ ["--enter-delay" as string]: "0.2s" }}
-          >
-            <PortraitSwap pair={portraits} priority />
-          </div>
-          <div className="min-w-0 lg:col-start-1 lg:row-start-1">
-            {/* One heading: the visible lines read "Hey, I'm Sreevarshan." while
-                screen readers and crawlers read the full name in the same h1. */}
-            <h1 className="hero-id">
-              <span className="hero-hey hero-fade" style={{ ["--enter-delay" as string]: "0.05s" }}>
-                Hey, I&apos;m
-              </span>{" "}
-              <span className="hero-first kinetic-css">
-                <span className="hero-first-mask">
-                  <span className="split-char" style={{ animationDelay: "0.12s" }}>
-                    Sreevarshan<span className="sr-only"> Sathiyamurthy</span>
-                  </span>
-                  <span className="split-char hero-first-dot" style={{ animationDelay: "0.34s" }}>
-                    .
+        {/* Two parts. The identity row: the introduction on the left and the
+            original portrait on the right, vertically centred on each other.
+            Below both, centred across the hero: the statement and the actions.
+            Portrait first in the markup: phones and tablets show it above the
+            introduction (same visual, reading and focus order). */}
+        <div className="hero-stage" data-intro={intro}>
+          {/* The gentle scroll parallax moves the name and the portrait as one
+              group, so they stay aligned with each other. */}
+          <div className="hero-identity" data-parallax="0.06" data-parallax-min="1024">
+            <div className="hero-portrait hero-fade" style={{ ["--enter-delay" as string]: "0.2s" }}>
+              <PortraitSwap pair={portraits} priority intro={intro} onSkip={skip} />
+            </div>
+            <div className="hero-intro">
+              {/* One heading. It always reads "Hey, I'm Sreevarshan Sathiyamurthy."
+                  for screen readers and crawlers; the visible word starts as
+                  "Spiderman." and rebuilds itself into "Sreevarshan.". */}
+              <h1 className="hero-id">
+                <span className="hero-hey hero-fade" style={{ ["--enter-delay" as string]: "0.05s" }}>
+                  Hey, I&apos;m
+                </span>{" "}
+                <span className="hero-first kinetic-css" ref={nameRef}>
+                  <span className="sr-only">Sreevarshan Sathiyamurthy.</span>
+                  <span className="hero-first-mask" aria-hidden="true">
+                    <span className="split-char hf-word" data-phase={phase} style={{ animationDelay: "0.12s" }}>
+                      <span className="hf-s" data-c="S" />
+                      <span className="hf-mid">
+                        <span className="hf-from">
+                          {Array.from(FROM).map((c, i) => (
+                            <span key={i} data-c={c} />
+                          ))}
+                        </span>
+                        <span className="hf-to">
+                          {Array.from(TO).map((c, i) => (
+                            <span key={i} data-c={c} />
+                          ))}
+                        </span>
+                      </span>
+                      <span className="hf-an">
+                        <span data-c="a" />
+                        <span data-c="n" />
+                        <span className="hf-dot" data-c="." />
+                      </span>
+                      <span className="hf-base" />
+                    </span>
                   </span>
                 </span>
-              </span>
-            </h1>
-            <p className="hero-nick hero-fade" style={{ ["--enter-delay" as string]: "0.38s" }}>
-              Most people call me <span className="serif-accent hero-nick-name">Sree</span>.
-            </p>
+              </h1>
+              <noscript>
+                <style>{`.hf-word .hf-from{display:none}.hf-word .hf-to{display:inline}.hero-stage .pswap-illustrated{opacity:0}`}</style>
+              </noscript>
+              <p className="hero-nick hero-fade" style={{ ["--enter-delay" as string]: "0.38s" }}>
+                Most people call me <span className="serif-accent hero-nick-name">Sree</span>.
+              </p>
+            </div>
+          </div>
+
+          <div className="hero-work">
             <KineticText
               as="p"
-              className="display hero-title relative z-[1] mt-7 max-w-[19ch] md:mt-8"
+              className="display hero-title relative z-[1]"
               delay={0.48}
               trigger="css"
               segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems, from data to interface."]}
             />
-            <p className="hero-fade lede mt-6 max-w-[44rem] md:mt-7" style={{ ["--enter-delay" as string]: "0.62s" }}>
-              I&apos;m a Boston-based engineer building AI agents, data platforms and full-stack applications. Most recently I built Snowflake Cortex AI agents and MCP integrations at RightRev.
-            </p>
-            <div className="hero-fade mt-8 flex flex-wrap gap-3" style={{ ["--enter-delay" as string]: "0.72s" }}>
+            <div className="hero-actions hero-fade" style={{ ["--enter-delay" as string]: "0.62s" }}>
               <Link href="/projects" className="btn btn-primary">
                 View projects <span className="arrow" aria-hidden="true">→</span>
               </Link>
