@@ -54,15 +54,13 @@ test.describe("V5 hero", () => {
     }
   });
 
-  test("portrait renders its intentional placeholder until real assets are added", async ({ page }) => {
+  test("portrait renders the real photo pair (Spider-Man first) now that the assets exist", async ({ page }) => {
     await page.goto("/");
     const fig = page.locator(".pswap");
-    await expect(fig).toHaveAttribute("data-mode", "placeholder");
-    await expect(fig.getByRole("img", { name: /Portrait placeholder/ })).toBeVisible();
-    await expect(fig.locator("img")).toHaveCount(0);
-    const html = await page.content();
-    expect(html).not.toContain("portrait-real");
-    expect(html).not.toContain("portrait-illustrated");
+    await expect(fig).toHaveAttribute("data-mode", "pair");
+    await expect(fig.locator("img")).toHaveCount(2);
+    // No placeholder once real photos are present.
+    await expect(fig.getByRole("img", { name: /Portrait placeholder/ })).toHaveCount(0);
   });
 });
 

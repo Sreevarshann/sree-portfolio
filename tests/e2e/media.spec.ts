@@ -18,7 +18,10 @@ test.describe("hero portrait: Spider-Man reveal", () => {
       await expect(top).toHaveAttribute("src", /spiderman-mask/);
       await expect(bottom).toHaveAttribute("src", /sree-real/);
       await expect(fig).toHaveAttribute("data-state", "illustrated");
-      const box = await fig.boundingBox();
+      const frame = fig.locator(".pswap-photo");
+      // Layout size (offset*), not the painted box: the print tilts on hover by design.
+      const size = () => frame.evaluate((e) => [(e as HTMLElement).offsetWidth, (e as HTMLElement).offsetHeight]);
+      const box = await size();
       // Dissolve timing: about 650 ms (opacity and the radial opening).
       const t = await fig.locator(".pswap-illustrated").evaluate((e) => getComputedStyle(e).transitionDuration);
       expect(t).toContain("0.65s");
@@ -30,9 +33,8 @@ test.describe("hero portrait: Spider-Man reveal", () => {
       await page.mouse.move(2, 2);
       await expect(fig).toHaveAttribute("data-state", "illustrated");
       await expect.poll(() => fig.locator(".pswap-illustrated").evaluate((e) => getComputedStyle(e).opacity)).toBe("1");
-      // No layout shift from the reveal: the frame keeps its size.
-      const after = await fig.boundingBox();
-      expect([after!.width, after!.height]).toEqual([box!.width, box!.height]);
+      // No layout shift from the reveal: the photo frame keeps its size.
+      expect(await size()).toEqual(box);
     });
   }
 
