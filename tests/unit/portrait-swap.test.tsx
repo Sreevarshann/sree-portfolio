@@ -29,56 +29,69 @@ describe("PortraitSwap", () => {
     expect(screen.queryByRole("button")).toBeNull();
   });
 
-  it("starts on the masked photo, with both images stacked in the same box", () => {
-    const { container } = render(<PortraitSwap pair={pair} />);
+  it("starts on the masked photo during the intro, with both images stacked in the same box", () => {
+    const { container } = render(<PortraitSwap pair={pair} intro="pending" />);
     const fig = container.querySelector(".pswap")!;
     expect(fig).toHaveAttribute("data-state", "illustrated");
+    expect(fig).toHaveAttribute("data-intro", "pending");
     const imgs = container.querySelectorAll("img");
     // Bottom layer: the real photo; top layer: the masked photo, which dissolves away.
     expect([...imgs].map((i) => i.getAttribute("src"))).toEqual([pair.real, pair.illustrated]);
     // Same crop for both layers, so the photos line up.
     expect(imgs[0].style.objectPosition).toBe(imgs[1].style.objectPosition);
-    // The real photo is preloaded so the first reveal never shows an empty frame.
+    // The real photo is preloaded so the reveal never shows an empty frame.
     expect(imgs[0]).toHaveAttribute("loading", "eager");
   });
 
-  it("reveals the photo on mouse hover and returns on leave", () => {
-    const { container } = render(<PortraitSwap pair={pair} />);
+  it("ignores hover during the intro; activating it skips to the end", () => {
+    const onSkip = vi.fn();
+    const { container } = render(<PortraitSwap pair={pair} intro="running" onSkip={onSkip} />);
     const fig = container.querySelector(".pswap")!;
     const btn = screen.getByRole("button", { name: "Reveal Sree's portrait" });
     fireEvent.pointerEnter(btn, { pointerType: "mouse", clientX: 10, clientY: 10 });
-    expect(fig).toHaveAttribute("data-state", "real");
-    fireEvent.pointerLeave(btn, { pointerType: "mouse" });
     expect(fig).toHaveAttribute("data-state", "illustrated");
+    fireEvent.click(btn, { detail: 1 });
+    expect(onSkip).toHaveBeenCalledTimes(1);
+  });
+
+  it("after the intro, rests on the real photo; hover brings Spider-Man back", () => {
+    const { container } = render(<PortraitSwap pair={pair} intro="done" />);
+    const fig = container.querySelector(".pswap")!;
+    expect(fig).toHaveAttribute("data-state", "real");
+    const btn = screen.getByRole("button", { name: "Show Spider-Man portrait" });
+    fireEvent.pointerEnter(btn, { pointerType: "mouse", clientX: 10, clientY: 10 });
+    expect(fig).toHaveAttribute("data-state", "illustrated");
+    fireEvent.pointerLeave(btn, { pointerType: "mouse" });
+    expect(fig).toHaveAttribute("data-state", "real");
   });
 
   it("toggles with a tap on touch devices (hover is ignored)", () => {
     const { container } = render(<PortraitSwap pair={pair} />);
     const fig = container.querySelector(".pswap")!;
-    const btn = screen.getByRole("button", { name: "Reveal Sree's portrait" });
+    const btn = screen.getByRole("button", { name: "Show Spider-Man portrait" });
     fireEvent.pointerEnter(btn, { pointerType: "touch" });
-    expect(fig).toHaveAttribute("data-state", "illustrated");
-    fireEvent.pointerDown(btn, { pointerType: "touch" });
-    fireEvent.click(btn, { detail: 1 });
     expect(fig).toHaveAttribute("data-state", "real");
-    expect(btn).toHaveAccessibleName("Show Spider-Man portrait");
+    fireEvent.pointerDown(btn, { pointerType: "touch" });
     fireEvent.click(btn, { detail: 1 });
     expect(fig).toHaveAttribute("data-state", "illustrated");
     expect(btn).toHaveAccessibleName("Reveal Sree's portrait");
+    fireEvent.click(btn, { detail: 1 });
+    expect(fig).toHaveAttribute("data-state", "real");
+    expect(btn).toHaveAccessibleName("Show Spider-Man portrait");
   });
 
   it("is keyboard operable: Tab to focus, Enter and Space toggle", async () => {
     const { container } = render(<PortraitSwap pair={pair} />);
     const fig = container.querySelector(".pswap")!;
     await userEvent.tab();
-    const btn = screen.getByRole("button", { name: "Reveal Sree's portrait" });
+    const btn = screen.getByRole("button", { name: "Show Spider-Man portrait" });
     expect(btn).toHaveFocus();
     await userEvent.keyboard("{Enter}");
-    expect(fig).toHaveAttribute("data-state", "real");
+    expect(fig).toHaveAttribute("data-state", "illustrated");
     // The label names the next action; there is no second live announcement.
-    expect(btn).toHaveAccessibleName("Show Spider-Man portrait");
+    expect(btn).toHaveAccessibleName("Reveal Sree's portrait");
     expect(btn).not.toHaveAttribute("aria-pressed");
     await userEvent.keyboard(" ");
-    expect(fig).toHaveAttribute("data-state", "illustrated");
+    expect(fig).toHaveAttribute("data-state", "real");
   });
 });
