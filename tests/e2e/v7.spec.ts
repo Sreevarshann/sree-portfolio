@@ -36,7 +36,7 @@ test.describe("Quick View (default)", () => {
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto("/");
     expect(await view(page)).toBe("quick");
-    await expect(page.locator("h1")).toHaveText("Sreevarshan Sathiyamurthy");
+    await expect(page.locator("h1")).toHaveText("Hey, I'm Sreevarshan Sathiyamurthy.");
     await expect(page.getByText("Available for full-time opportunities")).toBeVisible();
     // Exactly three projects in the gallery, each with a case study and a repository.
     await expect(visible(page, "Projects").getByRole("link", { name: /^Case study/ })).toHaveCount(3);
