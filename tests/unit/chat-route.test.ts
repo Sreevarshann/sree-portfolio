@@ -206,6 +206,17 @@ describe("/api/chat", () => {
     expect(text).not.toMatch(/guarantee|available to start/i);
   });
 
+  it("strips zero-width characters so citation markers still resolve", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    streamImpl.mockReturnValue(fakeStream(["His team placed 6th of 320+ teams [\u200bS1\u200b]."]));
+    const { events } = await call(ask("What's his greatest achievement?"));
+    const text = events.map((e) => (e.type === "delta" ? e.text : "")).join("");
+    expect(text).not.toMatch(/[\u200B-\u200D\u2060\uFEFF]/);
+    expect(text).toContain("[S1]");
+    const sources = events.find((e) => e.type === "sources");
+    expect(sources && sources.type === "sources" && sources.sources.length).toBeGreaterThan(0);
+  });
+
   it("tells the model which answer mode the question needs", async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
     streamImpl.mockReturnValue(fakeStream(["Ok."]));
