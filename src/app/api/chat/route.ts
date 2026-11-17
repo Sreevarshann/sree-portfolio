@@ -15,6 +15,8 @@ export const maxDuration = 60;
 const MAX_TOKENS = Number(process.env.ASK_SREE_MAX_TOKENS ?? 800);
 
 const encoder = new TextEncoder();
+/** Zero-width characters some models wrap around citation markers ("[\u200bS1\u200b]"); never meaningful. */
+const INVISIBLE = /[\u200B-\u200D\u2060\uFEFF]/g;
 const line = (e: StreamEvent) => encoder.encode(JSON.stringify(e) + "\n");
 
 function ndjson(events: StreamEvent[], status = 200, extra: Record<string, string> = {}) {
@@ -100,7 +102,7 @@ export async function POST(req: Request) {
           maxTokens: MAX_TOKENS,
           signal: abort.signal,
           onText: (text) => {
-            const out = gate.push(redactor.push(text));
+            const out = gate.push(redactor.push(text.replace(INVISIBLE, "")));
             if (out) {
               emitted = true;
               answer += out;
