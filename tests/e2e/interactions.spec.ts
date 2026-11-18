@@ -1,25 +1,21 @@
 import { expect, test } from "@playwright/test";
 
-test("navigation reaches every section (desktop nav or mobile menu)", async ({ page, isMobile }) => {
-  await page.goto("/");
+test("navigation reaches every homepage section (desktop nav or mobile menu)", async ({ page, isMobile }) => {
+  await page.goto("/about");
   await page.waitForLoadState("networkidle");
-  const targets = ["About", "Experience", "Projects", "Achievements", "Education", "Certifications", "Lab", "Contact"];
-  for (const label of targets) {
+  const targets: [string, string][] = [["About", "about"], ["Achievements", "achievements"], ["Education", "education"], ["Experience", "experience"], ["Tech Stack", "tools"], ["Projects", "projects"], ["Certifications", "certifications"], ["Contact", "contact"]];
+  for (const [label, id] of targets) {
     if (isMobile) {
       await page.getByRole("button", { name: "Open menu" }).click();
       const menu = page.getByRole("dialog", { name: "Site menu" });
       await expect(menu).toBeVisible();
       await menu.getByRole("link", { name: label, exact: true }).click();
       await expect(menu).toBeHidden();
-    } else if (["Education", "Certifications", "Lab", "Contact"].includes(label)) {
-      // V7: secondary destinations live in the island's More menu.
-      await page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: /^More/ }).click();
-      await page.locator("#more-menu").getByRole("link", { name: label, exact: true }).click();
     } else {
       await page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: label, exact: true }).click();
     }
-    await expect(page).toHaveURL(new RegExp(`/${label.toLowerCase()}$`));
-    await expect(page.locator("h1:visible")).toHaveCount(1);
+    await expect(page).toHaveURL(new RegExp(`/#${id}$`));
+    await expect.poll(() => page.locator(`#${id}`).evaluate((e) => Math.round(e.getBoundingClientRect().top)), { timeout: 5000 }).toBeLessThan(160);
   }
 });
 
@@ -65,7 +61,7 @@ test("suggested question runs from the full-page Ask view; clear resets", async 
 });
 
 test("chat API validates input and labels fallback answers", async ({ request }) => {
-  const bad = await request.post("/api/chat", { data: { messages: [{ role: "user", content: "x".repeat(1200) }] } });
+  const bad = await request.post("/api/chat", { data: { messages: [{ role: "user", content: "x".repeat(4200) }] } });
   expect(bad.status()).toBe(400);
   const ok = await request.post("/api/chat", { data: { messages: [{ role: "user", content: "What are Sree's certifications?" }] } });
   expect(ok.status()).toBe(200);
@@ -73,33 +69,6 @@ test("chat API validates input and labels fallback answers", async ({ request })
   expect(events[0].type).toBe("fallback");
   expect(events[0].reason).toBe("unavailable");
   expect(events[0].links[0]).toMatchObject({ title: "Certifications", href: "/certifications" });
-});
-
-test("Lab charts load Plotly, respond to filters and offer data tables", async ({ page }) => {
-  await page.goto("/lab");
-  const tune = page.locator("#tunelab");
-  await tune.scrollIntoViewIfNeeded();
-  await expect(tune.locator(".js-plotly-plot")).toBeVisible({ timeout: 20_000 });
-  await expect(tune.locator(".js-plotly-plot .trace.bars")).toHaveCount(2);
-  await tune.getByRole("radio", { name: "Training minutes" }).click();
-  await expect(tune.getByRole("radio", { name: "Training minutes" })).toHaveAttribute("aria-checked", "true");
-  await expect(tune.locator(".js-plotly-plot .trace.bars")).toHaveCount(1);
-  await tune.getByText("View data table").click();
-  await expect(tune.getByRole("table")).toBeVisible();
-  await expect(tune.getByRole("cell", { name: "63.3%" })).toBeVisible();
-
-  const aegis = page.locator("#aegis");
-  await aegis.scrollIntoViewIfNeeded();
-  await expect(aegis.locator(".js-plotly-plot")).toBeVisible({ timeout: 20_000 });
-  await aegis.getByRole("radio", { name: "Fraud" }).click();
-  await expect(aegis.locator(".js-plotly-plot .trace.bars")).toHaveCount(1);
-  await aegis.getByRole("radio", { name: "Confusion matrix" }).click();
-  await expect(aegis.locator(".js-plotly-plot .hm")).toHaveCount(1);
-
-  // Theme change re-renders charts with new colors.
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.getByRole("button", { name: /Switch to (light|dark) theme/ }).click();
-  await expect(aegis.locator(".js-plotly-plot")).toBeVisible();
 });
 
 test("skills map shows evidence for the selected skill", async ({ page }) => {

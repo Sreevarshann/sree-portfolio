@@ -4,8 +4,7 @@ import { projects } from "../../src/content/projects";
 /** Public text must not contain em dashes (U+2014) or en dashes (U+2013). */
 const DASH = /[—–]/;
 const ROUTES = [
-  "/?view=quick",
-  "/?view=detailed",
+  "/",
   "/about",
   "/experience",
   "/projects",
@@ -13,7 +12,6 @@ const ROUTES = [
   "/achievements",
   "/education",
   "/certifications",
-  "/lab",
   "/contact",
   "/ask",
   "/projects/does-not-exist",

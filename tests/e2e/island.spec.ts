@@ -133,9 +133,9 @@ test("mobile menu opens from the island and every link is reachable", async ({ p
   await page.getByRole("button", { name: "Open menu" }).click();
   const menu = page.getByRole("dialog", { name: "Site menu" });
   await expect(menu).toBeVisible();
-  for (const name of ["Home", "About", "Experience", "Projects", "Achievements", "Education", "Certifications", "Lab", "Contact"])
+  for (const name of ["About", "Achievements", "Education", "Experience", "Tech Stack", "Projects", "Certifications", "Contact"])
     await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
-  await menu.getByRole("link", { name: "Lab", exact: true }).click();
-  await expect(page).toHaveURL(/\/lab$/);
+  await menu.getByRole("link", { name: "Certifications", exact: true }).click();
+  await expect(page).toHaveURL(/\/#certifications$/);
   await expect(menu).toBeHidden();
 });

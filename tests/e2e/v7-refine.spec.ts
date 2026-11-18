@@ -2,12 +2,12 @@ import { expect, test, type Page } from "@playwright/test";
 
 const triggers = (page: Page) => page.evaluate(() => Number(document.documentElement.dataset.motionTriggers ?? -1));
 
-const ORDER = ["Introduction", "Achievements", "Education and certifications", "Experience", "Tools and technologies", "Projects", "Contact"];
+const ORDER = ["Introduction", "Achievements", "Education", "Experience", "Tools and technologies", "Projects", "Certifications", "Contact"];
 
 test.describe("homepage information architecture (V9)", () => {
-  for (const v of ["quick", "detailed"] as const) {
-    test(`exact section order in ${v} view, with no approach statement`, async ({ page }) => {
-      await page.goto(`/?view=${v}`);
+  {
+    test("exact section order, with no approach statement", async ({ page }) => {
+      await page.goto("/");
       const labels = await page.$$eval("main > section", (ss) => ss.filter((s) => getComputedStyle(s).display !== "none").map((s) => s.getAttribute("aria-label")));
       expect(labels).toEqual(ORDER);
       await expect(page.locator("footer").first()).toBeVisible();
@@ -20,7 +20,7 @@ test.describe("homepage information architecture (V9)", () => {
   test("achievements start within the first scroll on desktop and phone", async ({ page }) => {
     for (const [w, h] of [[1440, 900], [390, 844]]) {
       await page.setViewportSize({ width: w, height: h });
-      await page.goto("/?view=quick");
+      await page.goto("/");
       const top = await page.locator('main > section[aria-label="Achievements"]').evaluate((el) => el.getBoundingClientRect().top + scrollY);
       const hero = await page.locator('main > section[aria-label="Introduction"]').evaluate((el) => el.getBoundingClientRect().bottom + scrollY);
       expect(Math.abs(top - hero), "achievements follow the hero directly").toBeLessThanOrEqual(1);
@@ -29,16 +29,16 @@ test.describe("homepage information architecture (V9)", () => {
       await expect(ach.locator("p.eyebrow", { hasText: /^3rd place$/ })).toBeVisible();
       await expect(ach.getByRole("link", { name: "Singapore AUV Challenge", exact: true })).toHaveAttribute("href", "/achievements#sauvc");
       await expect(ach.getByRole("link", { name: "Google MLOps Expo", exact: true })).toHaveAttribute("href", "/achievements#google-mlops-expo");
-      await expect(ach.getByRole("link", { name: /View all achievements/ })).toHaveAttribute("href", "/achievements");
+      await expect(ach.getByRole("link", { name: /Explore achievement details/ })).toHaveAttribute("href", "/achievements");
     }
   });
 
-  for (const [w, view, scheme] of [[1440, "quick", "light"], [1440, "detailed", "dark"], [1024, "detailed", "light"], [820, "quick", "dark"]] as const) {
-    test(`achievement cards are one aligned pair at ${w}px (${view}, ${scheme})`, async ({ page }, info) => {
+  for (const [w, scheme] of [[1440, "light"], [1440, "dark"], [1024, "light"], [820, "dark"]] as const) {
+    test(`achievement cards are one aligned pair at ${w}px (${scheme})`, async ({ page }, info) => {
       test.skip(info.project.name !== "desktop", "Viewport set explicitly.");
       await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
       await page.setViewportSize({ width: w, height: 900 });
-      await page.goto(`/?view=${view}`);
+      await page.goto("/");
       await page.locator('main > section[aria-label="Achievements"]').scrollIntoViewIfNeeded();
       const r = await page.evaluate(() => {
         const cards = [...document.querySelectorAll<HTMLElement>(".ach-card")];
@@ -54,26 +54,24 @@ test.describe("homepage information architecture (V9)", () => {
       for (const row of r.rows) if (row.a !== null) expect(Math.abs(row.a - row.b!), row.k).toBeLessThanOrEqual(0.5);
       expect(r.radius[0]).toBe(r.radius[1]);
       // Aligned without padding the pair out: no taller than the content needs.
-      expect(Math.max(...r.heights)).toBeLessThan(view === "quick" ? 420 : 520);
+      expect(Math.max(...r.heights)).toBeLessThan(520);
     });
   }
 
   test("achievement cards stack compactly on phones", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/?view=quick");
+    await page.goto("/");
     const hs = await page.locator(".ach-card").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()));
     expect(hs[1].top).toBeGreaterThan(hs[0].bottom); // stacked
     for (const h of hs) expect(h.height).toBeLessThan(380);
   });
 
-  test("project gallery links every case study and repository", async ({ page }) => {
-    await page.goto("/?view=detailed");
-    const g = page.locator('main > section[aria-label="Projects"] .v-detailed');
-    const cases = await g.getByRole("link", { name: /^Case study/ }).evaluateAll((as) => as.map((a) => a.getAttribute("href")));
-    const repos = await g.getByRole("link", { name: /^GitHub/ }).evaluateAll((as) => as.map((a) => a.getAttribute("href")));
-    expect(cases).toHaveLength(6);
+  test("project gallery links each featured case study", async ({ page }) => {
+    await page.goto("/");
+    const g = page.locator('main > section[aria-label="Projects"]');
+    const cases = await g.getByRole("link", { name: /^View project/ }).evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    expect(cases).toHaveLength(3);
     for (const h of cases) expect(h).toMatch(/^\/projects\/[a-z-]+$/);
-    for (const h of repos) expect(h).toMatch(/^https:\/\/github\.com\/Sreevarshann\//);
     await expect(page.locator('main > section[aria-label="Projects"]').getByRole("link", { name: /View all projects/ })).toHaveAttribute("href", "/projects");
     // A gallery, not a vertical stack: three cards share a row on desktop.
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -88,7 +86,7 @@ test.describe("university logos on white plates", () => {
       await page.emulateMedia({ colorScheme: scheme });
       for (const width of [1440, 375]) {
         await page.setViewportSize({ width, height: 900 });
-        for (const url of ["/education", "/?view=detailed"]) {
+        for (const url of ["/education", "/"]) {
           await page.goto(url);
           const plates = page.locator(".logo-plate:visible");
           expect(await plates.count()).toBeGreaterThanOrEqual(2);
@@ -173,25 +171,17 @@ test.describe("mobile hero order", () => {
 });
 
 test.describe("performance guards", () => {
-  test("scroll triggers are built once, only for rendered elements, and rebuilt (not duplicated) on view switch", async ({ page }) => {
+  test("scroll triggers are built once, only for rendered elements", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/?view=quick");
+    await page.goto("/");
     await expect.poll(() => triggers(page), { timeout: 8000 }).toBeGreaterThan(0);
-    const quick = await triggers(page);
-    const sw = page.getByRole("group", { name: "Portfolio view" });
-    await sw.getByRole("button", { name: "Detailed View", exact: true }).click();
-    // Detailed View renders more scroll-linked elements, so the set grows once rebuilt.
-    await expect.poll(() => triggers(page)).toBeGreaterThan(quick);
-    await page.waitForTimeout(300);
-    const detailed = await triggers(page);
-    for (let i = 0; i < 4; i++) {
-      await sw.getByRole("button", { name: "Quick View", exact: true }).click();
-      await sw.getByRole("button", { name: "Detailed View", exact: true }).click();
-    }
+    const first = await triggers(page);
+    // A resize across the wide breakpoint rebuilds the set without duplicating it.
+    await page.setViewportSize({ width: 900, height: 900 });
     await page.waitForTimeout(400);
-    expect(await triggers(page)).toBe(detailed);
-    await sw.getByRole("button", { name: "Quick View", exact: true }).click();
-    await expect.poll(() => triggers(page)).toBe(quick);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.waitForTimeout(600);
+    expect(await triggers(page)).toBe(first);
   });
 
   test("phone hero portrait has no parallax tween", async ({ page }) => {
@@ -215,7 +205,7 @@ test.describe("performance guards", () => {
 
   test("looping decorations pause off screen and resume in view", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/?view=detailed");
+    await page.goto("/");
     const echo = page.locator("svg:has(.echo-line)").last(); // the footer echo (the first sits in the hero)
     await expect.poll(() => echo.evaluate((el) => el.hasAttribute("data-offscreen"))).toBe(true);
     expect(await echo.locator(".echo-line").first().evaluate((el) => getComputedStyle(el).animationPlayState)).toBe("paused");
@@ -253,22 +243,6 @@ test.describe("performance guards", () => {
     expect(await frames()).toBe(0);
   });
 
-  test("Plotly never loads on the homepage", async ({ page }) => {
-    const plotly: string[] = [];
-    page.on("request", (r) => /plotly/i.test(r.url()) && plotly.push(r.url()));
-    for (const v of ["quick", "detailed"]) {
-      await page.goto(`/?view=${v}`);
-      await page.evaluate(async () => {
-        for (let y = 0; y < document.body.scrollHeight; y += 600) {
-          window.scrollTo(0, y);
-          await new Promise((r) => setTimeout(r, 30));
-        }
-      });
-      await page.waitForTimeout(500);
-    }
-    expect(plotly).toEqual([]);
-  });
-
   test("scrolling the whole homepage has no long tasks and no console errors", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
@@ -276,7 +250,7 @@ test.describe("performance guards", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     // Software WebGL in headless Chromium is not representative; skip it here.
     await page.addInitScript(() => Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true }));
-    await page.goto("/?view=detailed", { waitUntil: "networkidle" });
+    await page.goto("/", { waitUntil: "networkidle" });
     await page.waitForTimeout(2000);
     const long = await page.evaluate(async () => {
       const out: number[] = [];

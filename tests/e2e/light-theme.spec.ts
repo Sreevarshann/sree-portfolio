@@ -24,7 +24,7 @@ async function open(page: Page, path: string, scheme: "light" | "dark", reducedM
 test.describe("dark theme is untouched", () => {
   test("pinned dark surfaces, glass, buttons and footer", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Same CSS on every device; desktop covers it.");
-    await open(page, "/?view=quick", "dark");
+    await open(page, "/", "dark");
     expect(await style(page, "body", "background-color")).toBe("rgb(8, 9, 12)");
     expect(await style(page, "body", "color")).toBe("rgb(238, 241, 246)");
     expect(await style(page, "main .panel", "background-image")).toBe("linear-gradient(rgb(13, 16, 22), rgb(17, 22, 32))");
@@ -33,7 +33,6 @@ test.describe("dark theme is untouched", () => {
     expect(await style(page, ".btn-primary", "background-color")).toBe("rgb(238, 241, 246)");
     expect(await style(page, ".btn-primary", "color")).toBe("rgb(8, 9, 12)");
     expect(await style(page, ".hero-title .serif-accent", "background-image")).toBe("none");
-    expect(await style(page, ".gap-px.bg-line .bg-bg", "background-color")).toBe("rgb(8, 9, 12)");
     expect(await style(page, ".rank-reveal", "color")).toBe("rgb(238, 241, 246)");
     expect(await style(page, ".pswap-print", "background-image")).toBe("linear-gradient(rgb(26, 31, 41), rgb(20, 24, 33))");
     expect(await style(page, ".footer-horizon", "background-image")).toBe("none");
@@ -50,13 +49,12 @@ test.describe("light theme: Arctic", () => {
   });
 
   test("cards are white sheets with daylight shadows, not grey gradients", async ({ page }) => {
-    await open(page, "/?view=detailed", "light");
+    await open(page, "/", "light");
     const bg = await style(page, "main .panel", "background-image");
     expect(bg).toContain("rgb(255, 255, 255)");
     expect(bg).not.toContain("rgb(238, 241, 245)"); // the old grey fade
     expect(bg).not.toContain("rgb(255, 254, 251)"); // the old warm porcelain
     expect(await style(page, "main .panel", "box-shadow")).toMatch(/rgba\(34, 58, 108, 0\.26\)/);
-    expect(await style(page, ".gap-px.bg-line .bg-bg", "background-color")).toBe("rgb(255, 255, 255)");
   });
 
   test("the island is frosted daylight glass: cool, blurred, with a bright rim", async ({ page }) => {
@@ -125,7 +123,7 @@ test.describe("light theme: Arctic", () => {
     test.skip(info.project.name !== "desktop", "Same CSS on every device; desktop covers it.");
     test.setTimeout(120_000);
     const found: string[] = [];
-    for (const path of ["/?view=detailed", "/about", "/contact", "/projects/aegis-ai", "/ask"]) {
+    for (const path of ["/", "/about", "/contact", "/projects/aegis-ai", "/ask"]) {
       await open(page, path, "light");
       const hits = await page.evaluate(() => {
         // Orange, amber, peach or rust with any real opacity. Brand logos, chart
@@ -164,7 +162,7 @@ test.describe("light theme: Arctic", () => {
     }
   });
 
-  const ROUTES = ["/?view=quick", "/?view=detailed", "/about", "/experience", "/projects", "/projects/aegis-ai", "/achievements", "/education", "/certifications", "/lab", "/ask", "/contact"];
+  const ROUTES = ["/", "/about", "/experience", "/projects", "/projects/aegis-ai", "/achievements", "/education", "/certifications", "/ask", "/contact"];
   test("no horizontal overflow in light at any width", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Widths set explicitly.");
     test.setTimeout(300_000);
