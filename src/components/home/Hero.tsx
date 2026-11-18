@@ -206,6 +206,11 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
                     </span>
                   </span>
                 </h1>
+                {/* How to say it: a small note that arrives half a second after
+                    the name settles. Its line is reserved from the first paint. */}
+                <p className="hero-say" aria-label="Pronounced Sree-vur-shun">
+                  <span aria-hidden="true">Sree - vur - shun</span>
+                </p>
                 <p className="hero-nick hero-fade" style={{ ["--enter-delay" as string]: "0.38s" }}>
                   Most people call me <span className="serif-accent hero-nick-name">Sree</span>.
                 </p>
@@ -218,7 +223,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
                 <span className="hs-part" style={{ ["--i" as string]: 2 }}> systems, from data to interface.</span>
               </p>
               <noscript>
-                <style>{`.hf-word .hf-from{display:none}.hf-word .hf-to{display:inline}.hero-stage .pswap-illustrated{opacity:0}.hero-stage .hero-namegroup{transform:none!important}.hero-stage .hs-part{opacity:1!important;transform:none!important;filter:none!important}`}</style>
+                <style>{`.hf-word .hf-from{display:none}.hf-word .hf-to{display:inline}.hero-stage .pswap-illustrated{opacity:0}.hero-stage .hero-namegroup{transform:none!important}.hero-stage .hs-part,.hero-stage .hero-say{opacity:1!important;transform:none!important;filter:none!important}`}</style>
               </noscript>
             </div>
           </div>
