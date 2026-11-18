@@ -208,7 +208,8 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
                 </h1>
                 {/* How to say it: a small note that arrives half a second after
                     the name settles. Its line is reserved from the first paint. */}
-                <p className="hero-say" aria-label="Pronounced Sree-vur-shun">
+                <p className="hero-say">
+                  <span className="sr-only">Pronounced Sree-vur-shun</span>
                   <span aria-hidden="true">Sree - vur - shun</span>
                 </p>
                 <p className="hero-nick hero-fade" style={{ ["--enter-delay" as string]: "0.38s" }}>

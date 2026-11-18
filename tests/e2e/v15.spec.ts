@@ -6,8 +6,8 @@ test.describe("hero pronunciation", () => {
   test("appears about half a second after the name is revealed, under the name", async ({ page }) => {
     await page.goto("/");
     const say = page.locator(".hero-say");
-    await expect(say).toHaveText("Sree - vur - shun");
-    await expect(say).toHaveAttribute("aria-label", "Pronounced Sree-vur-shun");
+    await expect(say.locator("[aria-hidden]")).toHaveText("Sree - vur - shun");
+    await expect(say.locator(".sr-only")).toHaveText("Pronounced Sree-vur-shun");
     expect(await say.evaluate((e) => getComputedStyle(e).opacity)).toBe("0");
     await expect(page.locator(".pswap").first()).toHaveAttribute("data-intro", "done", { timeout: 15_000 });
     // Still hidden right after the reveal, visible shortly after.
