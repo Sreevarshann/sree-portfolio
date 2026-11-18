@@ -2431,39 +2431,195 @@ a:focus-visible > .ss-mark .ss-rule {
 
 
 /* ================================================================== V7 */
-/* ------------------------------------------------- experience tiles (home)
-   Three near-square tiles on desktop (equal heights from the grid), stacked
-   on phones. The whole tile is the "View details" link's hit area. */
-.xp-tile,
-.cert-card {
-  transition: border-color var(--dur-m) var(--ease-out), transform var(--dur-m) var(--ease-spring-soft), box-shadow var(--dur-m) var(--ease-out);
+/* ------------------------------------------- homepage card motion (V15)
+   Shared by the four homepage sections (.lux). A soft light follows a fine
+   pointer (--mx/--my, set by CardLight), the border catches it, and the card
+   lifts a few pixels. Each section adds its own motif. Nothing loops; every
+   effect is decoration over content that is fully visible at rest. */
+.lux {
+  --lux-glow: color-mix(in oklab, var(--accent) 16%, transparent);
+  --lux-edge: color-mix(in oklab, var(--accent) 70%, white);
+  isolation: isolate;
+  transition:
+    transform 520ms var(--ease-spring-soft),
+    box-shadow 520ms var(--ease-out),
+    border-color 400ms var(--ease-out);
 }
-.xp-tile:hover,
-.xp-tile:focus-within,
-.cert-card:hover,
-.cert-card:focus-within {
-  border-color: var(--accent);
-  transform: translateY(-3px);
+.lux::before,
+.lux::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 420ms var(--ease-out);
 }
-/* Near-square on desktop; on narrower screens the content sets the height. */
+/* Surface light under the pointer. */
+.lux::before {
+  z-index: 0;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), var(--lux-glow), transparent 62%);
+}
+/* Border light: the same spot, shown only in a 1px ring. */
+.lux::after {
+  z-index: 2;
+  padding: 1px;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), var(--lux-edge), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.lux > * { position: relative; z-index: 1; }
+@media (hover: hover) {
+  .lux:hover,
+  .lux:focus-within {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--accent) 40%, var(--line));
+    box-shadow: 0 22px 44px -26px rgb(0 0 0 / 0.65), 0 0 0 1px color-mix(in oklab, var(--accent) 12%, transparent);
+  }
+  .lux:hover::before,
+  .lux:hover::after { opacity: 1; }
+}
+:root[data-theme="light"] .lux { --lux-glow: color-mix(in oklab, var(--accent) 9%, transparent); --lux-edge: var(--accent); }
+@media (hover: hover) {
+  :root[data-theme="light"] .lux:hover,
+  :root[data-theme="light"] .lux:focus-within { box-shadow: 0 22px 40px -24px rgb(34 58 108 / 0.32), 0 0 0 1px color-mix(in oklab, var(--accent) 16%, transparent); }
+}
+/* Tap feedback on touch screens. */
+@media (hover: none) {
+  .lux:active { transform: scale(0.99); transition-duration: 120ms; }
+}
+.lux-arrow {
+  align-self: flex-start;
+  margin-left: auto;
+  color: var(--fg-muted);
+  transition: transform 420ms var(--ease-spring-soft), color 300ms var(--ease-out);
+}
+.lux:hover .lux-arrow,
+.lux:focus-within .lux-arrow { transform: translateX(4px); color: var(--accent-fg); }
+.lux :focus-visible { outline: none; }
+.lux:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Education: an illuminated emblem and fine concentric arcs. */
+.edu-geo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 0;
+  width: min(46%, 220px);
+  height: auto;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.7;
+  opacity: 0.16;
+  transform-origin: 100% 0;
+  transition: transform 900ms var(--ease-spring-soft), opacity 500ms var(--ease-out);
+}
+.edu-geo circle { transition: transform 900ms var(--ease-spring-soft); transform-origin: 200px 0; }
+.lux-edu:hover .edu-geo { opacity: 0.3; transform: rotate(-4deg); }
+.lux-edu:hover .edu-geo circle { transform: scale(calc(1 + var(--k) * 0.03)); }
+.edu-emblem::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 28px;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--accent) 34%, transparent), transparent);
+  opacity: 0.45;
+  transition: opacity 500ms var(--ease-out), transform 700ms var(--ease-spring-soft);
+}
+.lux-edu:hover .edu-emblem::before { opacity: 0.9; transform: scale(1.08); }
+.edu-emblem .logo-plate { transition: transform 600ms var(--ease-spring-soft); }
+.lux-edu:hover .edu-emblem .logo-plate { transform: translateY(-2px); }
+
+/* Experience: near-square tiles with an engineering motif per company. */
 @media (min-width: 1024px) {
   .xp-tile { aspect-ratio: 1 / 0.92; }
 }
-.xp-tile-logo { padding: 8px 14px; border-radius: 12px; }
-.xp-tile-link .arrow,
-.cert-link span[aria-hidden] { transition: transform var(--dur-s) var(--ease-out); }
-.xp-tile:hover .xp-tile-link .arrow { transform: translateX(3px); }
-.xp-tile-link:focus-visible,
-.cert-link:focus-visible { outline: none; }
-.xp-tile:has(.xp-tile-link:focus-visible),
-.cert-card:has(.cert-link:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
-.cert-mark {
-  border: 1px solid var(--line);
-  background: color-mix(in oklab, var(--fg) 5%, transparent);
-  color: var(--fg);
+.xp-tile-logo { padding: 8px 14px; border-radius: 12px; transition: transform 500ms var(--ease-spring-soft), box-shadow 500ms var(--ease-out); }
+.lux-xp:hover .xp-tile-logo { transform: translateY(-2px); box-shadow: 0 10px 24px -14px color-mix(in oklab, var(--accent) 70%, transparent); }
+.xp-motif {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 0;
+  /* Stays within the logo row, clear of the text below. */
+  width: auto;
+  height: 98px;
+  max-width: 52%;
+  fill: none;
+  pointer-events: none;
 }
+.xp-wire { stroke: var(--line-strong); stroke-width: 1; opacity: 0.7; transition: stroke 500ms var(--ease-out); }
+.xp-node { fill: var(--bg-elev, var(--bg)); stroke: color-mix(in oklab, var(--accent) 60%, var(--line-strong)); stroke-width: 1.1; transition: fill 500ms var(--ease-out); }
+.xp-signal { stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-dasharray: 0.16 1; stroke-dashoffset: 0.16; opacity: 0; }
+.lux-xp:hover .xp-wire { stroke: color-mix(in oklab, var(--accent) 45%, var(--line-strong)); }
+.lux-xp:hover .xp-node { fill: color-mix(in oklab, var(--accent) 30%, var(--bg)); }
+@media (prefers-reduced-motion: no-preference) {
+  .lux-xp:hover .xp-signal { animation: xp-signal 1400ms var(--ease-in-out) 120ms 1 both; }
+}
+@keyframes xp-signal {
+  0% { stroke-dashoffset: 0.16; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { stroke-dashoffset: -1; opacity: 0; }
+}
+.xp-tile-link .arrow { transition: transform var(--dur-s) var(--ease-out); }
+.lux-xp:hover .xp-tile-link .arrow { transform: translateX(4px); }
+
+/* Projects: product windows. A fine light crosses the screenshot once. */
+.lux-proj .project-preview { box-shadow: 0 14px 30px -22px rgb(0 0 0 / 0.7); transition: box-shadow 520ms var(--ease-out); }
+.lux-proj .project-preview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.16) 48%, transparent 60%);
+  transform: translateX(-110%);
+}
+@media (hover: hover) {
+  .lux-proj:hover .project-preview { box-shadow: 0 24px 44px -24px rgb(0 0 0 / 0.75), 0 0 0 1px color-mix(in oklab, var(--accent) 25%, transparent); }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .lux-proj:hover .project-preview::after { transition: transform 1100ms var(--ease-out); transform: translateX(110%); }
+}
+.lux-proj h3 a { transition: color 300ms var(--ease-out); }
+.lux-proj:hover h3 a { color: var(--accent-fg); }
+.lux-proj .btn .arrow { transition: transform var(--dur-s) var(--ease-out); }
+.lux-proj:hover .btn .arrow { transform: translateX(4px); }
+
+/* Certifications: credential plates with a metallic edge and one light sweep. */
+.lux-cert {
+  overflow: hidden;
+  /* A brushed-metal edge: bright along the top, a cool tint at the base. */
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.09), inset 0 -1px 0 color-mix(in oklab, var(--accent) 22%, transparent), var(--shadow);
+}
+:root[data-theme="light"] .lux-cert { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 -1px 0 color-mix(in oklab, var(--accent) 18%, transparent), var(--shadow); }
+.lux-cert::before {
+  background:
+    linear-gradient(115deg, transparent 30%, color-mix(in oklab, white 14%, transparent) 46%, transparent 58%) no-repeat,
+    radial-gradient(360px circle at var(--mx, 50%) var(--my, 0%), var(--lux-glow), transparent 62%);
+  background-size: 250% 100%, auto;
+  background-position: 120% 0, 0 0;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .lux-cert:hover::before { transition: opacity 300ms var(--ease-out), background-position 1000ms var(--ease-out); background-position: -60% 0, 0 0; }
+}
+.cert-mark {
+  background: #fff;
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.1), 0 6px 16px -10px rgb(15 23 42 / 0.4);
+  transition: transform 500ms var(--ease-spring-soft), box-shadow 500ms var(--ease-out);
+}
+:root:not([data-theme="light"]) .cert-mark { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12), 0 8px 20px -12px rgb(0 0 0 / 0.8); }
+.cert-logo { width: auto; height: auto; max-width: 70%; max-height: 62%; }
+.cert-logo[src*="cisco"] { max-width: 86%; max-height: 86%; }
+.lux-cert:hover .cert-mark { transform: translateY(-2px) scale(1.04); }
+.cert-link span[aria-hidden] { display: inline-block; transition: transform var(--dur-s) var(--ease-out); }
+.lux-cert:hover .cert-link span[aria-hidden] { transform: translate(2px, -2px); }
+
 @media (prefers-reduced-motion: reduce) {
-  .xp-tile:hover, .xp-tile:focus-within, .cert-card:hover, .cert-card:focus-within { transform: none; }
+  .lux, .lux::before, .lux::after, .edu-geo, .edu-geo circle, .edu-emblem::before, .xp-tile-logo { transition: none !important; }
+  .lux:hover, .lux:focus-within { transform: none; }
 }
 
 /* ------------------------------------------------- institution logo plates

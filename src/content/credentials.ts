@@ -92,6 +92,8 @@ export type Certification = {
   issuerMark: string;
   /** Simple Icons slug for the issuer, when a licensed mark exists. */
   issuerIcon?: string;
+  /** The issuer's logo in its own colors (public/logos/issuers), with its aspect ratio. */
+  issuerLogo?: { src: string; width: number; height: number };
 };
 
 export const certifications: Certification[] = [
@@ -106,6 +108,7 @@ export const certifications: Certification[] = [
     verifyLabel: "View PDF",
     issuerMark: "G",
     issuerIcon: "google",
+    issuerLogo: { src: "/logos/issuers/google.svg", width: 48, height: 48 },
   },
   {
     name: "Data Analytics Essentials",
@@ -115,6 +118,7 @@ export const certifications: Certification[] = [
     verifyLabel: "View certificate (PDF)",
     issuerMark: "C",
     issuerIcon: "cisco",
+    issuerLogo: { src: "/logos/issuers/cisco.svg", width: 24, height: 24 },
   },
   {
     name: "AWS Cloud Practitioner Essentials",
@@ -124,6 +128,7 @@ export const certifications: Certification[] = [
     verifyUrl: "https://drive.google.com/file/d/18PYah5Fp-fCwIiDXDmiKgSs3xLvFiMWW/view?usp=sharing",
     verifyLabel: "View course certificate (PDF)",
     issuerMark: "aws",
+    issuerLogo: { src: "/logos/issuers/aws.svg", width: 304, height: 182 },
   },
 ];
 

@@ -7,6 +7,7 @@ import { TechMarquee, TechCatalog } from "@/components/home/TechMarquee";
 import { ProjectGallery } from "@/components/projects/ProjectGallery";
 import { CertificationsSnapshot } from "@/components/home/CertificationsSnapshot";
 import { SectionAction } from "@/components/ui/SectionAction";
+import { CardLight } from "@/components/home/CardLight";
 import { projects } from "@/content/projects";
 import { profile } from "@/content/profile";
 import { getPortraitPair } from "@/lib/portrait";
@@ -29,6 +30,7 @@ export default function Home() {
   return (
     <>
       <Hero portraits={getPortraitPair()} />
+      <CardLight />
 
       <section id="achievements" className="container-x section" aria-label="Achievements" data-nav-section="achievements">
         <SectionHead eyebrow="Recognition" title="Results under" accent="pressure." href="/achievements" hrefLabel="Explore achievement details" />
