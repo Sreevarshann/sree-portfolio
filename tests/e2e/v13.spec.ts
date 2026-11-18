@@ -71,7 +71,9 @@ test.describe("identity reveal", () => {
     // Before: Spiderman and the fully masked photo, nothing dissolving, no particles.
     // Rows are classified by the portrait's own state, not by timestamps: on a
     // slow renderer a frame can be stamped before the morph and read after it.
-    const before = log.filter((r) => r.t > hold! && r.intro === "pending");
+    // (The first morph frame can still read "pending" before React re-renders,
+    // but its canvas is already drawing; the hold is pending with no canvas.)
+    const before = log.filter((r) => r.t > hold! && r.intro === "pending" && !r.canvas);
     expect(before.length).toBeGreaterThan(0);
     for (const r of before) {
       expect(r.word).toBe("Spiderman.");
@@ -82,7 +84,7 @@ test.describe("identity reveal", () => {
     // During: particles confined to the heading, S and "an" always drawn, and the
     // photo progress tracking the same clock as the letters (one shared timeline).
     // Every recorded frame is checked; CI's software renderer may paint only a few.
-    const during = log.filter((r) => r.intro === "running" && r.canvas && r.t > clock! + 20);
+    const during = log.filter((r) => r.canvas && r.t > clock! + 20);
     expect(during.length).toBeGreaterThan(0);
     const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
     let last = -1;
