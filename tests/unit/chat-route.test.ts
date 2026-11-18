@@ -236,7 +236,7 @@ describe("/api/chat", () => {
 
   it("rate limits bursts from one client", async () => {
     let last: Response | undefined;
-    for (let i = 0; i < 12; i++) last = (await call(ask("hi"), { "x-forwarded-for": "10.9.9.9" })).res;
+    for (let i = 0; i < 12; i++) last = (await call(ask("What has he built?"), { "x-forwarded-for": "10.9.9.9" })).res;
     expect(last?.status).toBe(429);
     expect(last?.headers.get("retry-after")).toBeTruthy();
   });

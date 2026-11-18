@@ -210,7 +210,9 @@ export type RetrievalResult = { chunks: KnowledgeChunk[]; analysis: Analysis };
 
 export function retrieveWithAnalysis(question: string, k = 6, inherited?: Analysis, pins?: SkillPins): RetrievalResult {
   const own = analyze(question);
-  const useInherited = !!inherited && own.followUp && inherited.entities.length > 0;
+  // A follow-up inherits the previous topic: its entities, or (for a bare
+  // "tell me more" after a topic-less answer) its intents.
+  const useInherited = !!inherited && own.followUp && (inherited.entities.length > 0 || own.intents[0] === "general");
   const analysis: Analysis = useInherited
     ? {
         ...own,
@@ -319,6 +321,14 @@ export function retrieveConversation(history: Turn[], k = 6, pins?: SkillPins): 
     }
     const answer = prior[i + 1]?.role === "assistant" ? entitiesFromAnswer(prior[i + 1].content).slice(0, 1) : [];
     if (answer.length) inherited = { ...asked, entities: answer };
+  }
+  // No earlier entity: a bare follow-up still continues the previous question's topic.
+  if (!inherited) {
+    const prevUser = prior.filter((m) => m.role === "user").pop();
+    if (prevUser) {
+      const asked = analyze(prevUser.content);
+      if (asked.intents[0] !== "general") inherited = asked;
+    }
   }
   // A bare follow-up ("is that the same thing?") keeps the skills the previous question named.
   let carried = pins;
