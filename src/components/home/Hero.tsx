@@ -4,8 +4,6 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { KineticText } from "@/components/motion/KineticText";
-import { SreeMark } from "@/components/ui/SreeMark";
-import { useAskSree } from "@/components/ask/AskSreeProvider";
 import { profile } from "@/content/profile";
 import type { PortraitPair } from "@/lib/portrait";
 import { ContourEcho } from "@/components/ui/ContourEcho";
@@ -79,7 +77,6 @@ function Companies() {
 }
 
 export function Hero({ portraits }: { portraits: PortraitPair }) {
-  const { openChat } = useAskSree();
   const [field, setField] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
   const nameRef = useRef<HTMLSpanElement>(null);
@@ -104,7 +101,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
   }, []);
 
   return (
-    <section ref={rootRef} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-28" aria-label="Introduction" data-nav-section="hero" data-view-anchor="hero">
+    <section ref={rootRef} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-[5.25rem] md:pt-28" aria-label="Introduction" data-nav-section="hero" data-view-anchor="hero">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="hero-wash absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_70%_40%,var(--accent-soft),transparent_70%)]" />
         <div className="hero-atmos absolute inset-0" />
@@ -189,9 +186,6 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
               <Link href="/projects" className="btn btn-primary">
                 View projects <span className="arrow" aria-hidden="true">→</span>
               </Link>
-              <button type="button" onClick={() => openChat()} className="btn btn-ghost group">
-                <SreeMark size={22} /> Ask My AI
-              </button>
               <a href={profile.resumePath} target="_blank" rel="noopener" className="btn btn-ghost">
                 Resume
               </a>

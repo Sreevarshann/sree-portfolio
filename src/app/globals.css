@@ -1349,6 +1349,29 @@ a:focus-visible > .ss-mark .ss-rule {
   /* Room under the print for the interaction hint. */
   margin: 0 auto 4.75rem;
 }
+/* Phones and tablets: one centred column. */
+.hero-intro { text-align: center; }
+@media (max-width: 767px) {
+  .hero-stage { margin-top: 0.75rem; }
+  /* Sized from the screen height as well as its width, so the whole photo
+     and the whole name fit the first view on common phones, clear of the
+     floating Ask My AI button (the print is about 1.25 x its width tall,
+     plus its caption). */
+  .hero-portrait {
+    width: clamp(170px, calc(80svh - 300px), min(70vw, 300px));
+    margin-bottom: 3.1rem;
+  }
+  .hero-portrait .pswap-note { top: calc(100% + 10px); }
+}
+/* Very short phones (iPhone SE): a little smaller still, so the nickname
+   clears the floating Ask My AI button too. */
+@media (max-width: 767px) and (max-height: 620px) {
+  .hero-portrait {
+    width: clamp(150px, calc(80svh - 300px), min(70vw, 300px));
+    margin-bottom: 2.75rem;
+  }
+  .hero-nick { margin-top: 0.35rem; }
+}
 .hero-id {
   position: relative;
   z-index: 2;
@@ -1458,6 +1481,7 @@ a:focus-visible > .ss-mark .ss-rule {
     grid-column: 1;
     grid-row: 1;
     min-width: 0;
+    text-align: left;
     /* Centre the name on the photograph itself: the print's "Sree" caption
        hangs below the image and the nickname below the name, so the column
        carries a little extra room underneath to balance them. */
@@ -1594,8 +1618,10 @@ a:focus-visible > .ss-mark .ss-rule {
 .pswap[data-state="real"] .pswap-real { transform: scale(1); }
 .pswap-illustrated {
   --pswap-r: 0%;
-  -webkit-mask-image: radial-gradient(circle at var(--ox, 50%) var(--oy, 50%), transparent calc(var(--pswap-r) - 32%), #000 var(--pswap-r));
-  mask-image: radial-gradient(circle at var(--ox, 50%) var(--oy, 50%), transparent calc(var(--pswap-r) - 32%), #000 var(--pswap-r));
+  /* The last stop never reaches 0%: Safari draws a mask whose stops all sit
+     at or below 0% as fully transparent, which hid the Spider-Man photo. */
+  -webkit-mask-image: radial-gradient(circle at var(--ox, 50%) var(--oy, 50%), transparent calc(var(--pswap-r) - 32%), #000 max(var(--pswap-r), 0.1%));
+  mask-image: radial-gradient(circle at var(--ox, 50%) var(--oy, 50%), transparent calc(var(--pswap-r) - 32%), #000 max(var(--pswap-r), 0.1%));
   transition: --pswap-r 800ms var(--ease-emph), opacity 800ms cubic-bezier(0.4, 0, 0.2, 1), transform 1000ms var(--ease-emph);
 }
 .pswap[data-state="real"] .pswap-illustrated {
