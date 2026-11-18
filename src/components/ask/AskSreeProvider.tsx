@@ -46,7 +46,9 @@ type Ctx = {
 const AskCtx = createContext<Ctx | null>(null);
 const STORAGE_KEY = "ask-sree:v3";
 const MODE_KEY = "ask-sree:mode";
-export const MAX_INPUT = 1000;
+export const MAX_INPUT = 4000;
+/** Longer than the server's model timeout, so the server's own message normally arrives first. */
+const CLIENT_TIMEOUT_MS = 75_000;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -95,6 +97,12 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
       setBusy(true);
       const ctrl = new AbortController();
       abortRef.current = ctrl;
+      // A stalled connection never leaves the visitor waiting forever.
+      let timedOut = false;
+      const watchdog = window.setTimeout(() => {
+        timedOut = true;
+        ctrl.abort();
+      }, CLIENT_TIMEOUT_MS);
       const payload = history
         .filter((m) => m.content.trim() && m.status !== "error" && !m.fallback && !m.report)
         .slice(-12)
@@ -142,19 +150,30 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
             }
           }
         }
-        if (!gotDone) patch(assistantId, (m) => (m.status === "streaming" ? { ...m, status: "done" } : m));
+        // The stream ended without its closing event: keep any words already
+        // shown, and say plainly that the answer is incomplete or missing.
+        if (!gotDone)
+          patch(assistantId, (m) =>
+            m.status !== "streaming" ? m
+            : m.content ? { ...m, status: "error", error: "The connection dropped before the answer finished. Try again for the full answer." }
+            : { ...m, status: "error", error: "I couldn't get an answer back that time. Please try again." },
+          );
       } catch (err) {
-        if (ctrl.signal.aborted) {
+        if (timedOut) {
+          patch(assistantId, (m) => ({ ...m, status: "error", error: "That took longer than it should. Please try again in a moment." }));
+        } else if (ctrl.signal.aborted) {
           patch(assistantId, (m) => ({ ...m, status: "stopped" }));
         } else {
+          const offline = typeof navigator !== "undefined" && navigator.onLine === false;
           patch(assistantId, (m) => ({
             ...m,
             status: "error",
-            error: "I couldn't connect. Check your connection and try again.",
+            error: offline ? "You seem to be offline. Reconnect and try again." : "I couldn't connect. Check your connection and try again.",
           }));
           console.error(err);
         }
       } finally {
+        window.clearTimeout(watchdog);
         setBusy(false);
         abortRef.current = null;
       }
@@ -223,12 +242,20 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
     return () => (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
   }, []);
 
-  // Keyboard shortcut: "/" opens Sree AI when not typing elsewhere.
+  // Keyboard shortcuts: Cmd+K (Ctrl+K on Windows and Linux) toggles Sree AI
+  // from anywhere; "/" opens it when not typing elsewhere. This is the only
+  // handler for either key on the site. On the full-page view (/ask) the
+  // floating panel is not rendered, so the shortcut focuses that page's composer.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        const page = document.getElementById("ask-input-page");
+        if (page) {
+          page.focus();
+          return;
+        }
         setOpen((o) => !o);
         return;
       }

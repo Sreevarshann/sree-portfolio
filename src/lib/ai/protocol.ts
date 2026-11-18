@@ -36,16 +36,8 @@ export type StreamEvent =
   | { type: "error"; message: string; code?: string }
   | { type: "done" };
 
-/** Starter prompts in Quick View: who he is, what he built, results, contact. */
+/** Starter prompts: who he is, what he built, results, contact. */
 export const SUGGESTED_QUESTIONS = ["Who is Sree?", "What has he built?", "What are his biggest achievements?", "How can I contact him?"] as const;
-
-/** Starter prompts in Detailed View: engineering depth. */
-export const DETAILED_QUESTIONS = [
-  "Explain his Snowflake Cortex AI agent work",
-  "Walk me through the AEGIS AI architecture",
-  "Compare his AI projects",
-  "What engineering decisions shaped SourceAtlas?",
-] as const;
 
 /** Starter prompts in Recruiter Mode: role requirements and evidence. */
 export const RECRUITER_QUESTIONS = [
@@ -59,6 +51,9 @@ export const RECRUITER_QUESTIONS = [
 
 /** Extra prompts on the full-page view (no overlap with either starter set). */
 export const MORE_QUESTIONS = [
+  "Explain his Snowflake Cortex AI agent work",
+  "Which project should I explore first?",
+  "Compare his AI projects",
   "What did he build at RightRev?",
   "What did he achieve at the Singapore AUV Challenge?",
   "What are his strongest technical skills?",
