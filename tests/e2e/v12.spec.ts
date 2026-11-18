@@ -97,7 +97,8 @@ test.describe("onboarding hint on every entry", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true }));
   });
-  test("returns when navigating away and back to the homepage", async ({ page }) => {
+  test("returns when navigating away and back to the homepage", async ({ page }, info) => {
+    test.skip(info.project.name === "mobile", "No hint on phones (V13 mobile).");
     const coach = page.getByRole("dialog", { name: "Want the full experience?" });
     await page.goto("/");
     await expect(coach).toBeVisible({ timeout: 15_000 });
@@ -129,33 +130,38 @@ test.describe("SAUVC video without controls", () => {
   });
 });
 
-test.describe("mobile Ask My AI launcher", () => {
-  test("expanded on the hero, logo only from Achievements, expanded again at the top", async ({ page }, info) => {
+test.describe("Ask My AI launcher (one global entry point)", () => {
+  test("phones: the logo only, visible from the first screen, while scrolling and after the intro", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "Phones only.");
     await page.goto("/?view=quick");
     const launcher = page.locator("button.ask-launcher");
     await expect(launcher).toHaveAccessibleName("Ask My AI");
     await expect(launcher).toBeVisible();
-    await expect(launcher).not.toHaveAttribute("data-compact", "");
-    await expect.poll(async () => (await launcher.boundingBox())!.width).toBeGreaterThan(100);
-    await page.locator('[data-nav-section="achievements"]').first().scrollIntoViewIfNeeded();
-    await page.evaluate(() => window.scrollBy(0, 200));
-    await expect(launcher).toHaveAttribute("data-compact", "");
-    await expect.poll(async () => (await launcher.boundingBox())!.width).toBeLessThan(60);
-    await expect(launcher).toHaveAccessibleName("Ask My AI");
-    const h = (await launcher.boundingBox())!.height;
-    expect(h).toBeGreaterThanOrEqual(44);
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await expect(launcher).not.toHaveAttribute("data-compact", "");
+    const box = async () => (await launcher.boundingBox())!;
+    const first = await box();
+    expect(first.width).toBeGreaterThanOrEqual(44);
+    expect(first.width).toBeLessThanOrEqual(56);
+    expect(Math.abs(first.width - first.height)).toBeLessThan(2);
+    expect(await launcher.innerText()).toBe("");
+    await expect(page.locator(".pswap").first()).toHaveAttribute("data-intro", "done", { timeout: 15_000 });
+    for (const y of [600, 2400, 0]) {
+      await page.evaluate((v) => window.scrollTo(0, v), y);
+      await page.waitForTimeout(500);
+      await expect(launcher).toBeVisible();
+      expect((await box()).width).toBeLessThanOrEqual(56);
+    }
     await launcher.click();
     await expect(page.getByRole("dialog", { name: "Sree AI assistant" })).toBeVisible();
   });
 
-  test("desktop keeps the expanded launcher", async ({ page }, info) => {
+  test("desktop keeps the labelled floating launcher, visible from the start", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Desktop.");
     await page.goto("/?view=quick");
-    await page.locator('[data-nav-section="achievements"]').first().scrollIntoViewIfNeeded();
-    await expect(page.locator("button.ask-launcher")).not.toHaveAttribute("data-compact", "");
+    const launcher = page.locator("button.ask-launcher");
+    await expect(launcher).toBeVisible();
+    await expect(launcher).toContainText("Ask My AI");
+    await launcher.click();
+    await expect(page.getByRole("dialog", { name: "Sree AI assistant" })).toBeVisible();
   });
 });
 
