@@ -2,55 +2,51 @@ import { Hero } from "@/components/home/Hero";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { AchievementShowcase } from "@/components/home/AchievementShowcase";
 import { CredentialsSnapshot } from "@/components/home/CredentialsSnapshot";
-import { ExperienceTimeline } from "@/components/experience/ExperienceTimeline";
 import { ExperienceSnapshot } from "@/components/home/ExperienceSnapshot";
 import { TechMarquee, TechCatalog } from "@/components/home/TechMarquee";
 import { ProjectGallery } from "@/components/projects/ProjectGallery";
+import { CertificationsSnapshot } from "@/components/home/CertificationsSnapshot";
+import { SectionAction } from "@/components/ui/SectionAction";
 import { projects } from "@/content/projects";
 import { profile } from "@/content/profile";
 import { getPortraitPair } from "@/lib/portrait";
 
 const pick = (slugs: string[]) => slugs.map((s) => projects.find((p) => p.slug === s)!).filter(Boolean);
-/** Quick View: one project per discipline - data/ML, AI agents, full-stack product. */
-const quickProjects = pick(["aegis-ai", "nexus-ai", "workmesh"]);
-/** Detailed View: six projects in the gallery; the full set lives on /projects. */
-const detailedProjects = pick(["aegis-ai", "nexus-ai", "sourceatlas", "tunelab", "workmesh", "reviewpilot"]);
+/**
+ * Three featured projects, one per discipline: AEGIS AI (streaming data
+ * platform with ML and agents), Nexus AI (multi-agent AI workspace) and
+ * WorkMesh (full-stack product). Every project stays on /projects.
+ */
+const featured = pick(["aegis-ai", "nexus-ai", "workmesh"]);
 
 /**
- * Homepage, in a fixed order in both views: Hero, Achievements, Education,
- * Experience, Technology stack, Projects, Contact (the footer is global).
- * `.v-quick` / `.v-detailed` blocks are shown or hidden by html[data-view]
- * (set before paint), so both are server-rendered: no hydration mismatch,
- * nothing hidden from crawlers, and hidden blocks are display:none.
- * `data-nav-section` maps each section to its navigation item (src/lib/nav.ts);
- * `data-view-anchor` keeps the reader's place when the view switches.
+ * Homepage, in this fixed order: About (the hero), Achievements, Education,
+ * Experience, Technology stack, Projects, Certifications, Contact (the footer
+ * is global). Each section's `id` and `data-nav-section` match its item in
+ * the navigation (src/lib/nav.ts), so `/#id` links land on it.
  */
 export default function Home() {
   return (
     <>
       <Hero portraits={getPortraitPair()} />
 
-      <section className="container-x section" aria-label="Achievements" data-nav-section="achievements" data-view-anchor="achievements">
-        <SectionHead eyebrow="Recognition" title="Results under" accent="pressure." href="/achievements" hrefLabel="View all achievements" />
+      <section id="achievements" className="container-x section" aria-label="Achievements" data-nav-section="achievements">
+        <SectionHead eyebrow="Recognition" title="Results under" accent="pressure." href="/achievements" hrefLabel="Explore achievement details" />
         <AchievementShowcase />
       </section>
 
-      <section className="container-x section" aria-label="Education and certifications" data-view-anchor="credentials">
-        <SectionHead eyebrow="Education" title="Education &" accent="credentials." href="/education" hrefLabel="Education details" />
+      <section id="education" className="container-x section" aria-label="Education" data-nav-section="education">
+        <SectionHead eyebrow="Education" title="Where I" accent="studied." href="/education" hrefLabel="Education details" />
         <CredentialsSnapshot />
       </section>
 
-      <section className="container-x section" aria-label="Experience" data-nav-section="experience" data-view-anchor="experience">
-        <SectionHead eyebrow="Experience" title="Where I've" accent="shipped." href="/experience" hrefLabel="Full experience" />
-        <div className="v-quick">
-          <ExperienceSnapshot />
-        </div>
-        <div className="v-detailed">
-          <ExperienceTimeline compact />
-        </div>
+      <section id="experience" className="container-x section" aria-label="Experience" data-nav-section="experience">
+        <SectionHead eyebrow="Experience" title="Where I've" accent="shipped." />
+        <ExperienceSnapshot />
+        <SectionAction href="/experience">Explore experience</SectionAction>
       </section>
 
-      <section id="tools" className="tools-section" aria-label="Tools and technologies" data-nav-section="tools" data-view-anchor="tools">
+      <section id="tools" className="tools-section" aria-label="Tools and technologies" data-nav-section="tools">
         <div className="container-x">
           <SectionHead eyebrow="Technology stack" title="Tools &" accent="technologies." />
           <p className="flex max-w-2xl flex-wrap items-center gap-x-4 gap-y-2 text-fg-soft" data-reveal>
@@ -71,17 +67,18 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-x section" aria-label="Projects" data-nav-section="projects" data-view-anchor="projects">
-        <SectionHead eyebrow="Projects" title="Systems built" accent="end to end." href="/projects" hrefLabel="View all projects" />
-        <div className="v-quick">
-          <ProjectGallery projects={quickProjects} />
-        </div>
-        <div className="v-detailed">
-          <ProjectGallery projects={detailedProjects} />
-        </div>
+      <section id="projects" className="container-x section" aria-label="Projects" data-nav-section="projects">
+        <SectionHead eyebrow="Projects" title="Systems built" accent="end to end." />
+        <ProjectGallery projects={featured} />
+        <SectionAction href="/projects">View all projects</SectionAction>
       </section>
 
-      <section className="contact-close container-x section relative" aria-label="Contact" data-nav-section="contact" data-view-anchor="contact">
+      <section id="certifications" className="container-x section" aria-label="Certifications" data-nav-section="certifications">
+        <SectionHead eyebrow="Certifications" title="Verified" accent="credentials." href="/certifications" hrefLabel="Certification details" />
+        <CertificationsSnapshot />
+      </section>
+
+      <section id="contact" className="contact-close container-x section relative" aria-label="Contact" data-nav-section="contact">
         <div className="contact-glow" aria-hidden="true" />
         <p className="eyebrow" data-reveal>Contact</p>
         <h2 className="display mt-6 max-w-[14ch] text-[clamp(2.6rem,7vw,6rem)]" data-reveal>

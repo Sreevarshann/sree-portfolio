@@ -37,7 +37,6 @@ export const evidence: Record<string, { label: string; href: string; kind: Evide
   workmesh: { ...evidenceLabels.workmesh, kind: "project" },
   "sree-ai": { label: "Sree AI (this site)", href: "/ask", kind: "site" },
   "this-site": { label: "This portfolio", href: "/", kind: "site" },
-  lab: { label: "The Lab", href: "/lab", kind: "site" },
   /** Northeastern M.S.: MLOps coursework labs (Airflow, Docker) noted under Education. */
   coursework: { label: "University coursework", href: "/education", kind: "coursework" },
   "aws-course": { label: "AWS Cloud Practitioner Essentials course", href: "/certifications", kind: "course" },
@@ -827,7 +826,6 @@ export const skills: Skill[] = [
       u("flare-innovation", "Power BI dashboards tracking operational KPIs."),
       u("rightrev", "Automated financial reporting with AI agents, so teams get revenue insights without manual analysis."),
       u("tableau-public", "Three public Tableau dashboards."),
-      u("lab", "Interactive Plotly charts built from project results."),
     ],
     related: ["powerbi", "tableau", "plotly"],
   },
@@ -838,7 +836,6 @@ export const skills: Skill[] = [
     category: "analytics",
     tech: ["plotly"],
     uses: [
-      u("lab", "The Lab on this site: interactive Plotly charts from project results."),
       u("insightforge", "Chart Studio for analysis results."),
       u("tunelab", "Training and evaluation charts."),
     ],

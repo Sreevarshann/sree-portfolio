@@ -6,8 +6,8 @@ import { iconFor } from "@/components/ui/BrandIcon";
 
 /**
  * Compact homepage gallery: one card per project with its real screenshots
- * (which step through on hover), name, one line, three technologies, and the
- * two actions that matter: the case study and the repository.
+ * (which step through on hover), name, one line, three technologies and one
+ * action: the project's case study (which links its repository).
  */
 export function ProjectGallery({ projects }: { projects: Project[] }) {
   return (
@@ -41,15 +41,11 @@ export function ProjectGallery({ projects }: { projects: Project[] }) {
                   </li>
                 ))}
               </ul>
-              <div className="mt-auto flex flex-wrap items-center gap-2.5 pt-6">
+              <div className="mt-auto pt-6">
                 <Link href={`/projects/${p.slug}`} className="btn btn-primary !px-4 !py-2 text-sm">
-                  Case study <span className="arrow" aria-hidden="true">→</span>
+                  View project <span className="arrow" aria-hidden="true">→</span>
                   <span className="sr-only">: {p.name}</span>
                 </Link>
-                <a href={p.repoUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost !px-4 !py-2 text-sm">
-                  GitHub <span aria-hidden="true">↗</span>
-                  <span className="sr-only">: {p.name} repository (opens in a new tab)</span>
-                </a>
               </div>
             </div>
           </article>

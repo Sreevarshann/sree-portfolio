@@ -1,18 +1,14 @@
 import Link from "next/link";
-import { education, certifications } from "@/content/credentials";
+import { education } from "@/content/credentials";
 import { LogoImage } from "@/components/ui/LogoImage";
 
 /**
- * Education first and prominent: one card per university with its official
- * mark on a white plate, degree, GPA and date. Certifications follow as one
- * compact row with their verification links. Each half is its own navigation
- * section (Education / Certifications).
+ * Education: one card per university with its official mark on a white
+ * plate, degree, GPA and date. Certifications have their own section.
  */
 export function CredentialsSnapshot() {
   return (
-    <div className="space-y-5 md:space-y-6">
-      <section data-nav-section="education" aria-labelledby="edu-snap">
-        <h3 id="edu-snap" className="sr-only">Education</h3>
+    <div>
         <ul className="grid gap-5 md:grid-cols-2 md:gap-6">
           {education.map((ed, i) => {
             const logo = ed.logos.find((l) => l.show === "compact") ?? ed.logos[0];
@@ -46,29 +42,6 @@ export function CredentialsSnapshot() {
             );
           })}
         </ul>
-      </section>
-      <section data-nav-section="certifications" aria-labelledby="cert-snap" className="panel px-6 py-5 md:px-8 md:py-6" data-reveal>
-        <div className="flex items-center justify-between gap-4">
-          <h3 id="cert-snap" className="eyebrow">Certifications</h3>
-          <Link href="/certifications" className="link-u text-sm text-fg-soft hover:text-fg">
-            All credentials <span aria-hidden="true">→</span>
-          </Link>
-        </div>
-        <ul className="mt-4 grid gap-x-8 gap-y-3 md:grid-cols-3">
-          {certifications.map((c) => (
-            <li key={c.name} className="flex items-center justify-between gap-3 border-t border-line pt-3 md:border-t-0 md:pt-0">
-              <span className="min-w-0">
-                <span className="block text-[0.92rem] font-medium leading-snug text-fg">{c.name}</span>
-                <span className="block text-[0.8rem] text-fg-muted">{c.issuer}</span>
-              </span>
-              <a href={c.credentialUrl ?? c.verifyUrl} target="_blank" rel="noopener noreferrer" className="chip shrink-0 !py-1.5 hover:!border-accent">
-                {c.credentialUrl ? "Verify" : "View"} <span aria-hidden="true">↗</span>
-                <span className="sr-only"> {c.name} (opens in a new tab)</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
     </div>
   );
 }

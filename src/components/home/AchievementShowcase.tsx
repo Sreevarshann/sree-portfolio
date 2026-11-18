@@ -54,7 +54,7 @@ export function AchievementShowcase() {
           {/* Row 4: what was built. */}
           <p className="ach-project pt-1.5 text-fg-soft">{a.project}</p>
           {/* Row 5: one sentence, Detailed View only. */}
-          <p className="ach-desc v-detailed max-w-md pt-4 text-[0.95rem] leading-relaxed text-fg-muted">{a.summary}</p>
+          <p className="ach-desc max-w-md pt-4 text-[0.95rem] leading-relaxed text-fg-muted">{a.summary}</p>
           {/* Row 6: actions, on a shared baseline. */}
           <div className="ach-actions relative z-[1] flex flex-wrap items-center gap-3 self-end pt-6">
             <span className="inline-flex items-center gap-2 text-sm text-accent-fg" aria-hidden="true">
