@@ -3,7 +3,6 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import { KineticText } from "@/components/motion/KineticText";
 import { profile } from "@/content/profile";
 import type { PortraitPair } from "@/lib/portrait";
 import { ContourEcho } from "@/components/ui/ContourEcho";
@@ -49,39 +48,81 @@ function Availability() {
   );
 }
 
-/** Logo heights tuned by eye so the three marks carry similar visual weight. */
-const COMPANY_HEIGHT: Record<string, number> = { rightrev: 22, "flare-innovation": 42, "sri-sairam-techno-incubator": 46 };
-
-function Companies() {
+/**
+ * The compact information strip: four groups of editorial metadata, visible
+ * from the first paint (it never waits for the identity reveal).
+ */
+function HeroMeta() {
   return (
-    <div className="hero-companies">
-      <p className="eyebrow">Experience</p>
-      <ul className="mt-4 flex flex-wrap items-center gap-x-8 gap-y-4">
-        {experience.map((e, i) => (
-          <li key={e.slug} className="company-mark" style={{ ["--i" as string]: i }}>
-            <Link href={`/experience#${e.slug}`} className="company-link" aria-label={`${e.company}: ${e.role}`} title={`${e.role} · ${e.period}`}>
-              {e.logo ? (
-                <>
-                  <LogoImage variant="light" src={e.logo.light} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: COMPANY_HEIGHT[e.slug] ?? 28 }} />
-                  <LogoImage variant="dark" src={e.logo.dark} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: COMPANY_HEIGHT[e.slug] ?? 28 }} />
-                </>
-              ) : (
-                <span className="text-sm font-semibold">{e.company}</span>
-              )}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <dl className="hero-meta hero-fade" style={{ ["--enter-delay" as string]: "0.35s" }}>
+      <div className="hero-meta-item">
+        <dt className="eyebrow">Based in</dt>
+        <dd>Boston, Massachusetts</dd>
+      </div>
+      <div className="hero-meta-item">
+        <dt className="eyebrow">Engineering</dt>
+        <dd>AI · Data · Software</dd>
+      </div>
+      <div className="hero-meta-item">
+        <dt className="eyebrow">Studying</dt>
+        <dd>
+          M.S. Data Analytics Engineering
+          <span className="hero-meta-sub">Northeastern University</span>
+        </dd>
+      </div>
+      <div className="hero-meta-item">
+        <dt className="eyebrow">Experience</dt>
+        <dd>
+          <ul className="hero-logos">
+            {experience.map((e) => (
+              <li key={e.slug}>
+                <Link href={`/experience#${e.slug}`} className="hero-logo" aria-label={`${e.company}, ${e.role}`} title={`${e.company} · ${e.role}`}>
+                  {e.logo ? (
+                    <>
+                      <LogoImage variant="light" src={e.logo.light} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="hero-logo-img" style={{ ["--logo-h" as string]: `${LOGO_HEIGHT[e.slug] ?? 24}px` }} />
+                      <LogoImage variant="dark" src={e.logo.dark} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="hero-logo-img" style={{ ["--logo-h" as string]: `${LOGO_HEIGHT[e.slug] ?? 24}px` }} />
+                    </>
+                  ) : (
+                    <span className="text-sm font-semibold">{e.company}</span>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+    </dl>
   );
 }
+
+/** Logo heights tuned by eye so the three marks carry similar visual weight. */
+const LOGO_HEIGHT: Record<string, number> = { rightrev: 15, "flare-innovation": 30, "sri-sairam-techno-incubator": 32 };
 
 export function Hero({ portraits }: { portraits: PortraitPair }) {
   const [field, setField] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
   const nameRef = useRef<HTMLSpanElement>(null);
+  const introRef = useRef<HTMLDivElement>(null);
+  const statementRef = useRef<HTMLParagraphElement>(null);
   const { phase, skip } = useIdentityIntro(rootRef, nameRef);
   const intro = phase === "hold" ? "pending" : phase === "morph" ? "running" : "done";
+
+  // The name sits half the statement's height lower while the statement is
+  // hidden, so the visible group stays centred on the portrait; when the
+  // statement arrives the name glides up by exactly that much (CSS).
+  useEffect(() => {
+    const intro = introRef.current;
+    const st = statementRef.current;
+    if (!intro || !st) return;
+    const set = () => {
+      const gap = parseFloat(getComputedStyle(st).marginTop) || 0;
+      intro.style.setProperty("--statement-shift", `${((st.offsetHeight + gap) / 2).toFixed(1)}px`);
+    };
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(st);
+    return () => ro.disconnect();
+  }, []);
 
   // Start the WebGL field once the main thread is idle, after first paint -
   // and only on devices that can run it comfortably. Others keep the static
@@ -101,7 +142,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
   }, []);
 
   return (
-    <section ref={rootRef} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-[5.25rem] md:pt-28" aria-label="Introduction" data-nav-section="hero" data-view-anchor="hero">
+    <section ref={rootRef} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-[5.25rem] md:pt-24 lg:min-h-[min(100svh,980px)]" id="about" aria-label="Introduction" data-nav-section="about">
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="hero-wash absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_70%_40%,var(--accent-soft),transparent_70%)]" />
         <div className="hero-atmos absolute inset-0" />
@@ -110,7 +151,7 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-bg" />
       </div>
 
-      <div className="container-x flex flex-1 flex-col justify-center pb-12" data-scroll-out>
+      <div className="container-x flex flex-1 flex-col justify-center pb-8" data-scroll-out>
         <div className="hero-fade flex items-center justify-between gap-3" style={{ ["--enter-delay" as string]: "0.05s" }}>
           <Availability />
           <p className="eyebrow mono hidden lg:block" aria-label="Boston coordinates">
@@ -118,11 +159,13 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
           </p>
         </div>
 
-        {/* Two parts. The identity row: the introduction on the left and the
-            original portrait on the right, vertically centred on each other.
-            Below both, centred across the hero: the statement and the actions.
-            Portrait first in the markup: phones and tablets show it above the
-            introduction (same visual, reading and focus order). */}
+        {/* The identity row: the introduction on the left and the original
+            portrait on the right, vertically centred on each other. The
+            engineering statement is part of the left column: it stays hidden
+            while "Spiderman." becomes "Sreevarshan.", then rises in under the
+            name as the name glides up to make room. Its space is reserved from
+            the first paint, so nothing around it moves. Portrait first in the
+            markup: phones and tablets show it above the introduction. */}
         <div className="hero-stage" data-intro={intro}>
           {/* The gentle scroll parallax moves the name and the portrait as one
               group, so they stay aligned with each other. */}
@@ -130,88 +173,70 @@ export function Hero({ portraits }: { portraits: PortraitPair }) {
             <div className="hero-portrait hero-fade" style={{ ["--enter-delay" as string]: "0.2s" }}>
               <PortraitSwap pair={portraits} priority intro={intro} onSkip={skip} />
             </div>
-            <div className="hero-intro">
-              {/* One heading. It always reads "Hey, I'm Sreevarshan Sathiyamurthy."
-                  for screen readers and crawlers; the visible word starts as
-                  "Spiderman." and rebuilds itself into "Sreevarshan.". */}
-              <h1 className="hero-id">
-                <span className="hero-hey hero-fade" style={{ ["--enter-delay" as string]: "0.05s" }}>
-                  Hey, I&apos;m
-                </span>{" "}
-                <span className="hero-first kinetic-css" ref={nameRef}>
-                  <span className="sr-only">Sreevarshan Sathiyamurthy.</span>
-                  <span className="hero-first-mask" aria-hidden="true">
-                    <span className="split-char hf-word" data-phase={phase} style={{ animationDelay: "0.12s" }}>
-                      <span className="hf-s" data-c="S" />
-                      <span className="hf-mid">
-                        <span className="hf-from">
-                          {Array.from(FROM).map((c, i) => (
-                            <span key={i} data-c={c} />
-                          ))}
+            <div className="hero-intro" ref={introRef}>
+              <div className="hero-namegroup">
+                {/* One heading. It always reads "Hey, I'm Sreevarshan Sathiyamurthy."
+                    for screen readers and crawlers; the visible word starts as
+                    "Spiderman." and rebuilds itself into "Sreevarshan.". */}
+                <h1 className="hero-id">
+                  <span className="hero-hey hero-fade" style={{ ["--enter-delay" as string]: "0.05s" }}>
+                    Hey, I&apos;m
+                  </span>{" "}
+                  <span className="hero-first kinetic-css" ref={nameRef}>
+                    <span className="sr-only">Sreevarshan Sathiyamurthy.</span>
+                    <span className="hero-first-mask" aria-hidden="true">
+                      <span className="split-char hf-word" data-phase={phase} style={{ animationDelay: "0.12s" }}>
+                        <span className="hf-s" data-c="S" />
+                        <span className="hf-mid">
+                          <span className="hf-from">
+                            {Array.from(FROM).map((c, i) => (
+                              <span key={i} data-c={c} />
+                            ))}
+                          </span>
+                          <span className="hf-to">
+                            {Array.from(TO).map((c, i) => (
+                              <span key={i} data-c={c} />
+                            ))}
+                          </span>
                         </span>
-                        <span className="hf-to">
-                          {Array.from(TO).map((c, i) => (
-                            <span key={i} data-c={c} />
-                          ))}
+                        <span className="hf-an">
+                          <span data-c="a" />
+                          <span data-c="n" />
+                          <span className="hf-dot" data-c="." />
                         </span>
+                        <span className="hf-base" />
                       </span>
-                      <span className="hf-an">
-                        <span data-c="a" />
-                        <span data-c="n" />
-                        <span className="hf-dot" data-c="." />
-                      </span>
-                      <span className="hf-base" />
                     </span>
                   </span>
-                </span>
-              </h1>
-              <noscript>
-                <style>{`.hf-word .hf-from{display:none}.hf-word .hf-to{display:inline}.hero-stage .pswap-illustrated{opacity:0}`}</style>
-              </noscript>
-              <p className="hero-nick hero-fade" style={{ ["--enter-delay" as string]: "0.38s" }}>
-                Most people call me <span className="serif-accent hero-nick-name">Sree</span>.
+                </h1>
+                <p className="hero-nick hero-fade" style={{ ["--enter-delay" as string]: "0.38s" }}>
+                  Most people call me <span className="serif-accent hero-nick-name">Sree</span>.
+                </p>
+              </div>
+              {/* The second chapter of the introduction. Always in the DOM and
+                  in the accessibility tree; only its paint waits for the reveal. */}
+              <p className="hero-statement hero-title display" ref={statementRef}>
+                <span className="hs-part" style={{ ["--i" as string]: 0 }}>I build </span>
+                <span className="hs-part serif-accent text-accent-fg" style={{ ["--i" as string]: 1 }}>intelligent</span>
+                <span className="hs-part" style={{ ["--i" as string]: 2 }}> systems, from data to interface.</span>
               </p>
+              <noscript>
+                <style>{`.hf-word .hf-from{display:none}.hf-word .hf-to{display:inline}.hero-stage .pswap-illustrated{opacity:0}.hero-stage .hero-namegroup{transform:none!important}.hero-stage .hs-part{opacity:1!important;transform:none!important;filter:none!important}`}</style>
+              </noscript>
             </div>
           </div>
 
-          <div className="hero-work">
-            <KineticText
-              as="p"
-              className="display hero-title relative z-[1]"
-              delay={0.48}
-              trigger="css"
-              segments={["I build ", { text: "intelligent", className: "serif-accent text-accent-fg" }, " systems, from data to interface."]}
-            />
-            <div className="hero-actions hero-fade" style={{ ["--enter-delay" as string]: "0.62s" }}>
-              <Link href="/projects" className="btn btn-primary">
-                View projects <span className="arrow" aria-hidden="true">→</span>
-              </Link>
-              <a href={profile.resumePath} target="_blank" rel="noopener" className="btn btn-ghost">
-                Resume
-              </a>
-            </div>
+          <div className="hero-actions hero-fade" style={{ ["--enter-delay" as string]: "0.3s" }}>
+            <Link href="/projects" className="btn btn-primary">
+              View projects <span className="arrow" aria-hidden="true">→</span>
+            </Link>
+            <a href={profile.resumePath} target="_blank" rel="noopener" className="btn btn-ghost">
+              Resume
+            </a>
           </div>
         </div>
 
-        <div className="hero-fade hero-bottom mt-14 grid gap-10 border-t border-line pt-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-end" style={{ ["--enter-delay" as string]: "0.75s" }}>
-          <dl className="hero-facts">
-            <div>
-              <dt className="eyebrow">Based in</dt>
-              <dd>Boston, Massachusetts</dd>
-            </div>
-            <div>
-              <dt className="eyebrow">Engineering</dt>
-              <dd>AI · Data · Software</dd>
-            </div>
-            <div>
-              <dt className="eyebrow">Studying</dt>
-              <dd>M.S. Data Analytics Engineering, Northeastern University</dd>
-            </div>
-          </dl>
-          <div className="v-detailed">
-            <Companies />
-          </div>
-        </div>
+        <HeroMeta />
       </div>
     </section>
   );
