@@ -29,13 +29,13 @@ test("mobile menu traps focus and closes with Escape", async ({ page, isMobile }
   await expect(page.getByRole("button", { name: "Open menu" })).toBeFocused();
 });
 
-test("Sree AI opens, answers with an honest fallback without a key, and closes with Escape", async ({ page }) => {
+test("My AI opens, answers with an honest fallback without a key, and closes with Escape", async ({ page }) => {
   await page.goto("/about");
-  const launcher = page.getByRole("button", { name: /^Ask My AI$/ });
+  const launcher = page.getByRole("button", { name: /^My AI$/ });
   await launcher.click();
-  const panel = page.getByRole("dialog", { name: /Sree AI assistant/ });
+  const panel = page.getByRole("dialog", { name: /My AI assistant/ });
   await expect(panel).toBeVisible();
-  const input = panel.getByLabel("Ask a question about Sree");
+  const input = panel.getByLabel("Ask My AI about Sree");
   await expect(input).toBeFocused({ timeout: 15_000 });
   await input.fill("What did Sree work on at RightRev?");
   await input.press("Enter");
@@ -55,9 +55,9 @@ test("suggested question runs from the full-page Ask view; clear resets", async 
   await expect(mail.first()).toBeVisible();
   await expect(mail.first()).toHaveAttribute("href", "mailto:sreevarshan.dev@gmail.com");
   await expect(page.getByText(/\(mailto:/)).toHaveCount(0);
-  await page.getByRole("button", { name: "Clear conversation" }).click();
-  await expect(page.getByText(/Hey! I'm Sree's AI assistant/)).toBeVisible();
-  await expect(page.getByRole("button", { name: /Who is Sree\?/ })).toBeVisible();
+  await page.getByRole("button", { name: "Start a new conversation" }).click();
+  await expect(page.getByText(/Hey! Curious about Sree's work\? Ask me anything\./)).toBeVisible();
+  await expect(page.getByRole("button", { name: "What has Sree built?" })).toBeVisible();
 });
 
 test("chat API validates input and labels fallback answers", async ({ request }) => {
@@ -92,4 +92,39 @@ test("reduced motion shows all content without animation", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   const hidden = await page.$$eval("[data-reveal]", (els) => els.filter((e) => getComputedStyle(e).opacity === "0").length);
   expect(hidden).toBe(0);
+});
+
+test("My AI closes on a click outside, keeps the conversation, and stays open for clicks inside", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Phones show a full-screen sheet with no outside area.");
+  await page.route("**/api/chat", (route) =>
+    route.fulfill({ status: 200, contentType: "application/x-ndjson", body: [{ type: "delta", text: "He studied at Northeastern." }, { type: "done" }].map((e) => JSON.stringify(e)).join("\n") + "\n" }),
+  );
+  await page.goto("/about");
+  const launcher = page.getByRole("button", { name: /^My AI$/ });
+  await launcher.click();
+  const panel = page.getByRole("dialog", { name: /My AI assistant/ });
+  const input = panel.getByLabel("Ask My AI about Sree");
+  await expect(input).toBeFocused({ timeout: 15_000 });
+  await input.fill("Where did he study?");
+  await input.press("Enter");
+  await expect(panel.getByText("He studied at Northeastern.")).toBeVisible();
+  // Inside: the message text, the composer and the header keep it open.
+  await panel.getByText("He studied at Northeastern.").click();
+  await input.click();
+  await panel.getByRole("heading", { name: "My AI" }).click();
+  await expect(panel).toBeVisible();
+  // Outside: a click on the page closes it.
+  const vp = page.viewportSize()!;
+  await page.mouse.click(40, vp.height / 2);
+  await expect(panel).toBeHidden();
+  // Reopening shows the same conversation.
+  await page.getByRole("button", { name: /^My AI$/ }).click();
+  await expect(panel.getByText("He studied at Northeastern.")).toBeVisible();
+  await expect(panel.getByText("Where did he study?")).toBeVisible();
+  // The panel fits the viewport and uses comfortable type.
+  const box = (await panel.boundingBox())!;
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(vp.height);
+  expect(box.width).toBeGreaterThanOrEqual(Math.min(480, vp.width - 48) - 1);
+  expect(await panel.locator(".md").first().evaluate((e) => parseFloat(getComputedStyle(e).fontSize))).toBeGreaterThanOrEqual(15);
 });

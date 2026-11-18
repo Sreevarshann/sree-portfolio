@@ -61,8 +61,8 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as ChatMessage[];
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate from sessionStorage once on mount
         // Job-description cards from the retired Recruiter Mode are dropped.
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate from sessionStorage once on mount
         setMessages(parsed.filter((m) => !("report" in m)).map((m) => (m.status === "streaming" ? { ...m, status: "stopped" } : m)));
       }
       sessionStorage.removeItem("ask-sree:mode");

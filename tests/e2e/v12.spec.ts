@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 
-/** V12: interaction polish, the Skill Explorer, the AI hand-off and Recruiter Mode. */
+/** V12: interaction polish, the Skill Explorer and the AI hand-off. */
 
 const fakeAnswer = (text: string) =>
   [
@@ -126,12 +126,12 @@ test.describe("SAUVC video without controls", () => {
   });
 });
 
-test.describe("Ask My AI launcher (one global entry point)", () => {
+test.describe("My AI launcher (one global entry point)", () => {
   test("phones: the logo only, visible from the first screen, while scrolling and after the intro", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "Phones only.");
     await page.goto("/");
     const launcher = page.locator("button.ask-launcher");
-    await expect(launcher).toHaveAccessibleName("Ask My AI");
+    await expect(launcher).toHaveAccessibleName("My AI");
     await expect(launcher).toBeVisible();
     const box = async () => (await launcher.boundingBox())!;
     const first = await box();
@@ -147,7 +147,7 @@ test.describe("Ask My AI launcher (one global entry point)", () => {
       expect((await box()).width).toBeLessThanOrEqual(56);
     }
     await launcher.click();
-    await expect(page.getByRole("dialog", { name: "Sree AI assistant" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "My AI assistant" })).toBeVisible();
   });
 
   test("desktop keeps the labelled floating launcher, visible from the start", async ({ page }, info) => {
@@ -155,9 +155,9 @@ test.describe("Ask My AI launcher (one global entry point)", () => {
     await page.goto("/");
     const launcher = page.locator("button.ask-launcher");
     await expect(launcher).toBeVisible();
-    await expect(launcher).toContainText("Ask My AI");
+    await expect(launcher).toContainText("My AI");
     await launcher.click();
-    await expect(page.getByRole("dialog", { name: "Sree AI assistant" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "My AI assistant" })).toBeVisible();
   });
 });
 
@@ -240,7 +240,7 @@ test.describe("Skill Explorer", () => {
     const search = await openExplorer(page);
     await search.fill("Snowflake");
     await page.locator('.skill-card[data-skill="snowflake"]').getByRole("button", { name: "Ask AI about this" }).click();
-    await expect(page.getByRole("dialog", { name: "Sree AI assistant" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "My AI assistant" })).toBeVisible();
     await expect.poll(() => bodies.length).toBe(1);
     const last = (bodies[0].messages as { content: string; context?: unknown }[]).at(-1)!;
     expect(last.content).toBe("How has Sree used Snowflake in his professional work?");
@@ -271,42 +271,18 @@ test.describe("Skill Explorer", () => {
   }
 });
 
-test.describe("Recruiter Mode", () => {
-  test("general mode is unchanged; Recruiter Mode changes prompts and answer framing", async ({ page }) => {
+test.describe("one assistant (V15: no Recruiter Mode)", () => {
+  test("no mode switch; a pasted job description is answered in the same chat", async ({ page }) => {
     const bodies = await captureChat(page);
     await page.goto("/ask");
-    await expect(page.getByRole("button", { name: "General" })).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByRole("button", { name: "Who is Sree?" })).toBeVisible();
-    await page.getByRole("button", { name: "Recruiter" }).click();
-    await expect(page.getByRole("button", { name: "Recruiter" })).toHaveAttribute("aria-pressed", "true");
-    await page.getByRole("button", { name: "Has he worked with Databricks?" }).click();
+    await expect(page.getByRole("button", { name: "Recruiter" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "General" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Compare a job description/ })).toHaveCount(0);
+    const jd = "Data Engineer. Requirements: Python, SQL, Snowflake, Airflow, Docker and CI/CD. Nice to have: Kafka and Spark.";
+    await page.getByLabel("Ask My AI about Sree").fill(jd);
+    await page.keyboard.press("Enter");
     await expect.poll(() => bodies.length).toBe(1);
-    expect(bodies[0].mode).toBe("recruiter");
-  });
-
-  test("a pasted job description is mapped locally; only canonical names reach the AI", async ({ page }) => {
-    const bodies = await captureChat(page);
-    await page.goto("/ask");
-    await page.getByRole("button", { name: "Recruiter" }).click();
-    await page.getByRole("button", { name: "Compare a job description" }).click();
-    const jd = "Acme Corp, hiring manager Jane Roe. Requirements: Python, SQL, Databricks, Airflow, Kafka, dbt, Terraform, Java, AWS, Kubernetes, LLM agents, CI/CD.";
-    await page.getByLabel("Paste a job description").fill(jd);
-    await page.getByRole("button", { name: "Map requirements" }).click();
-    const report = page.locator(".jd-report");
-    await expect(report.locator('[data-group="direct"]')).toContainText("Python");
-    await expect(report.locator('[data-group="partial"]')).toContainText("AWS");
-    await expect(report.locator('[data-group="related"]')).toContainText("Databricks");
-    await expect(report.locator('[data-group="missing"]')).toContainText("Java, Terraform");
-    await expect(report.locator('[data-group="questions"] li').first()).toBeVisible();
-    await expect(report).not.toContainText(/\d+\s?%|score/i);
-    expect(bodies).toHaveLength(0); // mapping made no request
-    await report.getByRole("button", { name: "Ask AI to summarize this" }).click();
-    await expect.poll(() => bodies.length).toBe(1);
-    const raw = JSON.stringify(bodies[0]);
-    expect(raw).not.toContain("Jane Roe");
-    expect(raw).not.toContain("Acme");
-    const last = (bodies[0].messages as { content: string; context?: { skills?: string[]; topics?: string[] } }[]).at(-1)!;
-    expect(last.context?.topics).toEqual(expect.arrayContaining(["databricks", "kubernetes"]));
-    expect(bodies[0].mode).toBe("recruiter");
+    expect(bodies[0].mode).toBeUndefined();
+    expect((bodies[0].messages as { content: string }[]).at(-1)!.content).toBe(jd);
   });
 });
