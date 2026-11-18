@@ -1420,10 +1420,10 @@ a:focus-visible > .ss-mark .ss-rule {
    clears the floating Ask My AI button too (with the pronunciation line). */
 @media (max-width: 767px) and (max-height: 620px) {
   .hero-portrait {
-    width: clamp(146px, calc(80svh - 310px), min(70vw, 300px));
-    margin-bottom: 2.35rem;
+    width: clamp(142px, calc(80svh - 316px), min(70vw, 300px));
+    margin-bottom: 2.3rem;
   }
-  .hero-say { margin-top: 0.25rem; line-height: 1.2; }
+  .hero-say { margin-top: 0.2rem; font-size: 0.72rem; line-height: 1.15; }
   .hero-nick { margin-top: 0.2rem; }
 }
 .hero-id {

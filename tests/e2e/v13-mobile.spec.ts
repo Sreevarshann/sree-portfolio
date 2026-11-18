@@ -133,7 +133,8 @@ test.describe("scroll position on a fresh visit", () => {
 });
 
 test("the closed Spider-Man mask never degenerates (Safari draws all-zero stops as transparent)", async ({ page }) => {
-  await page.goto("/");
+  // Read it during the hold: as soon as the server-rendered portrait exists.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   const mask = await page.locator(".pswap-illustrated").first().evaluate((e) => {
     const cs = getComputedStyle(e);
     return cs.maskImage || cs.getPropertyValue("-webkit-mask-image");
