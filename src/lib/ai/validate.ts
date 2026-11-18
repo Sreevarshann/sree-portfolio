@@ -60,7 +60,7 @@ export const COMMITMENTS: RegExp[] = [
   /\b(?:best|smartest|greatest|top) (?:engineer|developer|programmer|candidate|data scientist|ai engineer)s? (?:in|of) (?:the )?(?:world|country|industry|planet)\b/i,
   /\bgenius\b/i,
   // Team results: a contribution is never upgraded to leadership.
-  /\b(?:led|leading|leads|headed|heading|captained|captaining|captain of)\b[^.!?]{0,25}\bteam\b/i,
+  /\b(?:led|leading|leads|headed|heading|captained|captaining|captain of)\b[^.!?]{0,70}\bteam\b/i,
   /\b(?:he is|he's|he has|he holds|he's got)(?: a| an| on| on an?)? (?:u\.?s\.? citizen|green card|permanent resident|h-?1b|(?:stem )?opt\b|f-?1)/i,
   /\b(?:does not|doesn't|will not|won't|does|will|would) (?:need|require) (?:visa )?sponsorship\b/i,
   // Employers are never characterised beyond the record (industry, products, customers).
