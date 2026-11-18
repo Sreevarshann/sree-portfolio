@@ -165,7 +165,12 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
   const cites = m.sourceMap ? resolveCitations(m.content, m.sourceMap) : [];
   const markdown = m.sourceMap ? renderCitationMarkers(normalizeMarkdown(m.content), m.sourceMap, streaming) : normalizeMarkdown(m.content);
   // Numbered sources from the answer's own markers; older messages fall back to the server list.
-  const sourceList = m.sourceMap ? cites.map((c) => ({ key: c.id, n: c.n as number | undefined, title: c.label, href: c.href })) : (m.sources ?? []).map((s) => ({ key: s.href, n: undefined as number | undefined, title: s.title, href: s.href }));
+  // Numbered chips for cited ids; when an answer cites none, the records the
+  // server matched to it (unnumbered).
+  const sourceList =
+    m.sourceMap && cites.length
+      ? cites.map((c) => ({ key: c.id, n: c.n as number | undefined, title: c.label, href: c.href }))
+      : (m.sources ?? []).map((s) => ({ key: s.href, n: undefined as number | undefined, title: s.title, href: s.href }));
   return (
     <div className="msg-in flex gap-3">
       <div className="mt-0.5 shrink-0">

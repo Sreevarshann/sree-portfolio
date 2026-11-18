@@ -4,7 +4,8 @@ import { suggestFollowUps } from "@/lib/ai/intent";
 import { planAnswer } from "@/lib/ai/plan";
 import { SYSTEM_PROMPT, buildUserTurn, sourceId } from "@/lib/ai/prompt";
 import { isAllowedHref } from "@/lib/ai/allowlist";
-import { resolveCitations, type SourceRef } from "@/lib/ai/citations";
+import { inferSources, resolveCitations, type SourceRef } from "@/lib/ai/citations";
+import { factsOf } from "@/lib/ai/knowledge";
 import { createCommitmentGate, groundingText, unsupportedClaims } from "@/lib/ai/validate";
 import { fallbackLinks } from "@/lib/ai/sources";
 import { getProvider, providerKeyName, ProviderError, selectedProvider, type Turn } from "@/lib/ai/providers";
@@ -139,6 +140,15 @@ export async function POST(req: Request) {
         }
         const cited = resolveCitations(answer, sourceMap);
         if (cited.length) send({ type: "sources", sources: cited.map((c) => ({ id: c.id, title: c.label, href: c.href, section: chunks[Number(c.id.slice(1)) - 1]?.section ?? "" })) });
+        else if (mode !== "casual" && mode !== "private") {
+          // The model forgot its source ids: show the records the answer draws on.
+          const seen = new Set<string>();
+          const inferred = inferSources(
+            answer,
+            sourceMap.map((ref) => ({ ref, text: factsOf(chunks[Number(ref.id.slice(1)) - 1]).join(" ") })),
+          ).filter((r) => !seen.has(r.href) && seen.add(r.href));
+          if (inferred.length) send({ type: "sources", sources: inferred.map((r) => ({ id: r.id, title: r.label, href: r.href, section: chunks[Number(r.id.slice(1)) - 1]?.section ?? "" })) });
+        }
         // Claim check against the facts this answer was grounded on: logged, never rewritten.
         const findings = unsupportedClaims(answer, groundingText(chunks));
         if (findings.length) console.warn(`[ask-sree] unsupported in answer: ${findings.map((f) => `${f.kind}:${f.value}`).join(", ")}`);

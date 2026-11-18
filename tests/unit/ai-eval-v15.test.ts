@@ -45,8 +45,8 @@ describe("My AI V15 evaluation set", () => {
 });
 
 describe("V15 prompt", () => {
-  it("is My AI, version v15.2", () => {
-    expect(PROMPT_VERSION).toBe("v15.2");
+  it("is My AI, version v15.3", () => {
+    expect(PROMPT_VERSION).toBe("v15.3");
     expect(SYSTEM_PROMPT).toMatch(/You are "My AI"/);
     expect(SYSTEM_PROMPT).not.toMatch(/Sree AI|Recruiter Mode/);
   });
