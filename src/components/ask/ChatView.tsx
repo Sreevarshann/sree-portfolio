@@ -6,9 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { MAX_INPUT, useAskSree, type ChatMessage } from "./AskSreeProvider";
-import { DETAILED_QUESTIONS, MORE_QUESTIONS, RECRUITER_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
+import { MORE_QUESTIONS, RECRUITER_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
 import { JdReportCard, JobDescriptionPanel, ModeSwitch } from "./RecruiterTools";
-import { useViewMode } from "@/lib/viewMode";
 import { normalizeMarkdown } from "@/lib/ai/markdown";
 import { renderCitationMarkers, resolveCitations, stripCitationMarkers, type Citation } from "@/lib/ai/citations";
 import type { SourceRef } from "@/lib/ai/protocol";
@@ -52,7 +51,13 @@ function makeLinkRenderer(cites: Citation[], map: SourceRef[] | undefined) {
     const ok = map ? allowed.has(href) : href.startsWith("/") || allowed.has(href);
     if (!ok) return <span>{children}</span>;
     if (href.startsWith("/")) return <Link href={href} {...rest}>{children}</Link>;
-    return <a href={href} {...rest}>{children}</a>;
+    if (href.startsWith("mailto:")) return <a href={href} {...rest}>{children}</a>;
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" {...rest}>
+        {children}
+        <span className="sr-only"> (opens in a new tab)</span>
+      </a>
+    );
   };
 }
 
@@ -227,8 +232,6 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
 }
 
 export function ChatView({ variant, onClose }: { variant: "floating" | "page"; onClose?: () => void }) {
-  // Starter prompts follow the homepage presentation; any question still works.
-  const view = useViewMode();
   const { messages, busy, send, stop, clear, draft, setDraft, mode } = useAskSree();
   const [jdOpen, setJdOpen] = useState(false);
   const recruiter = mode === "recruiter";
@@ -256,7 +259,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center gap-3 px-4 pb-3 pt-4">
+      <div className="flex items-center gap-3 px-4 pb-3 pt-4 max-sm:pt-[calc(env(safe-area-inset-top)+1rem)]">
         <div className="relative">
           <SreeMark size={40} state={busy ? "thinking" : "idle"} />
         </div>
@@ -313,7 +316,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
               <p className="rounded-[20px] rounded-tl-[6px] bg-[var(--glass-lo)] px-4 py-3 text-[0.98rem] leading-relaxed text-fg ring-1 ring-line">{recruiter ? RECRUITER_GREETING : GREETING}</p>
             </div>
             <ul className="mt-5 grid grid-cols-2 gap-2" aria-label="Suggested questions">
-              {(recruiter ? RECRUITER_QUESTIONS : view === "detailed" ? DETAILED_QUESTIONS : SUGGESTED_QUESTIONS).map((q, i) => (
+              {(recruiter ? RECRUITER_QUESTIONS : SUGGESTED_QUESTIONS).map((q, i) => (
                 <li key={q} className="msg-in" style={{ animationDelay: `${120 + i * 60}ms` }}>
                   <button
                     type="button"
@@ -360,7 +363,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
         </div>
       )}
       <form
-        className="px-3 pb-3"
+        className="px-3 pb-3 max-sm:pb-[calc(env(safe-area-inset-bottom)+0.75rem)]"
         onSubmit={(e) => {
           e.preventDefault();
           send(draft);

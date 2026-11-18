@@ -37,11 +37,16 @@ export type Mode = "facts" | "hiring" | "casual" | "private" | "knowledge" | "re
 export type EntityKind = "experience" | "project" | "achievement" | "education" | "resume";
 export type Entity = { kind: EntityKind; id: string; label: string };
 
-/** Entity → knowledge-chunk id prefix, and the phrases that name it. */
-const ENTITIES: (Entity & { match: RegExp })[] = [
-  { kind: "experience", id: "exp-rightrev", label: "RightRev", match: /\bright\s?rev\b|\bsnowflake\b|\bcortex\b|\bmcp\b/ },
+/**
+ * Entity → knowledge-chunk id prefix, and the phrases that name it.
+ * `tech` marks a match on a technology term rather than the entity's own name
+ * ("What is MCP?" is a general question that RightRev evidence can follow;
+ * "What did he do at RightRev?" is about RightRev).
+ */
+const ENTITIES: (Entity & { match: RegExp; tech?: RegExp })[] = [
+  { kind: "experience", id: "exp-rightrev", label: "RightRev", match: /\bright\s?rev\b/, tech: /\bsnowflake\b|\bcortex\b|\bmcp\b|\bmodel context protocol\b/ },
   { kind: "experience", id: "exp-flare-innovation", label: "Flare Innovation", match: /\bflare\b/ },
-  { kind: "experience", id: "exp-sri-sairam-techno-incubator", label: "Sri Sairam Techno Incubator", match: /\bincubator\b|\bsstif\b/ },
+  { kind: "experience", id: "exp-sri-sairam-techno-incubator", label: "Sri Sairam Techno Incubator", match: /\bincubator\b|\bsstif\b|\bsri sairam\b(?! (engineering|college))/ },
   { kind: "achievement", id: "ach-sauvc", label: "Singapore AUV Challenge", match: /\bsauvc\b|\bsingapore\b|\bauv\b|\bunderwater\b|\brobosub\b/ },
   { kind: "achievement", id: "ach-google-mlops-expo", label: "Google MLOps Expo", match: /\bcharlie\b|\bmlops\b|\bexpo\b|\bmbta\b/ },
   { kind: "project", id: "proj-aegis-ai", label: "AEGIS AI", match: /\baegis\b|\bfraud\b/ },
@@ -62,24 +67,26 @@ const INTENT_RULES: [Intent, RegExp][] = [
   // Hiring and recruiter questions: availability, fit, recommendation, engagements.
   ["hiring", /\bhir(e|ing)\b|\brecruit|\bavailab|\bopen to (work|roles|opportunit)|\blooking for (a )?(job|role|work)|\bworth (talking|interviewing|hiring)|\brecommend (him|sree)\b|\b(can|could) (he|sree) (build|make|create|develop|help)\b.{0,40}\b(my|our|for (a|my|our))\b|\b(relocat|move to|start date|notice period|remote)\b|\bwork for (us|me|my)\b/],
   // Casual, personal or playful questions.
-  ["casual", /\b(dance|danc(ing|er)|sing|cook|joke|funny|fun fact|hobb(y|ies)|free time|weekend|personality|smart|intelligent|genius|cool|favou?rite|sports?|game|music|movie|pet|coffee|tea|(not|isn't|isnt) on (his )?(resume|cv)|interesting about|like (outside|besides)|weakness(es)?|introvert|extrovert)\b/],
+  ["casual", /\b(dance|danc(ing|er)|sing|cook|joke|funny|fun fact|hobb(y|ies)|free time|weekend|personality|smart|intelligent|genius|cool|favou?rite|sports?|game|music|movie|pet|coffee|tea|(not|isn't|isnt) on (his )?(resume|cv)|interesting about|like (outside|besides)|introvert|extrovert)\b/],
   ["assistant", /\b(ignore|disregard|forget)\b.{0,40}\b(instruction|prompt|rule|above)s?\b|\bsystem prompt\b|\byour (instructions|rules|prompt)\b|\bare you (an? )?(ai|bot|human|real|sree)\b|\bwho (made|built|created) you\b|\bwhat are you\b|\bjailbreak\b|\bpretend (to be|you are)\b/],
   ["contact", /\bcontact\b|\breach (him|out|sree)\b|\bget in touch\b|\bemail\b|\blinkedin\b|\bhow (do|can) i (talk|connect|speak)\b|\bresume\b|\bcv\b/],
   ["certification", /\bcertif|\bcredential|\baws\b|\bcourse(s|work)?\b|\bcisco\b/],
   ["education", /\bstud(y|ying|ies|ied)\b|\bdegree\b|\buniversit|\bcollege\b|\bschool\b|\bc?gpa\b|\beducation\b|\bgraduat|\bacademic|\bmajor\b/],
-  ["fit", /\bwhy (should|would|hire|work)\b|\bhire\b|\b(good|great|right) (fit|candidate)\b|\bfit (for|the)\b|\bwork with (him|sree)\b|\bstand out\b|\bstrong candidate\b/],
+  ["fit", /\bwhy (should|would|hire|work)\b|\bhire\b|\b(good|great|right) (fit|candidate)\b|\bfit (for|the)\b|\bwork with (him|sree)\b|\bstand out\b|\bstrong candidate\b|\bsuitable\b|\bqualified\b|\bweakness(es)?\b|\b(experience |skill )?gaps?\b|\blimitations?\b|\bmatch (his|sree's|this|the)\b|\bjob description\b/],
   ["achievement", /\bachiev|\baward|\bwon\b|\bwin\b|\bcompetition|\bchallenge\b|\bprize|\b\d+(st|nd|rd|th) place\b|\bplace[d]?\b|\brank|\bhackathon|\bexpo\b|\baccomplish/],
   ["experience", /\bexperience\b|\bwork(ed|ing)?\b(?! with)|\bjob|\bintern|\bemploy|\bcompan(y|ies)\b|\bcareer\b|\bposition\b|\brole\b(?!s? (would|does) he)|\bwork history\b/],
   ["project", /\bprojects?\b|\bbuil[td]\b|\bbuilding\b|\bgithub\b|\brepo(sitor(y|ies))?\b|\bside project|\bshipped\b|\bmade\b/],
   ["skills", /\bdoes he know\b|\bfamiliar with\b|\bexperience (with|in)\b|\bskill|\bstrength|\bstrongest\b|\btech(nical)? stack\b|\btechnolog|\blanguages?\b|\btools?\b|\bgood at\b|\bexpert|\bproficien|\bframeworks?\b|\bpython\b|\bsql\b/],
-  ["identity", /\bwho('s| is)\b|\babout (him|sree|sreevarshan)\b|\bintroduce\b|\bbackground\b|\bsummar|\btell me about (him|sree|sreevarshan|ss)\b|\bbio\b|\boverview\b|\bwhere is he based\b/],
+  ["identity", /\bwho('s| is)\b|\babout (him|sree|sreevarshan)\b|\bintroduce\b|\bbackground\b|\bsummar|\btell me about (him|sree|sreevarshan|ss)\b|\bbio\b|\boverview\b|\bwhere is he based\b|\bwhat (does|do) (he|sree|sreevarshan) do\b|\bwhat (is|'s) his (job|focus|field|specialty|speciality)\b|\bwhat kind of (engineer|work)\b/],
 ];
 
 /** Words that name Sree himself: they appear in nearly every chunk, so they carry no ranking signal. */
 export const NAME_TOKENS = new Set(["sree", "sreevarshan", "sathiyamurthy", "ss", "sree's", "sreevarshan's"]);
 
 /** Pronouns and short forms that signal a follow-up about the previous topic. */
-const ANAPHORA = /\b(it|its|it's|that|this|there|those|these|they|them|their|same|more|else|further|elaborate|expand)\b/;
+const ANAPHORA = /\b(it|its|it's|that|this|there|those|these|they|them|their|same|more|else|further|elaborate|expand|one|ones|other|others|former|latter|simpler|simply)\b/;
+/** Short questions about an aspect of whatever was just discussed ("What results did he achieve?"). */
+const ASPECT = /\b(tools?|stack|technolog\w*|results?|outcomes?|metrics?|impact|numbers|achieve[ds]?|challeng\w*|hardest|toughest|easiest|why|how long|team|role|responsibilit\w*|architecture|design|tested|testing)\b/;
 
 export type Analysis = { intents: Intent[]; entities: Entity[]; followUp: boolean; mentionsName: boolean };
 
@@ -89,14 +96,20 @@ const ABOUT_SREE = /\b(he|him|his|sree|sreevarshan|sathiyamurthy|ss)\b/;
 
 export function analyze(question: string): Analysis {
   const q = question.toLowerCase().replace(/[’`]/g, "'");
-  const entities = ENTITIES.filter((e) => e.match.test(q)).map(({ kind, id, label }) => ({ kind, id, label }));
+  const hits = ENTITIES.map((e) => ({ e, named: e.match.test(q), tech: !!e.tech?.test(q) })).filter((h) => h.named || h.tech);
+  const entities = hits.map(({ e: { kind, id, label } }) => ({ kind, id, label }));
+  // Entities the question names outright (not through a technology term).
+  const named = hits.some((h) => h.named);
   // A named entity decides the primary intent ("What did he build at RightRev?" is about experience).
   const implied = entities.map((e): Intent => (e.kind === "resume" ? "project" : e.kind));
   const intents = [...new Set([...implied, ...INTENT_RULES.filter(([, re]) => re.test(q)).map(([i]) => i)])];
   const mentionsName = /\b(sree|sreevarshan|sathiyamurthy|ss)\b/.test(q);
   const words = q.split(/\s+/).filter(Boolean).length;
-  const followUp = !entities.length && (ANAPHORA.test(q) || words <= 4);
-  if (!entities.length && !ABOUT_SREE.test(q) && KNOWLEDGE.test(q.trim()) && !intents.some((i) => i === "private" || i === "hiring")) intents.unshift("knowledge");
+  // A question that names Sree and asks something specific starts a new topic ("Who is Sree?").
+  const ownTopic = mentionsName && intents.some((i) => i !== "general");
+  const followUp = !entities.length && !ownTopic && (ANAPHORA.test(q) || words <= 4 || (words <= 8 && ASPECT.test(q)));
+  // General knowledge ("What is MCP?") may still name a technology tied to his work; the evidence follows the explanation.
+  if (!named && !ABOUT_SREE.test(q) && KNOWLEDGE.test(q.trim()) && !intents.some((i) => i === "private" || i === "hiring")) intents.unshift("knowledge");
   if (!intents.length) intents.push("general");
   return { intents, entities, followUp, mentionsName };
 }

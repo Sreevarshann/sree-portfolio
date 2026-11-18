@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /* ------------------------------------------------------------ validation */
-export const MAX_MESSAGE_CHARS = 1000;
+export const MAX_MESSAGE_CHARS = 4000;
 export const MAX_HISTORY = 12;
 
 export const chatRequestSchema = z

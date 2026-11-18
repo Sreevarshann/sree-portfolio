@@ -1,8 +1,7 @@
 import type { FallbackReason, StreamEvent } from "@/lib/ai/protocol";
 import { chatRequestSchema, checkRate, clientKey, createStreamRedactor, normalizeHistory, sameOrigin } from "@/lib/ai/guard";
-import { retrieveConversation } from "@/lib/ai/retrieve";
-import { analyze, modeOf, type Mode } from "@/lib/ai/intent";
 import { suggestFollowUps } from "@/lib/ai/intent";
+import { planAnswer } from "@/lib/ai/plan";
 import { SYSTEM_PROMPT, buildUserTurn, sourceId } from "@/lib/ai/prompt";
 import { isAllowedHref } from "@/lib/ai/allowlist";
 import { resolveCitations, type SourceRef } from "@/lib/ai/citations";
@@ -45,17 +44,26 @@ export async function POST(req: Request) {
 
   const history = normalizeHistory(parsed.data.messages);
   const latest = history[history.length - 1].content;
+
   // Skill Explorer / job-description hand-off: canonical ids only (validated in retrieval).
-  const pins = parsed.data.messages[parsed.data.messages.length - 1].context;
-  const { chunks, analysis } = retrieveConversation(history, 6, pins);
+  const handoff = parsed.data.messages[parsed.data.messages.length - 1].context;
+  const plan = planAnswer(history, { mode: parsed.data.mode, pins: handoff });
+
+  // Greetings, small talk, plain "where is X" requests and attempts to extract
+  // the instructions: answered at once, with no retrieval and no model call
+  // (so "Hi" can never become a biography). Not counted against rate limits.
+  if (plan.kind === "quick") {
+    const { reply } = plan;
+    return ndjson([
+      { type: "sourceMap", items: reply.sourceMap.filter((r) => isAllowedHref(r.href)) },
+      { type: "delta", text: reply.text },
+      ...(reply.suggestions.length ? [{ type: "suggestions" as const, items: reply.suggestions }] : []),
+      { type: "done" },
+    ]);
+  }
+
+  const { chunks, analysis, mode, jobDescription } = plan;
   const suggestions = suggestFollowUps(analysis, latest);
-  // The answer mode follows the latest question; a bare follow-up inherits only
-  // a professional mode, never "private" or "casual" from an earlier turn.
-  const own = analyze(latest);
-  const inherited = modeOf(analysis);
-  const base: Mode = own.intents[0] !== "general" ? modeOf(own) : inherited === "private" || inherited === "casual" ? "facts" : inherited;
-  // Recruiter Mode reframes professional answers; private and playful questions keep their own mode.
-  const mode: Mode = parsed.data.mode === "recruiter" && base !== "private" && base !== "casual" ? "recruiter" : base;
   const fallback = (reason: FallbackReason): StreamEvent[] => [
     { type: "fallback", reason, links: fallbackLinks(chunks) },
     { type: "suggestions", items: suggestions },
@@ -80,7 +88,7 @@ export async function POST(req: Request) {
 
   const messages: Turn[] = history.map((m, i) =>
     i === history.length - 1
-      ? { role: "user", content: buildUserTurn(m.content, chunks, analysis.entities.map((e) => e.label).join(", ") || undefined, mode) }
+      ? { role: "user", content: buildUserTurn(m.content, chunks, analysis.entities.map((e) => e.label).join(", ") || undefined, mode, { jobDescription }) }
       : { role: m.role, content: m.content },
   );
 
@@ -122,6 +130,10 @@ export async function POST(req: Request) {
         }
         if (stop === "refusal" && !emitted) {
           send({ type: "delta", text: "I can't help with that one, but I'm happy to answer questions about Sree's experience, projects and skills." });
+        } else if (!emitted) {
+          // The model returned nothing usable (empty, or every sentence was dropped by the gate).
+          console.warn(`[ask-sree] empty answer (stop: ${stop})`);
+          send({ type: "delta", text: "I couldn't put together a good answer to that one. Could you rephrase it, or ask about a specific project, role or skill?" });
         } else if (stop === "length") {
           send({ type: "delta", text: "\n\n_(Answer trimmed for length. Ask a follow-up for more detail.)_" });
         }
