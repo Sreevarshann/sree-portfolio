@@ -1543,12 +1543,12 @@ a:focus-visible > .ss-mark .ss-rule {
   .hero-nick { font-size: clamp(1.4rem, 1.9vw, 1.85rem); }
   .hero-stage { margin-top: 1.5rem; }
   .hero-actions { margin-top: 1.75rem; }
-  /* Keep clear of the floating Ask My AI launcher (about 176px from the
-     viewport's right edge) when the container reaches that far. */
+  /* Keep clear of the floating Ask My AI launcher (label and keycaps, about
+     210px from the viewport's right edge) when the container reaches that far. */
   .hero-meta {
     margin-top: 1.75rem;
     padding-top: 1rem;
-    padding-right: max(0px, calc(190px - (100vw - 100%) / 2));
+    padding-right: max(0px, calc(236px - (100vw - 100%) / 2));
   }
 }
 /* Short laptop screens (1280 x 800): a tighter vertical rhythm. */

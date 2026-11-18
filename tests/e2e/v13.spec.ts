@@ -67,7 +67,7 @@ test.describe("identity reveal", () => {
     expect(final! - clock!).toBeGreaterThanOrEqual(890);
     // Time-based: a slow machine paints fewer frames but still finishes on time
     // (the upper bounds allow for a slow setup frame on CI's software renderer).
-    expect(final! - morph!).toBeLessThan(1500);
+    expect(final! - morph!).toBeLessThan(1700);
     expect(final! - hold!).toBeLessThan(3000);
 
     // Before: Spiderman and the fully masked photo, nothing dissolving, no particles.

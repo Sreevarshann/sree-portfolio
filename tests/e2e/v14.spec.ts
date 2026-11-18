@@ -28,7 +28,8 @@ test.describe("hero: the statement is the second chapter", () => {
     const geo = () =>
       page.evaluate(() => ({
         name: document.querySelector(".hero-first")!.getBoundingClientRect().top,
-        photo: document.querySelector(".pswap-print")!.getBoundingClientRect().top,
+        // Layout position (the print also has its own entrance and hover tilts).
+        photo: (document.querySelector(".hero-portrait") as HTMLElement).offsetTop,
         stage: document.querySelector(".hero-stage")!.getBoundingClientRect().height,
       }));
     const before = await geo();

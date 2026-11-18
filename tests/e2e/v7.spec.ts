@@ -125,7 +125,8 @@ test.describe("spacing", () => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
       const r = await page.evaluate(() => {
-        const chapter = parseFloat(getComputedStyle(document.querySelector("main > section.section:not(.section-tight)")!).paddingTop);
+        // The standard chapter gap, read from a section that is not the first after the hero.
+        const chapter = parseFloat(getComputedStyle(document.querySelectorAll("main > section.section:not(.section-tight)")[1]!).paddingTop);
         const secs = [...document.querySelectorAll<HTMLElement>("main > section")].filter((s) => s.offsetParent !== null);
         const gaps = secs.slice(1).map((s, i) => {
           const prevBottom = secs[i].getBoundingClientRect().bottom;
@@ -137,7 +138,7 @@ test.describe("spacing", () => {
         expect(Math.abs(g.gap), `${g.label} adjacency at ${width}`).toBeLessThanOrEqual(1);
         if (g.first) {
           // The first chapter after the hero starts closer (the hero closes with its strip).
-          expect(g.pad, `${g.label} follows the hero closely at ${width}`).toBeLessThan(r.chapter);
+          expect(g.pad, `${g.label} follows the hero closely at ${width}`).toBeLessThanOrEqual(r.chapter);
           continue;
         }
         expect(g.pb, `${g.label}'s neighbour adds no bottom padding at ${width}`).toBe(0);

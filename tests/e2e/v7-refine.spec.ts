@@ -63,7 +63,8 @@ test.describe("homepage information architecture (V9)", () => {
     await page.goto("/");
     const hs = await page.locator(".ach-card").evaluateAll((els) => els.map((e) => e.getBoundingClientRect()));
     expect(hs[1].top).toBeGreaterThan(hs[0].bottom); // stacked
-    for (const h of hs) expect(h.height).toBeLessThan(380);
+    // One sentence of context per card since V14 (one homepage).
+    for (const h of hs) expect(h.height).toBeLessThan(480);
   });
 
   test("project gallery links each featured case study", async ({ page }) => {
