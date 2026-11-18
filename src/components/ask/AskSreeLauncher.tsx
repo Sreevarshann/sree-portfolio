@@ -160,11 +160,13 @@ export function AskSreeLauncher() {
           border-radius:28px;
           box-shadow:0 30px 80px -30px rgb(3 8 20 / .55), 0 0 0 1px var(--line);
           transform-origin:bottom right;
+          /* Nearly opaque: page text never shows through behind the conversation. */
+          background-color:color-mix(in oklab, var(--bg) 94%, transparent);
         }
         .ask-panel[data-open]{animation:ask-in 260ms var(--ease-out) both}
         @keyframes ask-in{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
         @media (max-width:639px){
-          .ask-panel{inset:0;top:var(--vvt,0px);right:0;bottom:auto;width:100%;height:var(--vvh,100dvh);min-height:0;border-radius:0;border:0;box-shadow:none}
+          .ask-panel{inset:0;top:var(--vvt,0px);right:0;bottom:auto;width:100%;height:var(--vvh,100dvh);min-height:0;border-radius:0;border:0;box-shadow:none;background:var(--bg)}
           @keyframes ask-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
         }
         @media (prefers-reduced-motion: reduce){.ask-panel[data-open]{animation:none}}
