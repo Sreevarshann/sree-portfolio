@@ -88,12 +88,11 @@ test.describe("mobile hero", () => {
     expect(Math.abs(after.printBottom - before.printBottom)).toBeLessThanOrEqual(1);
   });
 
-  test("no Quick/Detailed hint, and the switch still works", async ({ page }) => {
+  test("no Quick/Detailed hint or view switch (V14: one homepage)", async ({ page }) => {
     await page.goto("/");
     await page.waitForTimeout(4500);
     await expect(page.locator(".coach")).toHaveCount(0);
-    await page.getByRole("group", { name: "Portfolio view" }).getByRole("button", { name: /Detailed/ }).click();
-    await expect(page.locator("html")).toHaveAttribute("data-view", "detailed");
+    await expect(page.getByRole("group", { name: "Portfolio view" })).toHaveCount(0);
   });
 });
 
