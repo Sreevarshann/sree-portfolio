@@ -136,7 +136,21 @@ export function normalizeDashes(text: string) {
     .replace(/ - {2,}/g, " - ");
 }
 
-export function createStreamRedactor(holdback = 24) {
+/**
+ * The record says "migrated 18 AI agents to production". Models tend to merge
+ * it with "built agents" into "built and migrated 18 agents" or "created 18
+ * agents", which the portfolio does not support. This keeps the record's
+ * verb, whatever the prompt manages. Idempotent.
+ */
+const VERB = "(?:built|created|developed|wrote|designed|deployed)";
+const MERGED = new RegExp(`\\b${VERB}(?:,)?\\s+(?:and|&)\\s+migrated\\s+(?=18\\b)`, "gi");
+const WRONG = new RegExp(`\\b${VERB}\\s+(?=18\\s+(?:[\\w-]+\\s+){0,4}?agents\\b)`, "gi");
+const keepCase = (m: string, word: string) => (m[0] === m[0].toUpperCase() ? word[0].toUpperCase() + word.slice(1) : word);
+export function correctRecordVerbs(text: string) {
+  return text.replace(MERGED, (m) => keepCase(m, "migrated ")).replace(WRONG, (m) => keepCase(m, "migrated "));
+}
+
+export function createStreamRedactor(holdback = 48) {
   let pending = "";
   // Whether the last released text ended in whitespace, so a dash replaced at
   // the start of the next release does not produce a double space.
@@ -155,7 +169,7 @@ export function createStreamRedactor(holdback = 24) {
       // Dashes are normalized on the whole pending buffer, so a dash split
       // across chunks (or arriving next to a space from the previous chunk) is
       // handled before anything is released.
-      pending = normalizeDashes(pending + chunk);
+      pending = correctRecordVerbs(normalizeDashes(pending + chunk));
       if (pending.length <= holdback) return "";
       // Release only up to a word boundary at least `holdback` chars from the
       // end, so neither a phone number (digits, spaces, dots, dashes, parentheses)
@@ -174,7 +188,7 @@ export function createStreamRedactor(holdback = 24) {
       return out;
     },
     flush() {
-      const out = release(normalizeDashes(pending));
+      const out = release(correctRecordVerbs(normalizeDashes(pending)));
       pending = "";
       return out;
     },
