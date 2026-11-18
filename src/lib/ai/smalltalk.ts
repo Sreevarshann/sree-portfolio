@@ -59,7 +59,7 @@ const GREETINGS = [
 const VANAKKAM = "Vanakkam! Welcome to Sree's portfolio. What would you like to explore?";
 const WELLBEING_REPLIES = ["Doing well, thanks for asking! What can I help you find?", "All good here, thanks! What would you like to know?"];
 const THANKS_REPLIES = ["You're welcome! Anything else you'd like to know?", "Happy to help. Ask away if anything else comes up."];
-const COMPLIMENT_REPLIES = ["Glad you like it! There's quite a bit to explore here. Anything that caught your eye?", "Thank you! Sree built it himself. Is there anything you'd like to dig into?"];
+const COMPLIMENT_REPLIES = ["Glad you like it! There's quite a bit to explore here. Anything that caught your eye?", "Thank you! Is there anything you'd like to dig into?"];
 const GOODBYE_REPLIES = [`Thanks for stopping by! If you'd like to reach Sree, email is best: ${profile.email}.`, "Take care, and thanks for visiting!"];
 
 /**
@@ -84,7 +84,7 @@ type Destination = { match: RegExp; label: string; href: string; text: string };
 const DESTINATIONS: Destination[] = [
   { match: /^(?:his )?(?:resume|cv|résumé)$/, label: "Resume", href: profile.resumePath, text: "Here's [Sree's resume]({href}). It opens as a PDF you can download." },
   { match: /^(?:his )?(?:projects?|work|portfolio projects?)$/, label: "Projects", href: "/projects", text: "All of Sree's projects, with case studies, are on the [Projects page]({href})." },
-  { match: /^(?:his )?(?:certifications?|certificates?|credentials?)$/, label: "Certifications", href: "/certifications", text: "His certifications, with verification links, are on the [Certifications page]({href})." },
+  { match: /^(?:his )?(?:certifications?|certificates?|credentials?)$/, label: "Certifications", href: "/#certifications", text: "His certifications, with verification links, are in the [Certifications section]({href})." },
   { match: /^(?:his )?(?:experience|work experience|work history|jobs?)$/, label: "Experience", href: "/experience", text: "His full work history is on the [Experience page]({href})." },
   { match: /^(?:his )?(?:achievements?|awards?|competitions?)$/, label: "Achievements", href: "/achievements", text: "His competition results, with photos and proof, are on the [Achievements page]({href})." },
   { match: /^(?:his )?(?:education|degrees?)$/, label: "Education", href: "/education", text: "His degrees are on the [Education page]({href})." },
