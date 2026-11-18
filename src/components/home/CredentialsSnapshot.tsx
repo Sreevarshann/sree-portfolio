@@ -15,14 +15,24 @@ export function CredentialsSnapshot() {
             return (
               <li
                 key={ed.institution}
-                className="edu-card panel group relative flex items-center gap-5 p-6 transition-[border-color,transform] duration-500 hover:-translate-y-1 hover:border-accent md:gap-7 md:p-8"
+                className="edu-card lux lux-edu panel group relative flex items-center gap-5 p-6 md:gap-7 md:p-8"
                 data-reveal
                 style={{ ["--i" as string]: i } as React.CSSProperties}
               >
-                <span className="logo-plate logo-plate-lg flex shrink-0 items-center justify-center">
-                  <LogoImage src={logo.light} alt={logo.alt} width={logo.width} height={logo.height} fallback={ed.institution.split(" ")[0]} className="h-full w-full object-contain" />
+                {/* Decorative academic linework: fine concentric arcs. */}
+                <svg className="edu-geo" viewBox="0 0 200 200" aria-hidden="true">
+                  {[92, 74, 56, 38].map((r, k) => (
+                    <circle key={r} cx="200" cy="0" r={r * 1.6} style={{ ["--k" as string]: k }} />
+                  ))}
+                  <path d="M40 0 L200 160" />
+                  <path d="M90 0 L200 110" />
+                </svg>
+                <span className="edu-emblem relative flex shrink-0">
+                  <span className="logo-plate logo-plate-lg relative z-[1] flex items-center justify-center">
+                    <LogoImage src={logo.light} alt={logo.alt} width={logo.width} height={logo.height} fallback={ed.institution.split(" ")[0]} className="h-full w-full object-contain" />
+                  </span>
                 </span>
-                <span className="min-w-0">
+                <span className="relative min-w-0 flex-1">
                   <span className="block text-[1.3rem] font-medium leading-tight tracking-[-0.025em] text-fg">
                     <Link href="/education" className="after:absolute after:inset-0 hover:text-accent-fg">
                       {ed.institution}
@@ -38,6 +48,7 @@ export function CredentialsSnapshot() {
                     <span className="mono text-[0.72rem] text-fg-muted">{ed.date}</span>
                   </span>
                 </span>
+                <span className="lux-arrow" aria-hidden="true">→</span>
               </li>
             );
           })}

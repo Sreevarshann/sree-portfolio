@@ -213,6 +213,14 @@ export function SiteNav() {
           </span>
         </Link>
 
+        {/* Phones, tablets and menu mode: the personal wordmark fills the centre
+            between the monogram and the controls. Decorative for assistive
+            tech (the monogram is already the labelled home link). */}
+        <Link href="/" className="island-wordmark" aria-hidden="true" tabIndex={-1}>
+          <span className="wm-full">Sreevarshan</span>
+          <span className="wm-short">Sree</span>
+        </Link>
+
         <nav ref={navRef} aria-label="Primary" data-island-part="links" className="island-links relative min-w-0 flex-1 justify-center">
           <ul ref={listRef} className="relative flex w-max items-center" onMouseLeave={() => setHovered(null)}>
             <span

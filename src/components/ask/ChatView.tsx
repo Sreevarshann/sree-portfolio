@@ -6,16 +6,15 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { SreeMark } from "@/components/ui/SreeMark";
 import { MAX_INPUT, useAskSree, type ChatMessage } from "./AskSreeProvider";
-import { MORE_QUESTIONS, RECRUITER_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
-import { JdReportCard, JobDescriptionPanel, ModeSwitch } from "./RecruiterTools";
+import { MORE_QUESTIONS, SUGGESTED_QUESTIONS, type FallbackReason } from "@/lib/ai/protocol";
 import { normalizeMarkdown } from "@/lib/ai/markdown";
 import { renderCitationMarkers, resolveCitations, stripCitationMarkers, type Citation } from "@/lib/ai/citations";
 import type { SourceRef } from "@/lib/ai/protocol";
 import { profile } from "@/content/profile";
 
-export const GREETING = "Hey! I'm Sree's AI assistant. Ask me about his experience, projects, achievements, or what he's building.";
-export const SUBTITLE = "Answers from Sree's portfolio";
-export const RECRUITER_GREETING = "Recruiter Mode: ask about specific skills, or paste a job description and I'll map each requirement to verified evidence, related experience or a gap.";
+export const NAME = "My AI";
+export const GREETING = "Hey! Curious about Sree's work? Ask me anything.";
+export const SUBTITLE = "Explore Sree's work";
 
 const FALLBACK_COPY: Record<FallbackReason, string> = {
   unavailable: "I can't write an answer right now because my connection to the language model is down. These pages from the portfolio cover your question:",
@@ -103,7 +102,7 @@ function Typing() {
       {[0, 1, 2].map((i) => (
         <span key={i} aria-hidden="true" className="typing-dot h-1.5 w-1.5 rounded-full bg-accent" style={{ animationDelay: `${i * 0.16}s` }} />
       ))}
-      <span className="ml-1.5 text-[0.8rem] text-fg-muted">Thinking…</span>
+      <span className="ml-1.5 text-[0.86rem] text-fg-muted">Thinking…</span>
     </span>
   );
 }
@@ -141,7 +140,7 @@ function Suggestions({ items }: { items: string[] }) {
             type="button"
             disabled={busy}
             onClick={() => send(q)}
-            className="rounded-full border border-line bg-[var(--glass-lo)] px-3 py-1.5 text-left text-[0.8rem] text-fg-soft transition-colors hover:border-accent hover:bg-accent-soft hover:text-fg disabled:opacity-50"
+            className="ask-chip"
           >
             {q}
           </button>
@@ -156,7 +155,7 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
   if (m.role === "user") {
     return (
       <div className="msg-in flex justify-end">
-        <p className="max-w-[86%] whitespace-pre-wrap rounded-[20px] rounded-br-[6px] bg-gradient-to-br from-[var(--accent-solid)] to-[#1d47b0] px-4 py-2.5 text-[0.94rem] leading-relaxed text-white shadow-[0_8px_24px_-12px_rgb(31_95_224/0.7)]">
+        <p className="ask-user-msg max-w-[84%] whitespace-pre-wrap">
           {m.content}
         </p>
       </div>
@@ -170,12 +169,10 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
   return (
     <div className="msg-in flex gap-3">
       <div className="mt-0.5 shrink-0">
-        <SreeMark size={28} state={streaming ? "thinking" : "idle"} />
+        <SreeMark size={26} state={streaming ? "thinking" : "idle"} />
       </div>
       <div className="min-w-0 flex-1">
-        {m.report ? (
-          <JdReportCard report={m.report} />
-        ) : m.fallback ? (
+        {m.fallback ? (
           <FallbackCard reason={m.fallback.reason} links={m.fallback.links} />
         ) : m.content ? (
           <div className={`md ${streaming ? "caret" : ""}`}>
@@ -194,17 +191,17 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
         )}
         {!!sourceList.length && !streaming && !m.fallback && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <p className="text-[0.68rem] text-fg-muted">Sources</p>
+            <p className="text-[0.72rem] text-fg-muted">Sources</p>
             <ul className="flex flex-wrap gap-1.5" aria-label="Sources">
               {sourceList.map((s) => (
                 <li key={s.key}>
                   {s.href.startsWith("/") ? (
-                    <Link href={s.href} className="chip !py-1 !text-[0.68rem]">
+                    <Link href={s.href} className="chip !py-1 !text-[0.72rem]">
                       {s.n !== undefined && <span className="cite-n" aria-hidden="true">{s.n}</span>}
                       {s.title}
                     </Link>
                   ) : (
-                    <a href={s.href} target="_blank" rel="noopener noreferrer" className="chip !py-1 !text-[0.68rem]">
+                    <a href={s.href} target="_blank" rel="noopener noreferrer" className="chip !py-1 !text-[0.72rem]">
                       {s.n !== undefined && <span className="cite-n" aria-hidden="true">{s.n}</span>}
                       {s.title} ↗
                     </a>
@@ -214,7 +211,7 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
             </ul>
           </div>
         )}
-        {!streaming && !m.report && (m.content || m.status === "error" || m.fallback) && (
+        {!streaming && (m.content || m.status === "error" || m.fallback) && (
           <div className="-ml-2 mt-2 flex gap-0.5">
             {m.content && !m.fallback && <CopyButton text={stripCitationMarkers(m.content)} />}
             {isLast && (
@@ -232,72 +229,55 @@ function Message({ m, isLast }: { m: ChatMessage; isLast: boolean }) {
 }
 
 export function ChatView({ variant, onClose }: { variant: "floating" | "page"; onClose?: () => void }) {
-  const { messages, busy, send, stop, clear, draft, setDraft, mode } = useAskSree();
-  const [jdOpen, setJdOpen] = useState(false);
-  const recruiter = mode === "recruiter";
+  const { open, messages, busy, send, stop, clear, draft, setDraft } = useAskSree();
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const stick = useRef(true);
   const last = messages[messages.length - 1];
-  const status = busy ? "Sree AI is answering…" : last?.role === "assistant" && last.status === "done" ? "Answer ready." : "";
+  const status = busy ? "My AI is answering…" : last?.role === "assistant" && last.status === "done" ? "Answer ready." : "";
 
   useEffect(() => {
     const el = scroller.current;
     if (el && stick.current) el.scrollTo?.({ top: el.scrollHeight, behavior: busy ? "auto" : "smooth" });
   }, [messages, busy]);
 
+  // Focus the composer when the panel opens (it stays mounted between opens).
   useEffect(() => {
-    input.current?.focus({ preventScroll: true });
-  }, []);
+    if (variant === "page" || open) input.current?.focus({ preventScroll: true });
+  }, [open, variant]);
 
   useEffect(() => {
     const el = input.current;
     if (!el) return;
     el.style.height = "0px";
-    el.style.height = Math.min(el.scrollHeight, 160) + "px";
+    el.style.height = Math.min(el.scrollHeight, 168) + "px";
   }, [draft]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center gap-3 px-4 pb-3 pt-4 max-sm:pt-[calc(env(safe-area-inset-top)+1rem)]">
-        <div className="relative">
-          <SreeMark size={40} state={busy ? "thinking" : "idle"} />
-        </div>
+    <div className="ask-chat flex h-full min-h-0 flex-col">
+      <header className="ask-head flex items-center gap-3 px-5 pb-3.5 pt-4 max-sm:pt-[calc(env(safe-area-inset-top)+0.9rem)]">
+        <SreeMark size={38} state={busy ? "thinking" : "idle"} />
         <div className="min-w-0 flex-1">
-          <h2 className="text-[1.02rem] font-semibold tracking-[-0.015em]">Sree AI</h2>
-          <p className="truncate text-[0.74rem] text-fg-muted">{SUBTITLE}</p>
+          <h2 className="text-[1.05rem] font-semibold leading-tight tracking-[-0.015em] text-fg">{NAME}</h2>
+          <p className="truncate text-[0.8rem] leading-snug text-fg-muted">{SUBTITLE}</p>
         </div>
         {messages.length > 0 && (
-          <IconButton label="Clear conversation" onClick={clear}>
-            <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.7 8.5h5.6l.7-8.5" /></svg>
+          <IconButton label="Start a new conversation" onClick={clear}>
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M8 3v10M3 8h10" /></svg>
             <span className="hidden sm:inline">New chat</span>
           </IconButton>
         )}
         {variant === "floating" && (
           <>
-            <Link href="/ask" onClick={onClose} className="hidden h-8 w-8 items-center justify-center rounded-full text-fg-muted hover:bg-[var(--glass-lo)] hover:text-fg sm:inline-flex" aria-label="Open full-page conversation" title="Full page">
+            <Link href="/ask" onClick={onClose} className="ask-icon hidden sm:inline-flex" aria-label="Open My AI full page" title="Full page">
               <svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M9.5 2.5h4v4M13.5 2.5L9 7M6.5 13.5h-4v-4M2.5 13.5L7 9" /></svg>
             </Link>
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-fg-soft hover:bg-[var(--glass-lo)] hover:text-fg"
-              aria-label="Close Sree AI"
-            >
+            <button type="button" onClick={onClose} className="ask-icon" aria-label="Close My AI">
               <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
             </button>
           </>
         )}
-      </div>
-      <div className="flex items-center justify-between gap-3 px-4 pb-3">
-        <ModeSwitch />
-        {recruiter && (
-          <button type="button" className="jd-open" aria-expanded={jdOpen} onClick={() => setJdOpen((v) => !v)} disabled={busy}>
-            {jdOpen ? "Close job description" : "Compare a job description"}
-          </button>
-        )}
-      </div>
-      <div className="mx-4 h-px bg-gradient-to-r from-transparent via-line-strong to-transparent" aria-hidden="true" />
+      </header>
 
       <div
         ref={scroller}
@@ -305,37 +285,29 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
           const el = e.currentTarget;
           stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
         }}
-        className="thin-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5"
+        className="thin-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5"
       >
         {messages.length === 0 ? (
-          <div className="msg-in">
-            <div className="flex gap-3">
-              <div className="mt-0.5 shrink-0">
-                <SreeMark size={28} />
-              </div>
-              <p className="rounded-[20px] rounded-tl-[6px] bg-[var(--glass-lo)] px-4 py-3 text-[0.98rem] leading-relaxed text-fg ring-1 ring-line">{recruiter ? RECRUITER_GREETING : GREETING}</p>
-            </div>
-            <ul className="mt-5 grid grid-cols-2 gap-2" aria-label="Suggested questions">
-              {(recruiter ? RECRUITER_QUESTIONS : SUGGESTED_QUESTIONS).map((q, i) => (
-                <li key={q} className="msg-in" style={{ animationDelay: `${120 + i * 60}ms` }}>
-                  <button
-                    type="button"
-                    onClick={() => send(q)}
-                    className="group flex h-full w-full items-center justify-between gap-2 rounded-2xl border border-line bg-[var(--glass-lo)] px-3.5 py-3 text-left text-[0.88rem] text-fg-soft transition-[border-color,background-color,color,transform] duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-accent-soft hover:text-fg active:translate-y-0"
-                  >
-                    <span>{q}</span>
-                    <span className="shrink-0 text-accent transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          <div className="ask-welcome msg-in">
+            <SreeMark size={44} />
+            <p className="ask-welcome-name">{NAME}</p>
+            <p className="ask-welcome-text">{GREETING}</p>
+            <ul className="mt-5 flex flex-wrap justify-center gap-2" aria-label="Suggested questions">
+              {SUGGESTED_QUESTIONS.map((q, i) => (
+                <li key={q} className="msg-in" style={{ animationDelay: `${80 + i * 50}ms` }}>
+                  <button type="button" onClick={() => send(q)} className="ask-chip">
+                    {q}
                   </button>
                 </li>
               ))}
             </ul>
-            {variant === "page" && !recruiter && (
+            {variant === "page" && (
               <>
-                <p className="eyebrow mt-8">More to ask</p>
-                <ul className="mt-3 flex flex-wrap gap-2">
+                <p className="eyebrow mt-10">More to ask</p>
+                <ul className="mt-3 flex flex-wrap justify-center gap-2">
                   {MORE_QUESTIONS.map((q) => (
                     <li key={q}>
-                      <button type="button" onClick={() => send(q)} className="chip !py-1.5 hover:!border-accent">
+                      <button type="button" onClick={() => send(q)} className="ask-chip">
                         {q}
                       </button>
                     </li>
@@ -345,7 +317,7 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
             )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-7">
             {messages.map((m, i) => (
               <Message key={m.id} m={m} isLast={i === messages.length - 1} />
             ))}
@@ -357,21 +329,16 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
         {status}
       </p>
 
-      {recruiter && jdOpen && (
-        <div className="px-3 pb-2">
-          <JobDescriptionPanel onDone={() => setJdOpen(false)} />
-        </div>
-      )}
       <form
-        className="px-3 pb-3 max-sm:pb-[calc(env(safe-area-inset-bottom)+0.75rem)]"
+        className="ask-compose px-4 pb-4 pt-2 max-sm:pb-[calc(env(safe-area-inset-bottom)+0.75rem)]"
         onSubmit={(e) => {
           e.preventDefault();
           send(draft);
         }}
       >
-        <div className="flex items-end gap-2 rounded-[22px] border border-line bg-bg-elev px-3 py-2 shadow-[inset_0_1px_0_var(--glass-lo)] transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/15">
+        <div className="ask-field">
           <label htmlFor={`ask-input-${variant}`} className="sr-only">
-            Ask a question about Sree
+            Ask My AI about Sree
           </label>
           <textarea
             id={`ask-input-${variant}`}
@@ -386,35 +353,54 @@ export function ChatView({ variant, onClose }: { variant: "floating" | "page"; o
                 send(draft);
               }
             }}
-            placeholder={recruiter ? "Ask about a skill or requirement…" : "Ask about his work…"}
-            className="chat-input max-h-40 min-h-[28px] flex-1 resize-none bg-transparent py-1 text-[16px] leading-6 text-fg outline-none placeholder:text-fg-muted focus-visible:outline-none sm:text-[0.95rem]"
+            placeholder="Ask about Sree's work…"
+            className="chat-input max-h-[168px] min-h-[26px] flex-1 resize-none bg-transparent py-1.5 text-[16px] leading-[1.55] text-fg outline-none placeholder:text-fg-muted focus-visible:outline-none"
           />
           {busy ? (
-            <button type="button" onClick={stop} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-line px-3 text-sm hover:border-accent" aria-label="Stop generating">
-              <span className="h-2.5 w-2.5 rounded-[2px] bg-fg" aria-hidden="true" /> Stop
+            <button type="button" onClick={stop} className="ask-send ask-stop" aria-label="Stop generating" title="Stop">
+              <span className="h-2.5 w-2.5 rounded-[2px] bg-current" aria-hidden="true" />
             </button>
           ) : (
-            <button
-              type="submit"
-              disabled={!draft.trim()}
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-solid text-white transition-[opacity,transform] duration-300 ease-[var(--ease-spring)] hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-35"
-              aria-label="Send question"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <button type="submit" disabled={!draft.trim()} className="ask-send" aria-label="Send question" title="Send">
+              <svg width="17" height="17" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           )}
         </div>
-        <p className="mt-2 flex justify-between gap-3 px-2 text-[0.66rem] text-fg-muted">
+        <p className="mt-2 flex justify-between gap-3 px-2 text-[0.7rem] text-fg-muted">
           <span>AI answers can be wrong. Check important details with Sree.</span>
           {draft.length > MAX_INPUT * 0.8 && <span className="mono tabular-nums">{draft.length}/{MAX_INPUT}</span>}
         </p>
       </form>
       <style>{`
+        .ask-head{border-bottom:1px solid color-mix(in oklab,var(--line) 80%,transparent)}
+        .ask-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:999px;color:var(--fg-soft);transition:background-color .2s,color .2s}
+        .ask-icon:hover{background:var(--glass-lo);color:var(--fg)}
+        .ask-icon:focus-visible,.ask-chip:focus-visible,.ask-send:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+        .ask-chat .md{font-size:15.5px;line-height:1.62;color:var(--fg)}
+        .ask-chat .md > * + *{margin-top:.75em}
+        .ask-chat .md li + li{margin-top:.35em}
+        .ask-chat .md code{font-size:.86em}
+        .ask-chat .md pre{font-size:13.5px;line-height:1.55}
+        .ask-chat .md h1,.ask-chat .md h2,.ask-chat .md h3{font-size:1.02em;margin-top:1.1em}
+        .ask-user-msg{padding:.6rem .95rem;border-radius:18px 18px 6px 18px;font-size:15.5px;line-height:1.55;color:var(--fg);background:color-mix(in oklab,var(--accent) 16%,var(--bg-elev));box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--accent) 30%,transparent)}
+        .ask-welcome{display:flex;min-height:100%;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.5rem .5rem}
+        .ask-welcome-name{margin-top:.9rem;font-size:1.15rem;font-weight:600;letter-spacing:-.015em;color:var(--fg)}
+        .ask-welcome-text{margin-top:.35rem;max-width:22rem;font-size:15.5px;line-height:1.55;color:var(--fg-soft)}
+        .ask-chip{display:inline-flex;align-items:center;min-height:34px;padding:.4rem .85rem;border-radius:999px;border:1px solid var(--line);background:var(--glass-lo);font-size:.86rem;line-height:1.3;text-align:left;color:var(--fg-soft);transition:border-color .2s,background-color .2s,color .2s,transform .3s var(--ease-spring)}
+        .ask-chip:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--fg);transform:translateY(-1px)}
+        .ask-chip:disabled{opacity:.5;transform:none}
+        .ask-compose{border-top:1px solid color-mix(in oklab,var(--line) 70%,transparent)}
+        .ask-field{display:flex;align-items:flex-end;gap:.5rem;padding:.45rem .45rem .45rem 1rem;border-radius:22px;border:1px solid var(--line);background:var(--bg-elev);transition:border-color .2s,box-shadow .2s}
+        .ask-field:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab,var(--accent) 16%,transparent)}
+        .ask-send{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;color:#fff;background:var(--accent-solid);transition:opacity .2s,transform .3s var(--ease-spring),background-color .2s}
+        .ask-send:hover:not(:disabled){transform:scale(1.05)}
+        .ask-send:disabled{opacity:.35;cursor:not-allowed}
+        .ask-stop{background:var(--fg);color:var(--bg)}
         @media (prefers-reduced-motion: no-preference){
-          .msg-in{animation:msgIn 520ms var(--ease-spring) both}
+          .msg-in{animation:msgIn 320ms var(--ease-out) both}
           .typing-dot{animation:typing 1.1s var(--ease-in-out) infinite}
         }
-        @keyframes msgIn{from{opacity:0;transform:translateY(10px) scale(.985)}}
+        @keyframes msgIn{from{opacity:0;transform:translateY(6px)}}
         @keyframes typing{0%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
       `}</style>
     </div>

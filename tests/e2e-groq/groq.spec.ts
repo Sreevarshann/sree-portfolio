@@ -6,11 +6,11 @@ async function openChat(page: Page) {
   await page.goto("/ask");
   await page.evaluate(() => sessionStorage.clear());
   await page.reload();
-  return page.getByLabel("Ask a question about Sree");
+  return page.getByLabel("Ask My AI about Sree");
 }
 
 async function ask(page: Page, q: string) {
-  const input = page.getByLabel("Ask a question about Sree");
+  const input = page.getByLabel("Ask My AI about Sree");
   await input.fill(q);
   await input.press("Enter");
 }

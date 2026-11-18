@@ -16,7 +16,7 @@ export function ProjectGallery({ projects }: { projects: Project[] }) {
         <li key={p.slug} className="flex min-w-0" data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
           <article
             aria-labelledby={`pg-${p.slug}`}
-            className="project-card panel group relative flex w-full min-w-0 flex-col overflow-hidden transition-[border-color,transform,box-shadow] duration-500 hover:-translate-y-1 hover:border-accent"
+            className="project-card lux lux-proj panel group relative flex w-full min-w-0 flex-col overflow-hidden"
             style={{ ["--p" as string]: p.accent } as React.CSSProperties}
           >
             {/* Pointer shortcut to the case study; the title link is the accessible one. */}

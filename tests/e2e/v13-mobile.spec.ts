@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 /**
  * V13 mobile hotfix: the page opens at the top, the portrait and the whole
  * centred name share the first screen, the floating logo-only launcher is the
- * one Ask My AI entry point, and no hint covers the portrait on phones.
+ * one My AI entry point, and no hint covers the portrait on phones.
  */
 
 const PHONES = [
@@ -96,22 +96,22 @@ test.describe("mobile hero", () => {
   });
 });
 
-test.describe("one Ask My AI entry point", () => {
+test.describe("one My AI entry point", () => {
   test("not in the navigation or the hero; the floating launcher opens the chat", async ({ page }, info) => {
     await page.goto("/");
-    await expect(page.locator("header").getByRole("button", { name: /Ask My AI/ })).toHaveCount(0);
-    await expect(page.locator(".hero-actions").getByRole("button", { name: /Ask My AI/ })).toHaveCount(0);
+    await expect(page.locator("header").getByRole("button", { name: /My AI/ })).toHaveCount(0);
+    await expect(page.locator(".hero-actions").getByRole("button", { name: /My AI/ })).toHaveCount(0);
     await expect(page.locator(".hero-actions a")).toHaveText([/View projects/, /Resume/]);
     if (info.project.name === "mobile") {
       // The expanded menu has none either: the floating launcher is the only one.
       await page.getByRole("button", { name: "Open menu" }).click();
-      await expect(page.getByRole("button", { name: /Ask My AI/ })).toHaveCount(1);
+      await expect(page.getByRole("button", { name: /My AI/ })).toHaveCount(1);
       await page.keyboard.press("Escape");
     }
-    const launchers = page.getByRole("button", { name: /^Ask My AI$/ });
+    const launchers = page.getByRole("button", { name: /^My AI$/ });
     await expect(launchers).toHaveCount(1);
     await launchers.click();
-    await expect(page.getByRole("dialog", { name: "Sree AI assistant" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "My AI assistant" })).toBeVisible();
   });
 });
 
@@ -133,7 +133,8 @@ test.describe("scroll position on a fresh visit", () => {
 });
 
 test("the closed Spider-Man mask never degenerates (Safari draws all-zero stops as transparent)", async ({ page }) => {
-  await page.goto("/");
+  // Read it during the hold: as soon as the server-rendered portrait exists.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   const mask = await page.locator(".pswap-illustrated").first().evaluate((e) => {
     const cs = getComputedStyle(e);
     return cs.maskImage || cs.getPropertyValue("-webkit-mask-image");

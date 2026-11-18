@@ -1,8 +1,9 @@
 import { certifications } from "@/content/credentials";
 import { BrandIcon } from "@/components/ui/BrandIcon";
+/* eslint-disable @next/next/no-img-element -- tiny static brand SVGs in their own colors */
 
 /**
- * Homepage certifications: one compact card per verified credential, from
+ * Homepage certifications: one credential plate per verified record, from
  * the same records as /certifications. Each shows the issuer's mark, the
  * credential, the issuer, what kind of credential it is (a training course is
  * never presented as an exam certification) and its verification link. No
@@ -16,10 +17,17 @@ export function CertificationsSnapshot() {
         const external = /^https?:/.test(href);
         return (
           <li key={c.name} className="flex min-w-0" data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
-            <article aria-labelledby={`cert-${i}`} className="cert-card panel group relative flex w-full min-w-0 flex-col p-5 md:p-6">
+            <article aria-labelledby={`cert-${i}`} className="cert-card lux lux-cert panel group relative flex w-full min-w-0 flex-col p-5 md:p-6">
               <div className="flex items-start gap-4">
-                <span className="cert-mark flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" aria-hidden="true">
-                  {c.issuerIcon ? <BrandIcon name={c.issuerIcon} size={22} /> : <span className="text-[0.95rem] font-semibold lowercase tracking-[-0.04em]">{c.issuerMark}</span>}
+                {/* The issuer's own logo in its own colors, on a white plate in both themes. */}
+                <span className="cert-mark flex h-12 w-14 shrink-0 items-center justify-center rounded-xl" aria-hidden="true">
+                  {c.issuerLogo ? (
+                    <img src={c.issuerLogo.src} alt="" width={c.issuerLogo.width} height={c.issuerLogo.height} className="cert-logo" style={{ aspectRatio: `${c.issuerLogo.width} / ${c.issuerLogo.height}` }} />
+                  ) : c.issuerIcon ? (
+                    <BrandIcon name={c.issuerIcon} size={22} brand />
+                  ) : (
+                    <span className="text-[0.95rem] font-semibold lowercase tracking-[-0.04em]">{c.issuerMark}</span>
+                  )}
                 </span>
                 <span className="min-w-0">
                   <h3 id={`cert-${i}`} className="text-[1.05rem] font-medium leading-snug tracking-[-0.02em] text-fg">

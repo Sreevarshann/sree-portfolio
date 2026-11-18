@@ -42,15 +42,15 @@ test.describe("dynamic island geometry", () => {
     });
   }
 
-  test("the navigation never carries Ask My AI, expanded or compact", async ({ page }) => {
+  test("the navigation never carries My AI, expanded or compact", async ({ page }) => {
     for (const width of [1920, 1280, 820]) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
       const nav = page.locator("header");
-      await expect(nav.getByRole("button", { name: /Ask My AI/ })).toHaveCount(0);
+      await expect(nav.getByRole("button", { name: /My AI/ })).toHaveCount(0);
       await scrollTo(page, 1500);
       await settle(page);
-      await expect(nav.getByRole("button", { name: /Ask My AI/ })).toHaveCount(0);
+      await expect(nav.getByRole("button", { name: /My AI/ })).toHaveCount(0);
     }
   });
 
@@ -97,7 +97,7 @@ test.describe("dynamic island geometry", () => {
       names.push(await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent?.trim() ?? ""));
     }
     expect(names[0]).toBe("Sreevarshan Sathiyamurthy - Home");
-    expect(names).not.toContain("Ask My AI - open Sree AI");
+    expect(names.some((n) => /My AI/.test(n ?? ""))).toBe(false);
     expect(names.some((n) => /Switch to (light|dark) theme/.test(n))).toBe(true);
   });
 
@@ -106,8 +106,8 @@ test.describe("dynamic island geometry", () => {
     await page.goto("/projects");
     await scrollTo(page, 1200);
     await settle(page);
-    await page.getByRole("button", { name: /^Ask My AI$/ }).click();
-    const dialog = page.getByRole("dialog", { name: /Sree AI/ });
+    await page.getByRole("button", { name: /^My AI$/ }).click();
+    const dialog = page.getByRole("dialog", { name: /My AI assistant/ });
     await expect(dialog).toBeVisible({ timeout: 15_000 });
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();

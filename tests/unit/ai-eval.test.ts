@@ -143,8 +143,8 @@ describe("conversation rules", () => {
     expect(fresh.kind === "model" && fresh.chunks[0].id).toBe("profile");
   });
 
-  it("treats a pasted job description as a recruiter request, even in General mode", () => {
-    const plan = planAnswer([{ role: "user", content: JOB_DESCRIPTION }], { mode: "general" });
+  it("treats a pasted job description as a requirements-to-evidence request in the one chat", () => {
+    const plan = planAnswer([{ role: "user", content: JOB_DESCRIPTION }]);
     expect(plan.kind === "model" && plan.mode).toBe("recruiter");
     expect(plan.kind === "model" && plan.jobDescription).toBe(true);
     expect(planAnswer([{ role: "user", content: "What is SQL?" }]).kind === "model").toBe(true);

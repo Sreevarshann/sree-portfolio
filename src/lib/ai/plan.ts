@@ -2,7 +2,6 @@ import { analyze, modeOf, type Analysis, type Mode } from "./intent";
 import { retrieveConversation, type SkillPins, type Turn } from "./retrieve";
 import { looksLikeJobDescription, quickReply, type QuickReply } from "./smalltalk";
 import type { KnowledgeChunk } from "./knowledge";
-import type { ChatMode } from "./protocol";
 import { skillsInText } from "@/lib/skillSearch";
 
 /**
@@ -20,7 +19,7 @@ export type AnswerPlan =
   | { kind: "quick"; reply: QuickReply }
   | { kind: "model"; chunks: KnowledgeChunk[]; analysis: Analysis; mode: Mode; jobDescription: boolean };
 
-export function planAnswer(history: Turn[], opts: { mode?: ChatMode; pins?: SkillPins } = {}): AnswerPlan {
+export function planAnswer(history: Turn[], opts: { pins?: SkillPins } = {}): AnswerPlan {
   const latest = history[history.length - 1]?.content ?? "";
   const earlier = history.filter((m) => m.role === "user").length - 1;
   const reply = quickReply(latest, earlier);
@@ -37,8 +36,8 @@ export function planAnswer(history: Turn[], opts: { mode?: ChatMode; pins?: Skil
   const own = analyze(latest);
   const inherited = modeOf(analysis);
   const base: Mode = own.intents[0] !== "general" ? modeOf(own) : inherited === "private" || inherited === "casual" ? "facts" : inherited;
-  // Recruiter Mode (or a pasted job description) reframes professional answers;
-  // private and playful questions keep their own mode.
-  const mode: Mode = (opts.mode === "recruiter" || jobDescription) && base !== "private" && base !== "casual" ? "recruiter" : base;
+  // A pasted job description reframes professional answers as a
+  // requirements-to-evidence map; private and playful questions keep their mode.
+  const mode: Mode = jobDescription && base !== "private" && base !== "casual" ? "recruiter" : base;
   return { kind: "model", chunks, analysis, mode, jobDescription };
 }
