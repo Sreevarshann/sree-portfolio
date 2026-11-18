@@ -5,7 +5,7 @@ const size = (page: import("@playwright/test").Page, sel: string) => page.locato
 
 test.describe("hero identity hierarchy", () => {
   test("one h1 reads the full name; the first name is the largest type", async ({ page }) => {
-    await page.goto("/?view=quick");
+    await page.goto("/");
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Hey, I'm Sreevarshan Sathiyamurthy.");
     await expect(page.locator(".hero-hey")).toHaveText("Hey, I'm");
@@ -26,7 +26,7 @@ test.describe("hero identity hierarchy", () => {
   for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440, 1920, 2560]) {
     test(`${width}px: name unclipped, caption centred, no overflow`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto("/?view=quick");
+      await page.goto("/");
       const r = await page.evaluate(() => {
         const name = document.querySelector(".hero-first-mask")!.getBoundingClientRect();
         const col = document.querySelector(".hero-id")!.parentElement!.getBoundingClientRect();
@@ -52,7 +52,7 @@ test.describe("hero identity hierarchy", () => {
   test("the photo label says only 'Sree', readable in both themes", async ({ page }) => {
     for (const theme of ["dark", "light"]) {
       await page.addInitScript((t) => localStorage.setItem("theme", t), theme);
-      await page.goto("/?view=quick");
+      await page.goto("/");
       const cap = page.locator(".pswap-caption").first();
       await expect(cap).toHaveText("Sree", { useInnerText: true });
       expect(await cap.evaluate((e) => getComputedStyle(e).textTransform)).toBe("none");
@@ -63,7 +63,7 @@ test.describe("hero identity hierarchy", () => {
   test("reduced motion: the whole introduction is visible immediately", async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: "reduce" });
     const page = await ctx.newPage();
-    await page.goto("/?view=quick");
+    await page.goto("/");
     for (const sel of [".hero-hey", ".hero-first", ".hero-nick", ".hero-title"]) {
       expect(await page.locator(sel).first().evaluate((e) => getComputedStyle(e).opacity), sel).toBe("1");
     }

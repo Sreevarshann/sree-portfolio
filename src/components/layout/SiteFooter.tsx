@@ -1,12 +1,24 @@
 import Link from "next/link";
 import { profile } from "@/content/profile";
-import { MORE_NAV, PRIMARY_NAV } from "@/lib/nav";
 import { BostonLine } from "@/components/ui/BostonLine";
 import { ContourEcho } from "@/components/ui/ContourEcho";
 import { BostonClock } from "./BostonClock";
 import { NightSky } from "./NightSky";
 import { BrandIcon } from "@/components/ui/BrandIcon";
 import { formatUpdated, updatedMonthISO } from "@/lib/release";
+
+/** The dedicated pages, in the same order as the homepage sections. */
+const FOOTER_PAGES = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/achievements", label: "Achievements" },
+  { href: "/education", label: "Education" },
+  { href: "/experience", label: "Experience" },
+  { href: "/projects", label: "Projects" },
+  { href: "/certifications", label: "Certifications" },
+  { href: "/contact", label: "Contact" },
+  { href: "/ask", label: "Sree AI" },
+];
 
 export function SiteFooter() {
   const updated = formatUpdated();
@@ -26,7 +38,7 @@ export function SiteFooter() {
           <nav aria-label="Footer">
             <p className="eyebrow">Index</p>
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              {[{ href: "/", label: "Home" }, ...PRIMARY_NAV, ...MORE_NAV.filter((l) => !("external" in l)), { href: "/ask", label: "Sree AI" }].map((l) => (
+              {FOOTER_PAGES.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="link-u text-fg-soft hover:text-fg">
                     {l.label}

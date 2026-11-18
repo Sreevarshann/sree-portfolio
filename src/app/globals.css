@@ -1198,9 +1198,20 @@ a:focus-visible > .ss-mark .ss-rule {
   .team-field[data-in] .tf-me { animation: tf-in 500ms var(--ease-out) 600ms both, tf-pulse 2.4s var(--ease-in-out) 2500ms infinite; transform-box: fill-box; transform-origin: center; }
   .funnel[data-armed]:not([data-in]) .funnel-bar { transform: scaleX(0); }
   .funnel[data-in] .funnel-bar { animation: funnel-draw 900ms var(--ease-emph) calc(var(--k) * 420ms + 300ms) both; transform-origin: left; }
-  .podium[data-armed]:not([data-in]) .pd-bar { transform: scaleY(0); }
-  .podium[data-in] .pd-bar { animation: pd-up 1100ms var(--ease-spring-soft) var(--d) both; }
-  .podium[data-in] .pd-me { animation: pd-up 1100ms var(--ease-spring-soft) var(--d) both, pd-glow 2.4s var(--ease-in-out) 1400ms infinite; }
+  /* MLOps emblem: the pipeline lights up, data flows along its paths and
+     converges on the badge, which draws its ring and settles once. */
+  .emblem[data-armed]:not([data-in]) :is(.em-node, .em-badge) { opacity: 0; }
+  .emblem[data-armed]:not([data-in]) .em-path { stroke-dashoffset: 1; }
+  .emblem .em-path { stroke-dasharray: 1; }
+  .emblem .em-flow { stroke-dasharray: 0.12 1; stroke-dashoffset: 0.12; opacity: 0; }
+  .emblem[data-in] .em-node { animation: em-fade 500ms var(--ease-out) var(--d) both; }
+  .emblem[data-in] .em-path { animation: em-draw 900ms var(--ease-emph) var(--d) both; }
+  .emblem[data-in] .em-flow { animation: em-flow 1300ms var(--ease-in-out) var(--d) 2 both; }
+  .emblem[data-in] .em-badge { animation: em-badge 900ms var(--ease-spring-soft) 1500ms both; transform-box: fill-box; transform-origin: center; }
+  .emblem[data-in] .em-ring { stroke-dasharray: 1; animation: em-draw 1000ms var(--ease-emph) 1500ms both; }
+  .emblem[data-in] .em-ticks { animation: em-fade 700ms var(--ease-out) 2000ms both; }
+  .emblem[data-in] .em-rank,
+  .emblem[data-in] .em-arc { animation: em-fade 700ms var(--ease-out) 1900ms both; }
   .rank-counter[data-landed] { animation: rank-land 700ms var(--ease-spring) both; }
 }
 @keyframes tf-in { from { opacity: 0; } }
@@ -1209,8 +1220,10 @@ a:focus-visible > .ss-mark .ss-rule {
 @keyframes tf-lift { 50% { transform: scale(1.5); } }
 @keyframes tf-pulse { 50% { transform: scale(1.45); } }
 @keyframes funnel-draw { from { transform: scaleX(0); } }
-@keyframes pd-up { from { transform: scaleY(0); } }
-@keyframes pd-glow { 50% { filter: drop-shadow(0 0 10px color-mix(in oklab, var(--accent) 70%, transparent)); } }
+@keyframes em-fade { from { opacity: 0; } }
+@keyframes em-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes em-flow { 0% { stroke-dashoffset: 0.12; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { stroke-dashoffset: -1; opacity: 0; } }
+@keyframes em-badge { from { opacity: 0; transform: scale(0.9); } 60% { opacity: 1; } }
 @keyframes rank-land { 40% { transform: translateY(-4px); } }
 
 /* ------------------------------------------------------------------ closing + credentials */
@@ -1362,6 +1375,10 @@ a:focus-visible > .ss-mark .ss-rule {
     margin-bottom: 3.1rem;
   }
   .hero-portrait .pswap-note { top: calc(100% + 10px); }
+  /* The actions stay centred and clear of the floating Ask My AI button
+     in the bottom corner: the row keeps the button's width free on both
+     sides, so the two actions wrap onto two lines rather than run under it. */
+  .hero-actions { padding-inline: 66px; }
 }
 /* Very short phones (iPhone SE): a little smaller still, so the nickname
    clears the floating Ask My AI button too. */
@@ -1443,26 +1460,50 @@ a:focus-visible > .ss-mark .ss-rule {
   color: var(--accent-fg);
   padding-right: 0.04em;
 }
-.hero-work {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: clamp(2rem, 6vw, 2.5rem);
-  text-align: center;
+/* The engineering statement: the second chapter of the introduction. It is
+   always laid out (its room is reserved from the first paint) but painted
+   only once the name has been revealed; then it rises in, word group by word
+   group, from a small blur to sharp text. */
+.hero-intro {
+  --st-fs: clamp(1.6rem, 6vw, 2.6rem);
+  --st-lh: 1.08;
+  --st-gap: clamp(1rem, 2.2vw, 1.5rem);
 }
-.hero-title.display {
-  max-width: 24ch;
-  font-size: clamp(1.75rem, 6.2vw, 3rem);
-  line-height: 1.04;
+.hero-statement.display {
+  margin: var(--st-gap) auto 0;
+  max-width: 17em;
+  font-size: var(--st-fs);
+  line-height: var(--st-lh);
   letter-spacing: -0.04em;
   text-wrap: balance;
+}
+.hs-part {
+  display: inline;
+  transition:
+    opacity 520ms var(--ease-out) calc(var(--i) * 70ms),
+    filter 520ms var(--ease-out) calc(var(--i) * 70ms);
+}
+.hero-stage:not([data-intro="done"]) .hs-part {
+  opacity: 0;
+  filter: blur(6px);
+  transition: none;
+}
+.hero-statement {
+  transition: transform 620ms var(--ease-emph);
+}
+.hero-stage:not([data-intro="done"]) .hero-statement {
+  transform: translateY(14px);
+  transition: none;
+}
+.hero-namegroup {
+  transition: transform 640ms var(--ease-emph);
 }
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.75rem;
-  margin-top: clamp(1.5rem, 3vw, 2rem);
+  margin-top: clamp(1.75rem, 4vw, 2.25rem);
 }
 @media (min-width: 1024px) {
   .hero-identity {
@@ -1478,65 +1519,124 @@ a:focus-visible > .ss-mark .ss-rule {
     margin: 0;
   }
   .hero-intro {
+    --st-fs: clamp(2rem, 2.65vw, 2.85rem);
+    --st-gap: clamp(1.5rem, 2.2vw, 2rem);
     grid-column: 1;
     grid-row: 1;
     min-width: 0;
     text-align: left;
-    /* Centre the name on the photograph itself: the print's "Sree" caption
-       hangs below the image and the nickname below the name, so the column
-       carries a little extra room underneath to balance them. */
+    /* Centre the group on the photograph itself: the print's "Sree" caption
+       hangs below the image, so the column carries a little extra room. */
     padding-bottom: 1rem;
+  }
+  .hero-statement.display { margin-left: 0; }
+  /* While the statement is hidden, the name sits half its height lower, so
+     the visible group is centred on the portrait; when the statement
+     arrives the name glides up by exactly that much. The statement is two
+     lines at every desktop width (its measure is 17em), so the shift is
+     known before any script runs; the hero refines it from the real height. */
+  .hero-stage:not([data-intro="done"]) .hero-namegroup {
+    transform: translateY(var(--statement-shift, calc((2 * var(--st-lh) * var(--st-fs) + var(--st-gap)) / 2)));
+    transition: none;
   }
   .hero-first { font-size: clamp(5rem, 8.8vw, 8.6rem); }
   .hero-nick { font-size: clamp(1.4rem, 1.9vw, 1.85rem); }
-  .hero-work {
-    /* Clears the hint under the portrait. */
-    margin-top: 4.25rem;
+  .hero-stage { margin-top: 1.5rem; }
+  .hero-actions { margin-top: 1.75rem; }
+  /* Keep clear of the floating Ask My AI launcher (label and keycaps, about
+     210px from the viewport's right edge) when the container reaches that far. */
+  .hero-meta {
+    margin-top: 1.75rem;
+    padding-top: 1rem;
+    padding-right: max(0px, calc(236px - (100vw - 100%) / 2));
   }
-  .hero-title.display { font-size: clamp(2.2rem, 3.1vw, 3.3rem); }
 }
-/* Short laptop screens (1280 x 800): tighten the vertical rhythm so the
-   statement and the actions stay in the first view. */
+/* Short laptop screens (1280 x 800): a tighter vertical rhythm. */
 @media (min-width: 1024px) and (max-height: 860px) {
-  .hero-stage { margin-top: 1.25rem; }
-  .hero-work { margin-top: 3.75rem; }
-  .hero-title.display { font-size: clamp(2rem, 2.7vw, 3rem); }
+  .hero-stage { margin-top: 0.75rem; }
   .hero-actions { margin-top: 1.25rem; }
+  .hero-meta { margin-top: 1.25rem; }
 }
-.hero-facts {
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage .hero-namegroup,
+  .hero-stage .hero-statement,
+  .hero-stage .hs-part {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
+/* The compact information strip: editorial metadata under the actions,
+   visible from the first paint. Four groups separated by hairlines. */
+.hero-meta {
   display: grid;
-  gap: 1.25rem 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 1.5rem;
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
 }
-.hero-facts dd {
-  margin-top: 0.45rem;
-  font-size: 0.98rem;
+.hero-meta-item { min-width: 0; }
+.hero-meta dd {
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
   line-height: 1.4;
   color: var(--fg);
   letter-spacing: -0.01em;
 }
-.company-link {
+.hero-meta-sub {
+  display: block;
+  color: var(--fg-soft);
+}
+.hero-meta-item:last-child { grid-column: 1 / -1; }
+.hero-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* Each mark is the official light-background artwork on its own small white
+   plate in both themes (like the education logos), so every logo reads
+   clearly on the dark theme without filtering or recolouring it. */
+.hero-logo {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  opacity: 0.82;
-  filter: grayscale(0.25);
-  transition: opacity var(--dur-s) var(--ease-out), filter var(--dur-s) var(--ease-out), transform var(--dur-m) var(--ease-spring-soft);
+  justify-content: center;
+  height: 44px;
+  min-width: 44px;
+  padding: 0 0.7rem;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.1);
+  transition: box-shadow var(--dur-s) var(--ease-out), transform var(--dur-m) var(--ease-spring-soft);
 }
-.company-link:hover,
-.company-link:focus-visible {
-  opacity: 1;
-  filter: none;
-  transform: translateY(-2px);
+:root:not([data-theme="light"]) .hero-logo { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12); }
+.hero-logo:hover,
+.hero-logo:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+  transform: translateY(-1px);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .company-mark {
-    animation: company-in var(--dur-xl) var(--ease-out) both;
-    animation-delay: calc(0.9s + var(--i) * 90ms);
+.hero-logo-img {
+  height: var(--logo-h, 24px);
+  width: auto;
+}
+@media (min-width: 768px) {
+  .hero-meta {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1.15fr) auto;
+    gap: 0;
+  }
+  .hero-meta-item:last-child { grid-column: auto; }
+  .hero-meta-item + .hero-meta-item {
+    padding-left: clamp(1rem, 2vw, 1.75rem);
+    margin-left: clamp(1rem, 2vw, 1.75rem);
+    border-left: 1px solid var(--line);
   }
 }
-@keyframes company-in {
-  from { clip-path: inset(0 100% 0 0); transform: translateY(4px); }
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 0; }
+  .hero-meta-item:nth-child(3) { padding-left: 0; margin-left: 0; border-left: 0; }
 }
 
 /* ------------------------------------------------------ portrait (swap) */
@@ -2270,195 +2370,40 @@ a:focus-visible > .ss-mark .ss-rule {
 
 
 /* ================================================================== V7 */
-/* ------------------------------------------------ Quick / Detailed views
-   html[data-view] is set before paint (viewScript); blocks for the other view
-   are display:none - out of layout and of the accessibility tree. */
-html[data-view="quick"] .v-detailed,
-html[data-view="detailed"] .v-quick {
-  display: none !important;
+/* ------------------------------------------------- experience tiles (home)
+   Three near-square tiles on desktop (equal heights from the grid), stacked
+   on phones. The whole tile is the "View details" link's hit area. */
+.xp-tile,
+.cert-card {
+  transition: border-color var(--dur-m) var(--ease-out), transform var(--dur-m) var(--ease-spring-soft), box-shadow var(--dur-m) var(--ease-out);
 }
-@media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: var(--dur-m);
-    animation-timing-function: var(--ease-out);
-  }
+.xp-tile:hover,
+.xp-tile:focus-within,
+.cert-card:hover,
+.cert-card:focus-within {
+  border-color: var(--accent);
+  transform: translateY(-3px);
 }
-
-/* ---------------------------------------------------------- view switch */
-.view-switch {
-  position: relative;
-  display: inline-grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  align-items: center;
-  height: 36px;
-  padding: 3px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--bg) 55%, transparent);
-  box-shadow: inset 0 0 0 1px var(--line);
+/* Near-square on desktop; on narrower screens the content sets the height. */
+@media (min-width: 1024px) {
+  .xp-tile { aspect-ratio: 1 / 0.92; }
 }
-.view-switch-opt {
-  position: relative;
-  z-index: 1;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-  color: var(--fg-muted);
-  transition: color var(--dur-s) var(--ease-out);
-}
-.view-switch-opt:hover { color: var(--fg); }
-.view-switch-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-html[data-view="quick"] .view-switch-opt[data-view-option="quick"],
-html[data-view="detailed"] .view-switch-opt[data-view-option="detailed"] { color: var(--fg); }
-.view-switch-thumb {
-  position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 3px;
-  width: calc(50% - 3px);
-  border-radius: 999px;
-  background: var(--accent-soft);
-  box-shadow: inset 0 0 0 1px rgb(120 170 255 / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.1);
-  transition: transform var(--dur-l) var(--ease-spring-soft);
-}
-html[data-view="detailed"] .view-switch-thumb { transform: translateX(100%); }
-.view-switch-short { display: none; }
-.island[data-island="compact"] .view-switch-long { display: none; }
-.island[data-island="compact"] .view-switch-short { display: inline; }
-@media (max-width: 1279.98px) {
-  .view-switch-long { display: none; }
-  .view-switch-short { display: inline; }
-}
-@media (max-width: 419.98px) {
-  .view-switch { height: 34px; }
-  .view-switch-opt { height: 28px; padding: 0 9px; font-size: 0.74rem; }
+.xp-tile-logo { padding: 8px 14px; border-radius: 12px; }
+.xp-tile-link .arrow,
+.cert-link span[aria-hidden] { transition: transform var(--dur-s) var(--ease-out); }
+.xp-tile:hover .xp-tile-link .arrow { transform: translateX(3px); }
+.xp-tile-link:focus-visible,
+.cert-link:focus-visible { outline: none; }
+.xp-tile:has(.xp-tile-link:focus-visible),
+.cert-card:has(.cert-link:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+.cert-mark {
+  border: 1px solid var(--line);
+  background: color-mix(in oklab, var(--fg) 5%, transparent);
+  color: var(--fg);
 }
 @media (prefers-reduced-motion: reduce) {
-  .view-switch-thumb { transition: none; }
+  .xp-tile:hover, .xp-tile:focus-within, .cert-card:hover, .cert-card:focus-within { transform: none; }
 }
-
-/* ------------------------------------------------------- "More" dropdown */
-.more-panel {
-  left: 0;
-  top: 0;
-}
-.more-panel:not([hidden]) { animation: more-in var(--dur-m) var(--ease-spring-soft) both; }
-@keyframes more-in { from { opacity: 0; transform: translateY(-6px) scale(0.98); } }
-.more-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  min-height: 42px;
-  padding: 0 14px;
-  border-radius: 14px;
-  font-size: 0.92rem;
-  color: var(--fg-soft);
-  transition: background-color var(--dur-s) var(--ease-out), color var(--dur-s) var(--ease-out);
-}
-.more-item:hover,
-.more-item:focus-visible,
-.more-item[data-active] {
-  background: var(--accent-soft);
-  color: var(--fg);
-}
-.more-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-@media (prefers-reduced-motion: reduce) { .more-panel:not([hidden]) { animation: none; } }
-
-/* Homepage hero in view: the SS mark carries the active ring. */
-.island-brand .ss-mark { transition: box-shadow var(--dur-m) var(--ease-out); }
-.island-brand[data-active] .ss-mark { box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent); }
-
-/* --------------------------------------------------------- coach mark */
-.coach {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 60;
-  width: min(384px, calc(100vw - 24px));
-  padding: 16px 18px 15px;
-  border-radius: 20px;
-  color: var(--fg);
-  background: color-mix(in oklab, var(--bg-elev) 90%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  backdrop-filter: blur(18px) saturate(1.4);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.08),
-    0 0 0 1px color-mix(in oklab, var(--accent) 28%, var(--line)),
-    0 24px 50px -22px rgb(0 0 0 / 0.65);
-}
-.coach-arrow {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  background: inherit;
-  transform: rotate(45deg);
-  box-shadow: -1px -1px 0 0 color-mix(in oklab, var(--accent) 28%, var(--line));
-}
-.coach[data-side="top"] .coach-arrow { box-shadow: 1px 1px 0 0 color-mix(in oklab, var(--accent) 28%, var(--line)); }
-.coach-title { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.015em; }
-.coach-body { margin-top: 0.35rem; font-size: 0.9rem; line-height: 1.5; color: var(--fg-soft); text-align: left; }
-.coach-actions { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
-.coach-actions .btn { height: 34px; padding: 0 14px; font-size: 0.82rem; }
-.coach[data-state="positioning"] { visibility: hidden; }
-@media (prefers-reduced-motion: no-preference) {
-  .coach[data-state="open"] { animation: coach-in var(--dur-l) var(--ease-spring-soft) both; }
-  .coach[data-state="closing"] { animation: coach-out 220ms var(--ease-out) forwards; }
-}
-@keyframes coach-in { from { opacity: 0; transform: translateY(-6px) scale(0.97); } }
-@keyframes coach-out { to { opacity: 0; transform: translateY(-4px) scale(0.98); } }
-.coach-close {
-  display: inline-grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  margin: -3px -5px 0 0;
-  border-radius: 999px;
-  color: var(--fg-muted);
-  transition: background-color var(--dur-s) var(--ease-out), color var(--dur-s) var(--ease-out);
-}
-.coach-close:hover { background: var(--accent-soft); color: var(--fg); }
-.coach-close:focus-visible, .coach-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.coach-action {
-  display: block;
-  width: 100%;
-  text-align: left;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: color var(--dur-s) var(--ease-out);
-}
-.coach-action:hover { color: var(--fg); }
-/* Phones: a compact mark that ends above the hero headline. */
-@media (max-width: 639.98px) {
-  .coach { padding: 11px 12px 11px; border-radius: 16px; }
-  .coach-title { font-size: 0.88rem; }
-  .coach-body { margin-top: 0.2rem; font-size: 0.76rem; line-height: 1.4; }
-  .coach-actions { margin-top: 0.6rem; }
-  .coach-actions .btn { height: 32px; padding: 0 12px; font-size: 0.78rem; }
-}
-/* Narrow phones: tighter still, so it clears the headline with room to spare. */
-@media (max-width: 379.98px) {
-  .coach { padding: 9px 11px 10px; }
-  .coach-title { font-size: 0.84rem; }
-  .coach-body { font-size: 0.72rem; line-height: 1.35; }
-  .coach-actions { margin-top: 0.5rem; }
-  .coach-actions .btn { height: 30px; padding: 0 11px; font-size: 0.74rem; }
-}
-
-/* ---------------------------------------------------- experience snapshot */
-@media (prefers-reduced-motion: no-preference) {
-  .xp-snap-value { transition: color var(--dur-m) var(--ease-out); }
-  .xp-snap a:hover .xp-snap-value { color: var(--accent-fg); }
-}
-.tableau-link img { flex-shrink: 0; }
-html[data-view="quick"] .hero-bottom { grid-template-columns: minmax(0, 1fr); }
-html[data-view="quick"] .hero-facts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); max-width: 960px; }
-
 
 /* ------------------------------------------------- institution logo plates
    White in both themes so official artwork stays legible; a neutral border
@@ -2756,3 +2701,7 @@ html.lightbox-open { overflow: hidden; }
 .jd-ev a { color: var(--fg-soft); text-decoration: underline; text-decoration-color: color-mix(in oklab, var(--accent) 45%, transparent); text-underline-offset: 3px; }
 .jd-kind { font-size: 0.72rem; color: var(--fg-muted); }
 .jd-summarize { justify-self: start; }
+
+/* The first chapter after the hero starts closer: the hero's information
+   strip already closes the introduction with a hairline. */
+section[data-nav-section="about"] + .section { padding-top: clamp(3.5rem, 7vw, 5rem); }

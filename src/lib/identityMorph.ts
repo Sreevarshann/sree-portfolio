@@ -14,17 +14,20 @@
 export const FROM = "piderm";
 export const TO = "reevarsh";
 
-/** Milliseconds from the start of the hold. The morph window is 2000 to 3000. */
+/**
+ * Milliseconds from the start of the hold. "Spiderman." holds for 1.5 s, then
+ * the name and the photo transform together on one clock and finish at 2.4 s.
+ */
 export const INTRO = {
-  hold: 2000,
-  fractureEnd: 2300,
-  flowStart: 2200,
-  flowSpread: 230,
-  flowDur: 420,
-  slideStart: 2350,
-  slideEnd: 2900,
-  lockStart: 2820,
-  end: 3000,
+  hold: 1500,
+  fractureEnd: 1770,
+  flowStart: 1680,
+  flowSpread: 207,
+  flowDur: 378,
+  slideStart: 1815,
+  slideEnd: 2310,
+  lockStart: 2238,
+  end: 2400,
 } as const;
 
 export type Pt = { x: number; y: number; a: number };
@@ -186,7 +189,7 @@ export function particleAt(p: Particle, t: number, out: Frame = { x: 0, y: 0, a:
 /** Shared progress for everything else on the clock. */
 export function timeline(t: number) {
   return {
-    // The photo dissolves over exactly the same window as the name: 2.0 s to 3.0 s.
+    // The photo dissolves over exactly the same window as the name: 1.5 s to 2.4 s.
     photo: easeInOutCubic(clamp01((t - INTRO.hold) / (INTRO.end - INTRO.hold))),
     slide: easeInOutCubic(clamp01((t - INTRO.slideStart) / (INTRO.slideEnd - INTRO.slideStart))),
     lock: easeOutCubic(clamp01((t - INTRO.lockStart) / (INTRO.end - INTRO.lockStart))),

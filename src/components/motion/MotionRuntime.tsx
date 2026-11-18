@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { loadGsap } from "@/lib/loadGsap";
-import { VIEW_EVENT } from "@/lib/viewMode";
 
 const WIDE = "(min-width: 1024px)";
 
@@ -84,16 +83,15 @@ export function MotionRuntime() {
       };
       rebuild = () => {
         if (cancelled) return;
-        // Wait a frame so the new view's display rules have applied.
+        // Wait a frame so the new layout has applied.
         requestAnimationFrame(() => !cancelled && build());
       };
 
       build();
       window.addEventListener("load", refresh);
       document.fonts?.ready.then(refresh).catch(() => {});
-      window.addEventListener(VIEW_EVENT, rebuild);
       wideMq.addEventListener("change", rebuild);
-      // Height changes without a window resize (view switch, <details>, images).
+      // Height changes without a window resize (<details>, images).
       let lastH = document.body.scrollHeight;
       ro = new ResizeObserver(() => {
         const h = document.body.scrollHeight;
@@ -113,7 +111,6 @@ export function MotionRuntime() {
       window.clearTimeout(refreshTimer);
       ro?.disconnect();
       window.removeEventListener("load", refresh);
-      window.removeEventListener(VIEW_EVENT, rebuild);
       wideMq.removeEventListener("change", rebuild);
       ctx?.revert();
       delete document.documentElement.dataset.motionTriggers;

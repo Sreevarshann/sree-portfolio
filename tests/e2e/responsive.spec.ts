@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const WIDTHS = [320, 375, 390, 430, 768, 1024, 1280, 1440, 1920, 2560];
-const PATHS = ["/", "/projects/aegis-ai", "/experience", "/lab", "/ask"];
+const PATHS = ["/", "/projects/aegis-ai", "/experience", "/certifications", "/ask"];
 
 test.describe("responsive layout", () => {
   test.skip(({ isMobile }) => isMobile, "runs once in the desktop project with explicit viewports");

@@ -26,7 +26,7 @@ async function captureChat(page: Page) {
 test.describe("portrait hint and labels", () => {
   test("desktop: a readable hint under the photo, its notch pointing up at the image", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Pointer layout.");
-    await page.goto("/?view=quick");
+    await page.goto("/");
     // V13: the hint appears once the identity intro settles on the real photo.
     await expect(page.locator('.pswap[data-intro="done"]')).toHaveCount(1, { timeout: 15_000 });
     const note = page.locator(".pswap-note").first();
@@ -53,7 +53,7 @@ test.describe("portrait hint and labels", () => {
 
   test("phone: 'Tap to see Spider-Man', then 'Tap again for the real me'; never over the headline", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "Touch layout.");
-    await page.goto("/?view=quick");
+    await page.goto("/");
     await expect(page.locator('.pswap[data-intro="done"]')).toHaveCount(1, { timeout: 15_000 });
     const note = page.locator(".pswap-note").first();
     await expect(note).toHaveText(/Tap to see Spider-Man/);
@@ -69,7 +69,7 @@ test.describe("portrait hint and labels", () => {
 
   test("rapid hover in and out reverses smoothly and never sticks half-way", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Hover.");
-    await page.goto("/?view=quick");
+    await page.goto("/");
     await expect(page.locator('.pswap[data-intro="done"]')).toHaveCount(1, { timeout: 15_000 });
     const btn = page.locator(".pswap-hit").first();
     const layer = page.locator(".pswap-illustrated").first();
@@ -85,28 +85,24 @@ test.describe("portrait hint and labels", () => {
   });
 
   test("every personal photo label says only Sree", async ({ page }) => {
-    await page.goto("/?view=quick");
+    await page.goto("/");
     await expect(page.locator(".pswap-caption").first()).toHaveText("Sree");
     await page.goto("/about");
     await expect(page.locator(".portrait figcaption").first()).toHaveText("Sree");
   });
 });
 
-test.describe("onboarding hint on every entry", () => {
+test.describe("no onboarding hint (V14: one homepage)", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true }));
-  });
-  test("returns when navigating away and back to the homepage", async ({ page }, info) => {
-    test.skip(info.project.name === "mobile", "No hint on phones (V13 mobile).");
-    const coach = page.getByRole("dialog", { name: "Want the full experience?" });
+  test("never appears, on entry or on return", async ({ page }) => {
     await page.goto("/");
-    await expect(coach).toBeVisible({ timeout: 15_000 });
-    await page.goto("/projects");
+    await page.waitForTimeout(3500);
     await expect(page.locator(".coach")).toHaveCount(0);
+    await expect(page.getByText("Want the full experience?")).toHaveCount(0);
+    await page.goto("/projects");
     await page.goBack();
-    await expect(coach).toBeVisible({ timeout: 15_000 });
-    await expect(coach).toBeHidden({ timeout: 6_000 });
+    await page.waitForTimeout(1500);
+    await expect(page.locator(".coach")).toHaveCount(0);
   });
 });
 
@@ -133,7 +129,7 @@ test.describe("SAUVC video without controls", () => {
 test.describe("Ask My AI launcher (one global entry point)", () => {
   test("phones: the logo only, visible from the first screen, while scrolling and after the intro", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "Phones only.");
-    await page.goto("/?view=quick");
+    await page.goto("/");
     const launcher = page.locator("button.ask-launcher");
     await expect(launcher).toHaveAccessibleName("Ask My AI");
     await expect(launcher).toBeVisible();
@@ -156,7 +152,7 @@ test.describe("Ask My AI launcher (one global entry point)", () => {
 
   test("desktop keeps the labelled floating launcher, visible from the start", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Desktop.");
-    await page.goto("/?view=quick");
+    await page.goto("/");
     const launcher = page.locator("button.ask-launcher");
     await expect(launcher).toBeVisible();
     await expect(launcher).toContainText("Ask My AI");
@@ -167,7 +163,7 @@ test.describe("Ask My AI launcher (one global entry point)", () => {
 
 test.describe("Skill Explorer", () => {
   async function openExplorer(page: Page) {
-    await page.goto("/?view=quick");
+    await page.goto("/");
     const pill = page.locator(".tech-index summary");
     await pill.scrollIntoViewIfNeeded();
     await pill.click();

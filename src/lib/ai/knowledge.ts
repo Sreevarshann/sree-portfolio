@@ -299,7 +299,13 @@ add({
   href: "/",
   label: "Home",
   blurb: "Every page on the portfolio.",
-  text: "Portfolio pages: /about (story, values, skills map), /experience (work history), /projects (catalog with case studies at /projects/<slug>), /achievements (Singapore AUV Challenge, Google MLOps Expo), /education, /certifications, /lab (interactive Plotly charts from project results), /contact, /ask (full-page Sree AI).",
+  text: "Homepage sections, in order: About (the introduction), Achievements, Education, Experience, Tech Stack, Projects, Certifications, Contact. Portfolio pages: /about (story, values, skills map), /experience (work history), /projects (catalog with case studies at /projects/<slug>), /achievements (Singapore AUV Challenge, Google MLOps Expo), /education, /certifications, /contact, /ask (full-page Sree AI). The resume PDF is linked from the homepage introduction (the Resume button).",
+  facts: [
+    "Homepage sections, in order: About (the introduction), Achievements, Education, Experience, Tech Stack, Projects, Certifications, Contact.",
+    "Pages: About, Experience, Projects (every project, each with a case study), Achievements, Education, Certifications, Contact, and a full-page Sree AI.",
+    "The resume PDF is linked from the homepage introduction (the Resume button).",
+    "Sree AI opens from the round button at the bottom right of every page, or with Command K (Ctrl K on Windows and Linux) on a desktop.",
+  ],
 });
 
 const PHONE_LIKE = /(?<![\d\w-])\+?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?![\d\w])/;

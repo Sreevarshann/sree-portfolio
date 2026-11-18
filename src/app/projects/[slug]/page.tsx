@@ -8,12 +8,6 @@ import { ArchitectureDiagram } from "@/components/projects/ArchitectureDiagram";
 import { TechChip } from "@/components/ui/TechChip";
 import { getProject, projects } from "@/content/projects";
 
-const labAnchors: Record<string, string> = {
-  "aegis-ai": "aegis",
-  tunelab: "tunelab",
-  workmesh: "workmesh",
-  sourceatlas: "sourceatlas",
-};
 
 export const dynamicParams = false;
 
@@ -194,11 +188,6 @@ export default async function CaseStudy({ params }: PageProps<"/projects/[slug]"
             <span className="h-2 w-2 rounded-full bg-[var(--success)]" aria-hidden="true" />
             {p.ci}. Counts as reported in the repository&apos;s README and testing docs.
           </p>
-          {labAnchors[p.slug] && (
-            <Link href={`/lab#${labAnchors[p.slug]}`} className="btn btn-ghost mt-8">
-              Explore the results interactively in the Lab <span className="arrow" aria-hidden="true">→</span>
-            </Link>
-          )}
         </Block>
 
         <Block n="08" title="Screenshots">

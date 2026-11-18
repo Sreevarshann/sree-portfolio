@@ -75,7 +75,7 @@ describe("ChatView", () => {
       </AskSreeProvider>,
     );
     const box = screen.getByLabelText("Ask a question about Sree");
-    expect(box).toHaveAttribute("maxLength", "1000");
+    expect(box).toHaveAttribute("maxLength", "4000");
     await userEvent.type(box, "line one{Shift>}{Enter}{/Shift}line two");
     expect(box).toHaveValue("line one\nline two");
     await userEvent.type(box, "{Enter}");

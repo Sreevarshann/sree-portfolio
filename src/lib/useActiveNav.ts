@@ -2,19 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { HOME_SECTIONS, navKeyForPath, type HomeSection, type NavKey } from "./nav";
-import { VIEW_EVENT } from "./viewMode";
 
 /**
  * The navigation item to highlight. On dedicated routes it is the route's
  * owner. On the homepage it follows the section under an activation line at
  * 38% of the viewport: the last visible `[data-nav-section]` whose content
  * (below its top padding) has crossed the line wins. That is deterministic (no observer races, no
- * flicker at boundaries), ignores sections hidden by the current view, and
- * re-evaluates on scroll, resize, view switches and content size changes.
+ * flicker at boundaries), and re-evaluates on scroll, resize and content
+ * size changes.
  */
 export function useActiveNav(pathname: string): NavKey | null {
   const route = navKeyForPath(pathname);
-  const [home, setHome] = useState<NavKey>("home");
+  const [home, setHome] = useState<NavKey>("about");
 
   useEffect(() => {
     if (pathname !== "/") return;
@@ -22,10 +21,10 @@ export function useActiveNav(pathname: string): NavKey | null {
     const compute = () => {
       raf = 0;
       const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-section]")).filter((el) => el.offsetParent !== null);
-      if (!sections.length || window.scrollY < 40) return setHome("home");
+      if (!sections.length || window.scrollY < 40) return setHome("about");
       const line = window.innerHeight * 0.38;
       const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
-      let current: NavKey = "home";
+      let current: NavKey = "about";
       for (const el of sections) {
         // Measured from where the section's content starts, not its top padding, so a
         // short section (the certifications row) owns the line until the next heading arrives.
@@ -40,7 +39,6 @@ export function useActiveNav(pathname: string): NavKey | null {
     compute();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
-    window.addEventListener(VIEW_EVENT, schedule);
     const ro = new ResizeObserver(schedule);
     const main = document.getElementById("main");
     if (main) ro.observe(main);
@@ -48,7 +46,6 @@ export function useActiveNav(pathname: string): NavKey | null {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
-      window.removeEventListener(VIEW_EVENT, schedule);
       ro.disconnect();
     };
   }, [pathname]);

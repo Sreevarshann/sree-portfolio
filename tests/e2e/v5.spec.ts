@@ -25,8 +25,7 @@ async function marqueeMetrics(page: Page) {
 
 test.describe("V5 hero", () => {
   test("shows the full name, availability, intro and company identities", async ({ page }) => {
-    // V7: the hero's company row is part of Detailed View (Quick View has the experience snapshot).
-    await page.goto("/?view=detailed");
+    await page.goto("/");
     await expect(page.locator("h1")).toHaveText("Hey, I'm Sreevarshan Sathiyamurthy.");
     await expect(page.getByText("Available for full-time opportunities")).toBeVisible();
     // V13: the professional intro paragraph is gone from the hero.
@@ -36,10 +35,10 @@ test.describe("V5 hero", () => {
       ["Flare Innovation", "flare-innovation"],
       ["Sri Sairam Techno Incubator Foundation", "sri-sairam-techno-incubator"],
     ]) {
-      await expect(page.getByRole("link", { name: new RegExp(`^${name}:`) })).toHaveAttribute("href", `/experience#${slug}`);
+      await expect(page.locator(".hero-meta").getByRole("link", { name: new RegExp(`^${name},`) })).toHaveAttribute("href", `/experience#${slug}`);
     }
-    await expect(page.locator(".hero-facts")).toContainText("Boston, Massachusetts");
-    await expect(page.locator(".hero-facts")).toContainText("Northeastern University");
+    await expect(page.locator(".hero-meta")).toContainText("Boston, Massachusetts");
+    await expect(page.locator(".hero-meta")).toContainText("Northeastern University");
     // No work-authorization or sponsorship claims anywhere on the page.
     await expect(page.locator("body")).not.toContainText(/sponsorship|STEM OPT|work authori[sz]ation|visa/i);
   });

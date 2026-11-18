@@ -10,7 +10,7 @@ import { MotionRuntime } from "@/components/motion/MotionRuntime";
 import { AnimationGovernor } from "@/components/motion/AnimationGovernor";
 import { AskSreeProvider } from "@/components/ask/AskSreeProvider";
 import { AskSreeLauncher } from "@/components/ask/AskSreeLauncher";
-import { scrollStartScript, themeScript, viewScript } from "@/components/layout/themeScript";
+import { scrollStartScript, themeScript } from "@/components/layout/themeScript";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -86,13 +86,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-theme="dark"
-      data-view="quick"
       suppressHydrationWarning
       className={`${sans.variable} ${mono.variable} ${serif.variable} antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <script dangerouslySetInnerHTML={{ __html: viewScript }} />
         <script dangerouslySetInnerHTML={{ __html: scrollStartScript }} />
         <script
           type="application/ld+json"

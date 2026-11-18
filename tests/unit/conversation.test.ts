@@ -22,7 +22,7 @@ const MODES: [string, string][] = [
   ["Can he explain his AEGIS architecture?", "facts"],
   ["What is retrieval-augmented generation?", "knowledge"],
   ["Tell me something funny about Sree.", "casual"],
-  ["What are his weaknesses?", "casual"],
+  ["What are his weaknesses?", "hiring"],
   ["How can I contact him?", "facts"],
   ["Can he move to another city?", "hiring"],
   ["What salary does he expect?", "private"],
@@ -105,7 +105,7 @@ describe("provider rate-limit retry", () => {
 describe("V10 hotfix: honesty and reliability", () => {
   it("forbids invented anecdotes, weaknesses and embellished availability", () => {
     expect(SYSTEM_PROMPT).toMatch(/Never invent anecdotes, habits, hobbies, stories, preferences, friends, weaknesses or "fun facts"/);
-    expect(SYSTEM_PROMPT).toMatch(/For weaknesses, do not name any/);
+    expect(SYSTEM_PROMPT).toMatch(/For personal weaknesses, do not name any/);
     expect(SYSTEM_PROMPT).toMatch(/never add "right away", "immediately", "ready to join"/);
     expect(SYSTEM_PROMPT).toMatch(/never open with "I'm sorry"/);
     expect(SYSTEM_PROMPT).toMatch(/something not on his resume/);

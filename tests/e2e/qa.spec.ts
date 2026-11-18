@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { projects } from "../../src/content/projects";
 
 const CASE_STUDIES = projects.map((p) => `/projects/${p.slug}`);
-const ROUTES = ["/", "/about", "/experience", "/projects", ...CASE_STUDIES, "/achievements", "/education", "/certifications", "/lab", "/contact", "/ask"];
+const ROUTES = ["/", "/about", "/experience", "/projects", ...CASE_STUDIES, "/achievements", "/education", "/certifications", "/contact", "/ask"];
 
 test.describe("no console errors or hydration warnings", () => {
   for (const path of ROUTES) {
@@ -66,23 +66,12 @@ test("SAUVC rank counts down to 6th and the funnel keeps the real numbers", asyn
   for (const v of ["320+", "130+", "20", "6th"]) await expect(funnel.getByText(v, { exact: true })).toBeVisible();
 });
 
-test("Lab charts render and respond to controls", async ({ page }) => {
-  await page.goto("/lab");
-  const card = page.locator("section#tunelab");
-  await card.scrollIntoViewIfNeeded();
-  await expect(card.locator(".js-plotly-plot .main-svg").first()).toBeVisible({ timeout: 20_000 });
-  const radios = card.getByRole("radio");
-  await radios.nth(1).click();
-  await expect(radios.nth(1)).toHaveAttribute("aria-checked", "true");
-  await expect(card.locator(".js-plotly-plot .main-svg").first()).toBeVisible();
-});
-
 test.describe("responsive: no horizontal overflow", () => {
   test.skip(({ isMobile }) => isMobile, "Desktop project drives explicit widths.");
   for (const width of [320, 375, 390, 430, 768, 1024, 1280, 1440, 1920, 2560]) {
     test(`${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      for (const path of ["/", "/projects", "/achievements", "/education", "/lab", "/about"]) {
+      for (const path of ["/", "/projects", "/achievements", "/education", "/certifications", "/about"]) {
         await page.goto(path);
         await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
         await page.waitForTimeout(150);

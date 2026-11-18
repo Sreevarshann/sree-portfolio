@@ -1,9 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * V13: the identity reveal. "Hey, I'm Spiderman." with the masked photo holds
- * for two seconds, then the middle letters fracture and rebuild into
- * "Sreevarshan." while the photo dissolves to the real one on the same clock.
+ * The identity reveal. "Hey, I'm Spiderman." with the masked photo holds for
+ * 1.5 seconds (V14), then the middle letters fracture and rebuild into
+ * "Sreevarshan." while the photo dissolves to the real one on the same clock,
+ * finishing about 2.4 seconds after the page first paints.
  */
 
 /** The word as drawn: the generated letters of every glyph slot that is laid out. */
@@ -33,7 +34,7 @@ test.describe("identity reveal", () => {
           .map((e) => e.dataset.c)
           .join("");
         if (fig && word) {
-          const root = document.querySelector<HTMLElement>("[data-nav-section='hero']")!;
+          const root = document.querySelector<HTMLElement>("[data-nav-section='about']")!;
           const ill = document.querySelector(".pswap-illustrated")!;
           const vis = (s: string) => document.querySelector(s)!.getClientRects().length > 0 && getComputedStyle(document.querySelector(s)!).opacity === "1";
           const c = document.querySelector(".hf-canvas")?.getBoundingClientRect();
@@ -53,20 +54,21 @@ test.describe("identity reveal", () => {
       };
       requestAnimationFrame(tick);
     });
-    await page.goto("/?view=quick");
+    await page.goto("/");
     await expect(page.locator(".pswap").first()).toHaveAttribute("data-intro", "done", { timeout: 20_000 });
     await page.waitForTimeout(1500);
     const [hold, morph, final, clock] = [await mark(page, "identity-hold"), await mark(page, "identity-morph"), await mark(page, "identity-final"), await mark(page, "identity-clock")];
     type Row = { t: number; word: string; intro: string; photo: string; ill: number; canvas: boolean; canvasInside: boolean; sAn: boolean };
     const log = (await page.evaluate(() => (window as unknown as { __introLog: unknown[] }).__introLog)) as Row[];
 
-    // Timing: a two-second hold, then about one second for both transformations.
-    expect(morph! - hold!).toBeGreaterThanOrEqual(1990);
-    expect(morph! - hold!).toBeLessThan(2600);
-    expect(final! - clock!).toBeGreaterThanOrEqual(990);
+    // Timing: a 1.5 s hold from first paint, then 0.9 s for both transformations.
+    expect(morph! - hold!).toBeGreaterThanOrEqual(1490);
+    expect(morph! - hold!).toBeLessThan(2100);
+    expect(final! - clock!).toBeGreaterThanOrEqual(890);
     // Time-based: a slow machine paints fewer frames but still finishes on time
-    // (the upper bound allows for a slow setup frame on CI's software renderer).
-    expect(final! - morph!).toBeLessThan(1600);
+    // (the upper bounds allow for a slow setup frame on CI's software renderer).
+    expect(final! - morph!).toBeLessThan(1700);
+    expect(final! - hold!).toBeLessThan(3000);
 
     // Before: Spiderman and the fully masked photo, nothing dissolving, no particles.
     // Rows are classified by the portrait's own state, not by timestamps: on a
@@ -98,8 +100,8 @@ test.describe("identity reveal", () => {
       last = photo;
       // The photo is exactly where the shared clock puts it: this frame's value,
       // or the previous frame's if the recorder ran before the clock this frame.
-      const lo = ease(Math.min(1, Math.max(0, (prevT - clock!) / 1000)));
-      const hi = ease(Math.min(1, (r.t - clock!) / 1000));
+      const lo = ease(Math.min(1, Math.max(0, (prevT - clock!) / 900)));
+      const hi = ease(Math.min(1, (r.t - clock!) / 900));
       expect(photo).toBeGreaterThanOrEqual(lo - 0.02);
       expect(photo).toBeLessThanOrEqual(hi + 0.02);
       prevT = r.t;
@@ -125,10 +127,11 @@ test.describe("identity reveal", () => {
   });
 
   test("plays once: unrelated re-renders and theme switches never replay it", async ({ page }) => {
-    await page.goto("/?view=quick");
+    await page.goto("/");
     await expect(page.locator(".pswap").first()).toHaveAttribute("data-intro", "done", { timeout: 15_000 });
-    await page.getByRole("group", { name: "Portfolio view" }).getByRole("button", { name: /Detailed/ }).click();
-    await page.getByRole("group", { name: "Portfolio view" }).getByRole("button", { name: /Quick/ }).click();
+    const toggle = page.locator("[data-island] [aria-label^='Switch to']");
+    await toggle.click();
+    await toggle.click();
     await page.waitForTimeout(3200);
     expect(await page.evaluate(() => performance.getEntriesByName("identity-morph").length)).toBe(1);
     await expect(page.locator(".hf-canvas")).toHaveCount(0);
@@ -136,7 +139,7 @@ test.describe("identity reveal", () => {
   });
 
   test("activating the portrait during the hold skips straight to the end", async ({ page }) => {
-    await page.goto("/?view=quick");
+    await page.goto("/");
     await expect.poll(() => mark(page, "identity-hold"), { timeout: 15_000 }).not.toBeNull();
     await page.locator(".pswap-hit").first().click();
     await expect(page.locator(".pswap").first()).toHaveAttribute("data-intro", "done");
@@ -146,7 +149,7 @@ test.describe("identity reveal", () => {
   test("reduced motion: the final name and real photo at once, no particles", async ({ browser }) => {
     const ctx = await browser.newContext({ reducedMotion: "reduce" });
     const page = await ctx.newPage();
-    await page.goto("/?view=quick");
+    await page.goto("/");
     expect(await visibleWord(page)).toBe("Sreevarshan.");
     expect(await illustratedOpacity(page)).toBe(0);
     await expect(page.locator(".pswap").first()).toHaveAttribute("data-intro", "done");
@@ -159,7 +162,7 @@ test.describe("identity reveal", () => {
   test("without JavaScript the final name and real photo show", async ({ browser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false });
     const page = await ctx.newPage();
-    await page.goto("/?view=quick");
+    await page.goto("/");
     expect(await visibleWord(page)).toBe("Sreevarshan.");
     expect(await illustratedOpacity(page)).toBe(0);
     await ctx.close();
@@ -167,46 +170,53 @@ test.describe("identity reveal", () => {
 });
 
 test.describe("identity reveal layout", () => {
-  for (const [width, height] of [[1024, 900], [1280, 800], [1440, 900], [1920, 1080], [2560, 1440]]) {
-    test(`${width}px: name left, full-size portrait right, midpoints aligned; statement and actions centred below`, async ({ page }, info) => {
+  for (const [width, height] of [[1024, 900], [1280, 800], [1440, 900], [1728, 1117], [1920, 1080], [2560, 1440]]) {
+    test(`${width}px: name and statement left, full-size portrait right, centred on each other; actions and facts below`, async ({ page }, info) => {
       test.skip(info.project.name !== "desktop", "Desktop widths.");
       await page.setViewportSize({ width, height });
-      await page.goto("/?view=quick");
-      // Measure the settled layout, after the entrance animations and the intro.
+      await page.goto("/");
+      // Measure the settled layout, after the entrance animations, the intro and the statement.
       await expect(page.locator(".pswap").first()).toHaveAttribute("data-intro", "done", { timeout: 15_000 });
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(1200);
       const g = await page.evaluate(() => {
         const r = (s: string) => document.querySelector(s)!.getBoundingClientRect();
         const word = r(".hf-word");
+        const intro = r(".hero-intro");
         const photo = r(".pswap-photo");
+        const stage = r(".hero-stage");
+        const launcher = document.querySelector(".ask-launcher")?.getBoundingClientRect();
+        const logos = Array.from(document.querySelectorAll(".hero-logo")).map((e) => e.getBoundingClientRect());
         return {
           wordRight: word.right,
-          wordMid: (word.top + word.bottom) / 2,
+          statementRight: r(".hero-statement").right,
+          groupMid: (r(".hero-hey").top + r(".hero-statement").bottom) / 2,
+          introPad: parseFloat(getComputedStyle(document.querySelector(".hero-intro")!).paddingBottom),
+          introMid: (intro.top + intro.bottom) / 2,
           photoLeft: r(".pswap-print").left,
           photoMid: (photo.top + photo.bottom) / 2,
           printW: (document.querySelector(".pswap-print") as HTMLElement).offsetWidth,
           vw: innerWidth,
           ctaBottom: r(".hero-actions").bottom,
-          overflow: document.documentElement.scrollWidth - innerWidth,
-          printBottom: r(".pswap-print").bottom,
-          titleTop: r(".hero-title").top,
-          titleMid: (r(".hero-title").left + r(".hero-title").right) / 2,
           ctaMid: (r(".hero-actions").left + r(".hero-actions").right) / 2,
-          box: (() => { const c = r(".hero-stage"); return (c.left + c.right) / 2; })(),
-          inLeftColumn: !!document.querySelector(".hero-intro .hero-title, .hero-intro .hero-actions"),
+          box: (stage.left + stage.right) / 2,
+          metaBottom: r(".hero-meta").bottom,
+          overflow: document.documentElement.scrollWidth - innerWidth,
+          statementInLeftColumn: !!document.querySelector(".hero-intro .hero-statement"),
+          logoUnderLauncher: !!launcher && logos.some((l) => l.right > launcher.left && l.left < launcher.right && l.bottom > launcher.top && l.top < launcher.bottom),
         };
       });
       expect(g.wordRight).toBeLessThan(g.photoLeft);
-      expect(Math.abs(g.wordMid - g.photoMid)).toBeLessThanOrEqual(12);
+      expect(g.statementRight).toBeLessThan(g.photoLeft);
+      expect(g.statementInLeftColumn).toBe(true);
+      // The name, nickname and statement form one group centred on the photograph.
+      expect(Math.abs(g.groupMid - g.photoMid)).toBeLessThanOrEqual(24);
       // The original portrait column: clamp(250px, 24vw, 350px).
       expect(g.printW).toBe(Math.round(Math.min(350, Math.max(250, g.vw * 0.24))));
-      // Below both: the statement and the actions, centred across the hero.
-      expect(g.inLeftColumn).toBe(false);
-      expect(g.titleTop).toBeGreaterThan(g.printBottom);
-      expect(Math.abs(g.titleMid - g.box)).toBeLessThanOrEqual(2);
       expect(Math.abs(g.ctaMid - g.box)).toBeLessThanOrEqual(2);
-      // Name, portrait, statement and actions all within the first viewport.
+      // Identity, statement, actions and the information strip in the first view.
       expect(g.ctaBottom).toBeLessThanOrEqual(height);
+      expect(g.metaBottom).toBeLessThanOrEqual(height);
+      expect(g.logoUnderLauncher).toBe(false);
       expect(g.overflow).toBeLessThanOrEqual(0);
     });
   }

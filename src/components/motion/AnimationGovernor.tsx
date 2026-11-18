@@ -18,7 +18,7 @@ const SELECTOR = [
   ".availability-dot",
   ".signal-pulse",
   ".team-field",
-  ".podium",
+  ".emblem",
   "svg:has(.echo-line)",
   "svg:has(.cap-node)",
   "svg:has(.cap-flow)",

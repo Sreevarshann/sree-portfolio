@@ -51,6 +51,10 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // The Lab was retired in V14; links already shared land on Projects.
+  async redirects() {
+    return [{ source: "/lab", destination: "/projects", permanent: true }];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

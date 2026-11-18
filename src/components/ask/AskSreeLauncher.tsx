@@ -27,6 +27,14 @@ export function AskSreeLauncher() {
   const pathname = usePathname();
   const panel = useRef<HTMLDivElement>(null);
   const [mobile, setMobile] = useState(false);
+  // "⌘" on Apple platforms, "Ctrl" elsewhere; null until mounted.
+  const [modKey, setModKey] = useState<string | null>(null);
+  useEffect(() => {
+    const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+    const platform = nav.userAgentData?.platform || nav.platform || nav.userAgent;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- platform is only known in the browser
+    setModKey(/mac|iphone|ipad|ipod/i.test(platform) ? "⌘" : "Ctrl");
+  }, []);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 639px)");
     const set = () => setMobile(mq.matches);
@@ -78,6 +86,7 @@ export function AskSreeLauncher() {
         aria-expanded={open}
         aria-controls="ask-sree-panel"
         aria-label={open ? "Close" : "Ask My AI"}
+        aria-keyshortcuts="Meta+K Control+K"
         className={`ask-launcher glass group fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] right-[calc(env(safe-area-inset-right)+1rem)] z-[55] inline-flex items-center rounded-full py-1.5 pl-1.5 text-sm font-medium text-fg transition-[transform,opacity,box-shadow] duration-500 ease-[var(--ease-spring)] hover:-translate-y-0.5 hover:shadow-[var(--glow)] active:scale-[0.97] sm:right-6 sm:bottom-6 ${
           open && mobile ? "pointer-events-none translate-y-4 opacity-0" : ""
         }`}
@@ -85,7 +94,13 @@ export function AskSreeLauncher() {
         <SreeMark size={34} state={busy ? "thinking" : "idle"} />
         <span className="ask-launcher-label" aria-hidden="true">
           <span>{open ? "Close" : "Ask My AI"}</span>
-          <kbd className="mono ml-1 hidden rounded-md border border-line px-1.5 text-[0.62rem] text-fg-muted lg:inline">⌘K</kbd>
+          {/* Desktop only, and only once the platform is known (no server/client mismatch). */}
+          {modKey && !open && (
+            <span className="ask-kbd" data-testid="ask-shortcut">
+              <kbd>{modKey}</kbd>
+              <kbd>K</kbd>
+            </span>
+          )}
         </span>
       </button>
 
@@ -105,8 +120,11 @@ export function AskSreeLauncher() {
       <style>{`@keyframes ask-in{from{opacity:0;transform:translateY(22px) scale(.94);transform-origin:bottom right;filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
         .ask-panel{--glass-tint-strong: color-mix(in oklab, var(--bg) 86%, transparent)}
         @media (max-width:639px){@keyframes ask-in{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}}
-        .ask-launcher-label{display:inline-flex;align-items:center;overflow:hidden;white-space:nowrap;max-width:12rem;padding:0 1rem 0 .5rem;opacity:1;transition:max-width 420ms var(--ease-emph),padding 420ms var(--ease-emph),opacity 260ms var(--ease-out)}
+        .ask-launcher-label{display:inline-flex;align-items:center;overflow:hidden;white-space:nowrap;max-width:15rem;padding:0 .85rem 0 .5rem;opacity:1;transition:max-width 420ms var(--ease-emph),padding 420ms var(--ease-emph),opacity 260ms var(--ease-out)}
         @media (max-width:639px){.ask-launcher{padding:7px}.ask-launcher .ask-launcher-label{display:none}}
+        .ask-kbd{display:none;align-items:center;gap:3px;margin-left:.6rem}
+        @media (min-width:1024px) and (hover:hover) and (pointer:fine){.ask-kbd{display:inline-flex}}
+        .ask-kbd kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.5rem;height:1.5rem;padding:0 .4rem;border-radius:7px;font-family:inherit;font-size:.78rem;font-weight:600;line-height:1;letter-spacing:0;color:var(--fg);background:color-mix(in oklab,var(--fg) 7%,transparent);border:1px solid color-mix(in oklab,var(--fg) 22%,transparent);box-shadow:inset 0 -1.5px 0 color-mix(in oklab,var(--fg) 16%,transparent)}
         @media (prefers-reduced-motion: reduce){.ask-launcher-label{transition:none}}`}</style>
     </>
   );

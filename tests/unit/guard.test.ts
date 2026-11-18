@@ -39,7 +39,7 @@ describe("request validation", () => {
   });
   it("rejects empty, oversized, assistant-last and system-role payloads", () => {
     expect(chatRequestSchema.safeParse({ messages: [] }).success).toBe(false);
-    expect(chatRequestSchema.safeParse({ messages: [{ role: "user", content: "x".repeat(1001) }] }).success).toBe(false);
+    expect(chatRequestSchema.safeParse({ messages: [{ role: "user", content: "x".repeat(4001) }] }).success).toBe(false);
     expect(chatRequestSchema.safeParse({ messages: [{ role: "assistant", content: "hi" }] }).success).toBe(false);
     expect(chatRequestSchema.safeParse({ messages: [{ role: "system", content: "x" }] }).success).toBe(false);
   });

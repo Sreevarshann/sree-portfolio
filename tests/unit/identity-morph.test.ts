@@ -51,10 +51,13 @@ describe("identity morph", () => {
     expect(INTRO.flowStart + INTRO.flowSpread + INTRO.flowDur).toBeLessThanOrEqual(INTRO.end);
   });
 
-  it("drives the photo and the name from the same clock: start at 2 s, finish at 3 s", () => {
+  it("drives the photo and the name from the same clock: start at 1.5 s, finish at 2.4 s", () => {
     expect(timeline(0).photo).toBe(0);
     expect(timeline(INTRO.hold).photo).toBe(0);
-    expect(timeline(2500).photo).toBeCloseTo(0.5, 5);
+    expect(timeline((INTRO.hold + INTRO.end) / 2).photo).toBeCloseTo(0.5, 5);
+    // V14: a 1.5 s hold and a 0.9 s transformation.
+    expect(INTRO.hold).toBe(1500);
+    expect(INTRO.end).toBe(2400);
     expect(timeline(INTRO.end).photo).toBe(1);
     expect(timeline(INTRO.end).lock).toBe(1);
     expect(timeline(INTRO.end).slide).toBe(1);

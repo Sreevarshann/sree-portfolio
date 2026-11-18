@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const PAGES = ["/", "/about", "/experience", "/projects", "/projects/aegis-ai", "/achievements", "/education", "/certifications", "/lab", "/contact", "/ask"];
+const PAGES = ["/", "/about", "/experience", "/projects", "/projects/aegis-ai", "/achievements", "/education", "/certifications", "/contact", "/ask"];
 const PHONE = /(?<![\d\w-])\+?1?[\s.-]?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}(?![\d\w])/;
 
 test.describe("pages", () => {
@@ -106,7 +106,7 @@ test("internal links resolve", async ({ page, request }) => {
 });
 
 test.describe("accessibility (axe)", () => {
-  for (const path of ["/", "/projects", "/projects/tunelab", "/experience", "/lab", "/contact", "/ask"]) {
+  for (const path of ["/", "/projects", "/projects/tunelab", "/experience", "/certifications", "/contact", "/ask"]) {
     for (const scheme of ["dark", "light"] as const) {
       test(`${path} in ${scheme} has no serious violations`, async ({ page }) => {
         await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });

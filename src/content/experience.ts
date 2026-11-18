@@ -12,6 +12,8 @@ export type Experience = {
   monogram: string;
   /** One-line framing written for the portfolio. */
   summary: string;
+  /** The single sentence on the homepage tile (drawn from the highlights below). */
+  brief: string;
   highlights: string[];
   outcomes: { value: string; label: string }[];
   stack: string[];
@@ -39,6 +41,7 @@ export const experience: Experience[] = [
     monogram: "RR",
     summary:
       "AI agents on Snowflake that turn revenue data into answers business teams can use without manual analysis.",
+    brief: "Built Snowflake Cortex AI agents and data integrations for revenue intelligence.",
     highlights: [
       "Developed Snowflake Cortex AI agents, SQL stored procedures and Model Context Protocol (MCP) integrations to automate financial reporting, so teams retrieve accurate revenue insights without manual data analysis.",
       "Migrated 18 AI agents to production and audited 200+ Snowflake views.",
@@ -67,6 +70,7 @@ export const experience: Experience[] = [
     monogram: "FI",
     summary:
       "Pipelines and dashboards for IoT operations data, with quality checks that stopped bad records before reporting.",
+    brief: "Built Python data pipelines, quality checks, and operational dashboards for IoT data.",
     highlights: [
       "Developed Power BI dashboards integrating PostgreSQL and Airtable APIs to track operational KPIs and improve reporting efficiency for engineering and business teams.",
       "Engineered Python ETL pipelines processing 1M+ IoT records using PostgreSQL and Airtable, with automated PyTest schema validation to improve data quality.",
@@ -91,6 +95,7 @@ export const experience: Experience[] = [
     monogram: "SS",
     summary:
       "Perception and control for an autonomous underwater vehicle, from simulation to the pool.",
+    brief: "Developed autonomous underwater vehicle perception and navigation systems.",
     highlights: [
       "Developed autonomous underwater navigation and object detection for the team's AUV, contributing to a 6th-place global finish among 320+ teams at the Singapore AUV Challenge.",
       "Trained and integrated YOLOv5 models with OpenCV for real-time underwater object detection.",

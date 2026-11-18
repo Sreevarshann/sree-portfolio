@@ -13,7 +13,7 @@ test.describe("hero portrait: Spider-Man, then the real photo", () => {
   for (const scheme of ["light", "dark"] as const) {
     test(`rests on the real photo after the intro; hover brings Spider-Man back (${scheme})`, async ({ page }, info) => {
       test.skip(info.project.name === "mobile", "Hover; the touch test covers phones.");
-      await open(page, "/?view=quick", scheme);
+      await open(page, "/", scheme);
       const fig = page.locator(".pswap").first();
       await expect(fig.locator(".pswap-illustrated img")).toHaveAttribute("src", /spiderman-mask/);
       await expect(fig.locator(".pswap-real img")).toHaveAttribute("src", /sree-real/);
@@ -38,7 +38,7 @@ test.describe("hero portrait: Spider-Man, then the real photo", () => {
 
   test("keyboard: Enter shows Spider-Man, Space returns the real photo", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Keyboard path; desktop covers it.");
-    await open(page, "/?view=quick");
+    await open(page, "/");
     await settled(page);
     await page.getByRole("button", { name: "Show Spider-Man portrait" }).focus();
     await page.keyboard.press("Enter");
@@ -50,7 +50,7 @@ test.describe("hero portrait: Spider-Man, then the real photo", () => {
 
   test("touch: first tap shows Spider-Man, second returns the real photo", async ({ page }, info) => {
     test.skip(info.project.name !== "mobile", "Touch device only.");
-    await open(page, "/?view=quick");
+    await open(page, "/");
     await settled(page);
     const hit = page.locator(".pswap-hit").first();
     await hit.tap();
@@ -61,7 +61,7 @@ test.describe("hero portrait: Spider-Man, then the real photo", () => {
 
   test("reduced motion: the real photo straight away, no opening mask", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Same CSS on every device.");
-    await open(page, "/?view=quick", "dark", "reduce");
+    await open(page, "/", "dark", "reduce");
     const layer = page.locator(".pswap-illustrated").first();
     expect(await layer.evaluate((e) => getComputedStyle(e).maskImage)).toBe("none");
     expect(await layer.evaluate((e) => getComputedStyle(e).opacity)).toBe("0");
@@ -74,7 +74,7 @@ test.describe("achievement media", () => {
   test("the homepage never loads achievement video", async ({ page }) => {
     const mp4: string[] = [];
     page.on("request", (r) => r.url().endsWith(".mp4") && mp4.push(r.url()));
-    await open(page, "/?view=detailed");
+    await open(page, "/");
     await page.evaluate(async () => { for (let y = 0; y < document.documentElement.scrollHeight; y += 600) { scrollTo(0, y); await new Promise((r) => setTimeout(r, 40)); } });
     expect(await page.locator("video").count()).toBe(0);
     expect(mp4).toEqual([]);
@@ -143,7 +143,7 @@ test.describe("achievement media", () => {
 
 test.describe("ranking counter: 320 to 6, never clipped", () => {
   const VALUES = [320, 300, 250, 200, 150, 100, 99, 50, 10, 6];
-  for (const route of ["/?view=quick", "/achievements"]) {
+  for (const route of ["/", "/achievements"]) {
     test(`every value stays inside its box and card on ${route}`, async ({ page }, info) => {
       test.skip(info.project.name !== "desktop", "Widths set explicitly.");
       test.setTimeout(120_000);
@@ -175,7 +175,7 @@ test.describe("ranking counter: 320 to 6, never clipped", () => {
 
   test("in light mode the running count is painted (its own text fill)", async ({ page }, info) => {
     test.skip(info.project.name !== "desktop", "Same CSS everywhere.");
-    await open(page, "/?view=quick", "light", "reduce");
+    await open(page, "/", "light", "reduce");
     const clip = await page.locator(".rank-counter .rank-run").first().evaluate((e) => getComputedStyle(e).backgroundClip);
     expect(clip).toBe("text");
   });
