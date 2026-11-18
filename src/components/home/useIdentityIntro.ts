@@ -88,8 +88,14 @@ export function useIdentityIntro(rootRef: RefObject<HTMLElement | null>, nameRef
     stop.current = clear;
 
     if (holdStart === null) {
-      holdStart = performance.now();
-      performance.mark("identity-hold");
+      // The hold is counted from when "Spiderman." was first painted (the
+      // server-rendered page), not from hydration, so the reveal lands at the
+      // same moment however long the scripts took. A later client-side visit
+      // to the page starts its own hold now.
+      const now = performance.now();
+      const fcp = performance.getEntriesByName("first-contentful-paint")[0]?.startTime;
+      holdStart = fcp !== undefined && now - fcp < INTRO.hold ? fcp : now;
+      performance.mark("identity-hold", { startTime: holdStart });
     }
     const start = holdStart;
 
@@ -228,7 +234,7 @@ export function useIdentityIntro(rootRef: RefObject<HTMLElement | null>, nameRef
       raf = requestAnimationFrame(tick);
     };
 
-    // Hold "Spiderman." for two seconds, and never start before the font
+    // Hold "Spiderman." for 1.5 seconds, and never start before the font
     // and both photographs are ready (a late start beats a broken one).
     waitForMedia(root, 6000).then(() => {
       if (cancelled) return;
