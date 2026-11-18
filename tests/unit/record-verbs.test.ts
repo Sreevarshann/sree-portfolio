@@ -25,3 +25,10 @@ describe("employer descriptions", () => {
     expect(commitmentIn("He worked at RightRev as a Software & Data Engineer Intern.")).toBeNull();
   });
 });
+
+describe("team results", () => {
+  it("never upgrades a team placing to leadership", () => {
+    expect(commitmentIn("He also led a 6th-place autonomous underwater vehicle team, demonstrating reinforcement learning.")).not.toBeNull();
+    expect(commitmentIn("His team placed 6th globally at the Singapore AUV Challenge [S3].")).toBeNull();
+  });
+});
