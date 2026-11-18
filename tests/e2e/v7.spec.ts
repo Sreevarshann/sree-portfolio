@@ -131,12 +131,27 @@ test.describe("onboarding coach mark", () => {
   // The hint is on screen for only 3 s. The hero's WebGL field (software GL in
   // headless Chromium) is skipped here, as on Save-Data connections, so
   // parallel CI load cannot stretch the assertions past that window.
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }, info) => {
+    // Phones never show the hint (it would cover the portrait); covered below.
+    test.skip(info.project.name === "mobile" && !info.title.startsWith("phones"), "No hint on phones.");
     await page.addInitScript(() => Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true }));
   });
   const coachOf = (page: Page) => page.getByRole("dialog", { name: "Want the full experience?" });
 
-  for (const width of WIDTHS) {
+  for (const width of WIDTHS.filter((w) => w < 768)) {
+    test(`phones: never shown at ${width}px, and the switch still works`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto("/");
+      await page.waitForTimeout(4500);
+      await expect(page.locator(".coach")).toHaveCount(0);
+      const group = page.getByRole("group", { name: "Portfolio view" });
+      await group.getByRole("button", { name: /Detailed/ }).click();
+      await expect(page.locator("html")).toHaveAttribute("data-view", "detailed");
+      await expect(page.locator(".coach")).toHaveCount(0);
+    });
+  }
+
+  for (const width of WIDTHS.filter((w) => w >= 768)) {
     test(`points at the switch and stays on screen at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
@@ -222,8 +237,8 @@ test.describe("onboarding coach mark", () => {
   });
 
   for (const scheme of ["dark", "light"] as const) {
-    test(`is legible in the ${scheme} theme, and still on screen on a phone`, async ({ page }) => {
-      await page.setViewportSize({ width: 375, height: 812 });
+    test(`is legible in the ${scheme} theme on a small laptop, and absent on a phone`, async ({ page }) => {
+      await page.setViewportSize({ width: 1024, height: 768 });
       await page.emulateMedia({ colorScheme: scheme });
       await page.goto("/");
       const coach = page.locator(".coach");
@@ -231,7 +246,12 @@ test.describe("onboarding coach mark", () => {
       const r = await coach.evaluate((el) => ({ ...el.getBoundingClientRect().toJSON(), fg: getComputedStyle(el.querySelector(".coach-title")!).color, bg: getComputedStyle(el).backgroundColor }));
       expect(r.fg).not.toBe(r.bg);
       expect(r.left).toBeGreaterThanOrEqual(0);
-      expect(r.right).toBeLessThanOrEqual(375);
+      expect(r.right).toBeLessThanOrEqual(1024);
+      // V13 mobile: phones never get the hint (it covered the portrait).
+      await page.setViewportSize({ width: 375, height: 812 });
+      await page.goto("/");
+      await page.waitForTimeout(4500);
+      await expect(coach).toHaveCount(0);
     });
   }
 

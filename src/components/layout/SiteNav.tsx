@@ -12,8 +12,6 @@ import { useActiveNav } from "@/lib/useActiveNav";
 // Neither the coach mark nor Floating UI is needed for first paint: load them on demand.
 const ViewCoachMark = dynamic(() => import("./ViewCoachMark").then((m) => m.ViewCoachMark), { ssr: false });
 const COACH_BODY_ID = "view-coach-body";
-import { useAskSree } from "@/components/ask/AskSreeProvider";
-import { SreeMark } from "@/components/ui/SreeMark";
 import { Monogram } from "@/components/ui/Monogram";
 import { profile } from "@/content/profile";
 import { useFocusTrap } from "@/lib/useFocusTrap";
@@ -39,7 +37,6 @@ export function SiteNav() {
   const [open, setOpen] = useState(false);
   // Width (px) at which the links stopped fitting; null while they fit.
   const [overflowAt, setOverflowAt] = useState<number | null>(null);
-  const { openChat } = useAskSree();
   const glassRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -97,7 +94,8 @@ export function SiteNav() {
       const cs = getComputedStyle(glass);
       // Compact chrome: 6px side padding (see .island[data-island="compact"]) plus borders.
       const chrome = 12 + parseFloat(cs.borderLeftWidth) * 2;
-      // Compact = monogram + link list + icon-only actions, measured from the DOM.
+      // Compact = monogram + link list + actions (view switch, theme), measured
+      // from the DOM. Ask My AI lives in the floating launcher, not here.
       const part = (name: string) => glass.querySelector<HTMLElement>(`[data-island-part="${name}"]`)!;
       const pad = (el: HTMLElement) => {
         const c = getComputedStyle(el);
@@ -106,7 +104,6 @@ export function SiteNav() {
       const brand = part("brand");
       const actions = part("actions");
       const mono = brand.querySelector<HTMLElement>(".ss-mark")!;
-      const ai = actions.querySelector<HTMLElement>(".ai-pill")!;
       const toggle = actions.querySelector<HTMLElement>("[aria-label^='Switch to']")!;
       const view = actions.querySelector<HTMLElement>("[data-island-part='view']");
       const actionGap = parseFloat(getComputedStyle(actions).columnGap || "0");
@@ -114,7 +111,7 @@ export function SiteNav() {
         mono.getBoundingClientRect().width + pad(brand) +
         list.getBoundingClientRect().width +
         (view ? view.getBoundingClientRect().width + actionGap : 0) +
-        ai.getBoundingClientRect().height + actionGap + toggle.getBoundingClientRect().width;
+        toggle.getBoundingClientRect().width;
       // Compact gap is 4px between the three parts.
       const gaps = 4 * 2;
       glass.style.setProperty("--island-compact", `${Math.ceil(compactParts + gaps + chrome + 2)}px`);
@@ -326,17 +323,6 @@ export function SiteNav() {
 
         <div data-island-part="actions" className="island-actions flex shrink-0 items-center gap-1.5">
           {isHome && <ViewSwitch describedBy={coachOpen ? COACH_BODY_ID : undefined} />}
-          <button
-            type="button"
-            onClick={() => openChat()}
-            className="ai-pill group inline-flex h-10 shrink-0 items-center rounded-full pl-1.5 text-sm font-medium text-fg"
-            aria-label="Ask My AI - open Sree AI"
-          >
-            <SreeMark size={28} />
-            <span className="collapse-x ai-label" aria-hidden="true">
-              <span><span className="block whitespace-nowrap pl-2">Ask My AI</span></span>
-            </span>
-          </button>
           <ThemeToggle className="island-btn shrink-0 !border-transparent hover:!border-line" />
           <button
             ref={buttonRef}
@@ -433,16 +419,6 @@ export function SiteNav() {
           </ul>
         </nav>
         <div className="mt-3 grid gap-2 border-t border-line pt-3">
-          <button
-            type="button"
-            className="btn btn-primary w-full"
-            onClick={() => {
-              setOpen(false);
-              openChat();
-            }}
-          >
-            <SreeMark size={22} /> Ask My AI
-          </button>
           <div className="flex flex-wrap items-center justify-between gap-2 px-1">
             <a className="link-u text-sm text-fg-soft" href={profile.resumePath} target="_blank" rel="noopener">Resume (PDF)</a>
             <span className="flex gap-3 text-sm">
@@ -460,9 +436,6 @@ export function SiteNav() {
           box-shadow: inset 0 1px 0 rgb(255 255 255 / .12), inset 0 0 0 1px rgb(120 170 255 / .18);
           transition: transform 560ms var(--ease-spring), width 560ms var(--ease-spring), opacity 300ms var(--ease-out);
         }
-        .ai-pill{background:linear-gradient(135deg,rgb(79 143 255/.18),rgb(79 143 255/.04));box-shadow:inset 0 0 0 1px rgb(120 170 255/.28),inset 0 1px 0 rgb(255 255 255/.12)}
-        .ai-pill:hover{box-shadow:inset 0 0 0 1px rgb(120 170 255/.6),0 6px 22px -8px rgb(47 116 255/.6);transform:translateY(-1px)}
-        .ai-pill:active{transform:scale(.97)}
         @media (prefers-reduced-motion: reduce){.nav-indicator{transition:none}}
       `}</style>
     </header>

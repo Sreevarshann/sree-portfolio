@@ -27,7 +27,8 @@ test.describe("hero theme regression", () => {
       await expect(page.locator("html")).toHaveAttribute("data-theme", scheme);
       await page.waitForTimeout(2500); // WebGL field initialises on idle
       const vw = page.viewportSize()!.width;
-      const luma = await regionLuma(page, { x: Math.round(vw * 0.55), y: 90, width: Math.round(vw * 0.3), height: 60 });
+      // Background only: right of the availability badge, below the navigation.
+      const luma = await regionLuma(page, { x: Math.round(vw * 0.72), y: 90, width: Math.round(vw * 0.22), height: 60 });
       if (scheme === "dark") expect(luma).toBeLessThan(60);
       else expect(luma).toBeGreaterThan(200);
       const h1 = await page.locator("h1").evaluate((el) => getComputedStyle(el).color);

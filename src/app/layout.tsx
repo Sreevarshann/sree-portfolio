@@ -10,7 +10,7 @@ import { MotionRuntime } from "@/components/motion/MotionRuntime";
 import { AnimationGovernor } from "@/components/motion/AnimationGovernor";
 import { AskSreeProvider } from "@/components/ask/AskSreeProvider";
 import { AskSreeLauncher } from "@/components/ask/AskSreeLauncher";
-import { themeScript, viewScript } from "@/components/layout/themeScript";
+import { scrollStartScript, themeScript, viewScript } from "@/components/layout/themeScript";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -93,6 +93,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script dangerouslySetInnerHTML={{ __html: viewScript }} />
+        <script dangerouslySetInnerHTML={{ __html: scrollStartScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

@@ -42,17 +42,16 @@ test.describe("dynamic island geometry", () => {
     });
   }
 
-  test("compact mode makes the AI launcher icon-only with no reserved width", async ({ page }) => {
-    await page.setViewportSize({ width: 1920, height: 900 });
-    await page.goto("/");
-    const label = page.locator(".ai-label");
-    expect((await label.boundingBox())!.width).toBeGreaterThan(50);
-    await scrollTo(page, 1500);
-    await settle(page);
-    // Wait for the collapse transition rather than a fixed delay (slow CI runners).
-    await expect.poll(async () => (await label.boundingBox())!.width).toBeLessThan(1);
-    const pill = (await page.getByRole("button", { name: "Ask My AI - open Sree AI" }).boundingBox())!;
-    expect(Math.abs(pill.width - pill.height)).toBeLessThan(2);
+  test("the navigation never carries Ask My AI, expanded or compact", async ({ page }) => {
+    for (const width of [1920, 1280, 820]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      const nav = page.locator("header");
+      await expect(nav.getByRole("button", { name: /Ask My AI/ })).toHaveCount(0);
+      await scrollTo(page, 1500);
+      await settle(page);
+      await expect(nav.getByRole("button", { name: /Ask My AI/ })).toHaveCount(0);
+    }
   });
 
   test("rapid scroll reversals and a resize mid-animation leave no stale state", async ({ page }) => {
@@ -98,16 +97,16 @@ test.describe("dynamic island geometry", () => {
       names.push(await page.evaluate(() => document.activeElement?.getAttribute("aria-label") ?? document.activeElement?.textContent?.trim() ?? ""));
     }
     expect(names[0]).toBe("Sreevarshan Sathiyamurthy - Home");
-    expect(names).toContain("Ask My AI - open Sree AI");
+    expect(names).not.toContain("Ask My AI - open Sree AI");
     expect(names.some((n) => /Switch to (light|dark) theme/.test(n))).toBe(true);
   });
 
-  test("AI launcher opens and closes from the compact island", async ({ page }) => {
+  test("the floating AI launcher opens and closes while the island is compact", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/projects");
     await scrollTo(page, 1200);
     await settle(page);
-    await page.getByRole("button", { name: "Ask My AI - open Sree AI" }).click();
+    await page.getByRole("button", { name: /^Ask My AI$/ }).click();
     const dialog = page.getByRole("dialog", { name: /Sree AI/ });
     await expect(dialog).toBeVisible({ timeout: 15_000 });
     await page.keyboard.press("Escape");

@@ -49,7 +49,8 @@ export function ViewCoachMark({ suspended, onOpenChange }: { suspended: boolean;
     return () => window.removeEventListener("pageshow", onShow);
   }, []);
   useEffect(() => {
-    if (getView() !== "quick" || automatedOptOut()) return;
+    // Phones never get the hint: there it would cover the portrait.
+    if (getView() !== "quick" || automatedOptOut() || window.matchMedia("(max-width: 767px)").matches) return;
     let cancelled = false;
     let delay = 0;
     const ric = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 600));
