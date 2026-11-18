@@ -63,3 +63,31 @@ export function renderCitationMarkers(text: string, map: SourceRef[], streaming 
 export function stripCitationMarkers(text: string) {
   return text.replace(GROUP_WITH_SPACE, "");
 }
+
+/**
+ * When an answer about Sree arrives with no source ids, find the retrieved
+ * records it actually draws on, so the visitor still sees where the facts
+ * come from. A record counts only if the answer shares several distinctive
+ * terms with its facts (numbers, names, technologies); at most three, best
+ * first. Records the answer does not use are never shown.
+ */
+const STOP = new Set(["about", "after", "also", "and", "are", "based", "being", "built", "from", "have", "into", "more", "other", "over", "such", "that", "their", "them", "then", "there", "these", "they", "this", "through", "used", "using", "were", "what", "when", "which", "while", "with", "work", "worked", "would", "your", "sree", "sree's", "sreevarshan", "he", "his"]);
+const terms = (text: string) =>
+  new Set(
+    (text.toLowerCase().match(/[a-z0-9][a-z0-9.+#-]*[a-z0-9+#]|\d+/g) ?? []).filter((w) => (/\d/.test(w) || w.length >= 4) && !STOP.has(w)),
+  );
+
+export function inferSources<T extends { id: string }>(answer: string, candidates: { ref: T; text: string }[], max = 3, minShared = 4): T[] {
+  const a = terms(answer);
+  if (a.size < minShared) return [];
+  return candidates
+    .map(({ ref, text }) => {
+      let shared = 0;
+      for (const t of terms(text)) if (a.has(t)) shared++;
+      return { ref, shared };
+    })
+    .filter((x) => x.shared >= minShared)
+    .sort((x, y) => y.shared - x.shared)
+    .slice(0, max)
+    .map((x) => x.ref);
+}

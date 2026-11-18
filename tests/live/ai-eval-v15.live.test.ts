@@ -52,7 +52,9 @@ function check(c: V15Case, r: Awaited<ReturnType<typeof ask>>, turns: Turn[]): s
   for (const re of [...(c.mustNot ?? []), ...ALWAYS_NOT]) if (re.test(r.answer)) f.push(`contains ${re}`);
   const plan = planAnswer(turns);
   if (plan.kind === "model") {
-    if (c.cites && !resolveCitations(r.answer, r.map).length) f.push("no citation");
+    // Grounding the visitor can see: source ids in the text, or the server's matched sources under the answer.
+    const shownSources = r.events.some((e) => e.type === "sources" && e.sources.length > 0);
+    if (c.cites && !resolveCitations(r.answer, r.map).length && !shownSources) f.push("no citation");
     const unsupported = unsupportedClaims(r.answer, groundingText(plan.chunks));
     if (unsupported.length) f.push(`unsupported: ${unsupported.map((u) => `${u.kind}:${u.value}`).join(", ")}`);
     if (/\]\((?:\/|https?:)|https?:\/\//.test(r.answer)) f.push("model wrote a link");
