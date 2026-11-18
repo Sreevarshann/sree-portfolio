@@ -97,26 +97,28 @@ test("mobile menu closes by tapping outside", async ({ page, isMobile }) => {
   await expect(page.getByRole("dialog", { name: "Site menu" })).toBeHidden();
 });
 
-test("Sree AI greets with the four starter prompts and opens with Ctrl+K", async ({ page }) => {
+test("My AI greets with three starter prompts and opens with Ctrl+K", async ({ page }) => {
   await page.goto("/education");
   await page.waitForLoadState("networkidle");
   await page.keyboard.press("Control+k");
-  const panel = page.getByRole("dialog", { name: /Sree AI assistant/ });
+  const panel = page.getByRole("dialog", { name: /My AI assistant/ });
   await expect(panel).toBeVisible();
   // The chat bundle is lazy-loaded on first open; allow for a cold load under parallel test runs.
-  await expect(panel.getByText("Hey! I'm Sree's AI assistant. Ask me about his experience, projects, achievements, or what he's building.")).toBeVisible({ timeout: 15_000 });
-  for (const q of ["Who is Sree?", "What has he built?", "What are his biggest achievements?", "How can I contact him?"]) {
-    await expect(panel.getByRole("button", { name: new RegExp(q.replace("?", "\\?")) })).toBeVisible();
+  await expect(panel.getByText("Hey! Curious about Sree's work? Ask me anything.")).toBeVisible({ timeout: 15_000 });
+  await expect(panel.getByRole("heading", { name: "My AI" })).toBeVisible();
+  for (const q of ["What has Sree built?", "Tell me about his experience", "Show me his best projects"]) {
+    await expect(panel.getByRole("button", { name: q })).toBeVisible();
   }
-  await panel.getByRole("button", { name: /What has he built\?/ }).click();
-  await expect(panel.getByText(/can't write an answer right now/)).toBeVisible();
-  await panel.getByRole("button", { name: "Close Sree AI" }).click();
+  await panel.getByRole("button", { name: "What has Sree built?" }).click();
+  // Without a model key (local, CI) a fallback; with one (production) a real answer.
+  await expect(panel.locator("[data-fallback], .md").first()).toBeVisible({ timeout: 30_000 });
+  await panel.getByRole("button", { name: "Close My AI" }).click();
   await expect(panel).toBeHidden();
 });
 
 test("launcher never covers the contact buttons", async ({ page }) => {
   await page.goto("/contact");
-  const launcher = page.getByRole("button", { name: /^Ask My AI$/ });
+  const launcher = page.getByRole("button", { name: /^My AI$/ });
   for (const name of [/Write an email/, /Copy address/]) {
     const btn = page.getByRole("button", { name }).or(page.getByRole("link", { name }));
     await btn.first().scrollIntoViewIfNeeded();

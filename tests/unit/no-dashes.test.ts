@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { knowledge, factsOf } from "@/lib/ai/knowledge";
 import { SYSTEM_PROMPT, formatContext } from "@/lib/ai/prompt";
-import { MORE_QUESTIONS, RECRUITER_QUESTIONS, SUGGESTED_QUESTIONS } from "@/lib/ai/protocol";
+import { MORE_QUESTIONS, SUGGESTED_QUESTIONS } from "@/lib/ai/protocol";
 import { suggestFollowUps, analyze } from "@/lib/ai/intent";
-import { GREETING, SUBTITLE } from "@/components/ask/ChatView";
+import { GREETING, NAME, SUBTITLE } from "@/components/ask/ChatView";
 import { technologies, evidence } from "@/content/technologies";
 
 const DASH = /[—–]/;
@@ -21,7 +21,7 @@ describe("no em or en dashes in what the assistant receives or shows", () => {
     expect(formatContext(knowledge as typeof knowledge[number][])).not.toMatch(DASH);
   });
   it("greeting, starter questions and follow-up suggestions", () => {
-    for (const t of [GREETING, SUBTITLE, ...SUGGESTED_QUESTIONS, ...RECRUITER_QUESTIONS, ...MORE_QUESTIONS]) expect(t).not.toMatch(DASH);
+    for (const t of [NAME, GREETING, SUBTITLE, ...SUGGESTED_QUESTIONS, ...MORE_QUESTIONS]) expect(t).not.toMatch(DASH);
     for (const q of ["Who is Sree?", "What did he build at RightRev?", "Tell me about AEGIS AI"]) for (const s of suggestFollowUps(analyze(q), q)) expect(s).not.toMatch(DASH);
   });
   it("technology catalog names, notes and usage labels", () => {

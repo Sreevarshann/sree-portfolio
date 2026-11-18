@@ -5,9 +5,6 @@
  */
 export type ChatContext = { skills?: string[]; topics?: string[] };
 
-/** Answer framing chosen in the chat header. "recruiter" maps evidence to requirements. */
-export type ChatMode = "general" | "recruiter";
-
 /** Newline-delimited JSON events streamed from /api/chat to the client. */
 export type ChatSource = { title: string; href: string; section: string; id?: string };
 
@@ -36,28 +33,17 @@ export type StreamEvent =
   | { type: "error"; message: string; code?: string }
   | { type: "done" };
 
-/** Starter prompts: who he is, what he built, results, contact. */
-export const SUGGESTED_QUESTIONS = ["Who is Sree?", "What has he built?", "What are his biggest achievements?", "How can I contact him?"] as const;
+/** Starter prompts in the welcome state: what he built, his experience, his best projects. */
+export const SUGGESTED_QUESTIONS = ["What has Sree built?", "Tell me about his experience", "Show me his best projects"] as const;
 
-/** Starter prompts in Recruiter Mode: role requirements and evidence. */
-export const RECRUITER_QUESTIONS = [
-  "Does Sree have React experience?",
-  "Where has Sree used Snowflake?",
-  "What are his strongest data engineering skills?",
-  "Which projects demonstrate AI engineering?",
-  "Has he worked with Databricks?",
-  "What projects demonstrate full-stack development?",
-] as const;
-
-/** Extra prompts on the full-page view (no overlap with either starter set). */
+/** Extra prompts on the full-page view (no overlap with the starter set). */
 export const MORE_QUESTIONS = [
+  "Who is Sree?",
+  "Can I hire him?",
   "Explain his Snowflake Cortex AI agent work",
   "Which project should I explore first?",
-  "Compare his AI projects",
-  "What did he build at RightRev?",
+  "Compare AEGIS AI and NEXUS AI",
   "What did he achieve at the Singapore AUV Challenge?",
-  "What are his strongest technical skills?",
-  "What is Charlie?",
   "What certifications does he have?",
-  "What is he studying at Northeastern?",
+  "How can I contact him?",
 ] as const;

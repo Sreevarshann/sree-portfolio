@@ -32,8 +32,11 @@ describe("ChatView", () => {
         <ChatView variant="floating" />
       </AskSreeProvider>,
     );
-    expect(screen.getByText("Hey! I'm Sree's AI assistant. Ask me about his experience, projects, achievements, or what he's building.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Who is Sree\?/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "My AI" })).toBeInTheDocument();
+    expect(screen.getByText("Hey! Curious about Sree's work? Ask me anything.")).toBeInTheDocument();
+    for (const q of ["What has Sree built?", "Tell me about his experience", "Show me his best projects"]) expect(screen.getByRole("button", { name: q })).toBeInTheDocument();
+    // One assistant: no mode switch, no job-description panel.
+    expect(screen.queryByRole("button", { name: /Recruiter/ })).toBeNull();
   });
 
   it("shows suggested questions and streams an answer with sources and follow-ups", async () => {
@@ -51,7 +54,7 @@ describe("ChatView", () => {
         <ChatView variant="page" />
       </AskSreeProvider>,
     );
-    const suggestion = screen.getByRole("button", { name: /What has he built\?/ });
+    const suggestion = screen.getByRole("button", { name: /What has Sree built\?/ });
     await userEvent.click(suggestion);
     await waitFor(() => expect(screen.getByText("Snowflake Cortex")).toBeInTheDocument());
     expect(screen.getByRole("link", { name: "RightRev" })).toHaveAttribute("href", "/experience#rightrev");
@@ -64,7 +67,8 @@ describe("ChatView", () => {
     expect(screen.getByRole("button", { name: "Copy response" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
     const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(body.messages.at(-1)).toEqual({ role: "user", content: "What has he built?" });
+    expect(body.messages.at(-1)).toEqual({ role: "user", content: "What has Sree built?" });
+    expect(body.mode).toBeUndefined();
   });
 
   it("sends with Enter, keeps Shift+Enter for new lines, and enforces the length limit", async () => {
@@ -74,7 +78,7 @@ describe("ChatView", () => {
         <ChatView variant="page" />
       </AskSreeProvider>,
     );
-    const box = screen.getByLabelText("Ask a question about Sree");
+    const box = screen.getByLabelText("Ask My AI about Sree");
     expect(box).toHaveAttribute("maxLength", "4000");
     await userEvent.type(box, "line one{Shift>}{Enter}{/Shift}line two");
     expect(box).toHaveValue("line one\nline two");

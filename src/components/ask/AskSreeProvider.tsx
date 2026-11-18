@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { ChatContext, ChatLink, ChatMode, ChatSource, FallbackReason, SourceRef, StreamEvent } from "@/lib/ai/protocol";
+import type { ChatContext, ChatLink, ChatSource, FallbackReason, SourceRef, StreamEvent } from "@/lib/ai/protocol";
 
 export type ChatMessage = {
   id: string;
@@ -16,25 +16,20 @@ export type ChatMessage = {
   fallback?: { reason: FallbackReason; links: ChatLink[] };
   /** Follow-up questions offered under the answer. */
   suggestions?: string[];
-  /** Catalog ids this question was asked about (Skill Explorer hand-off, job description mapping). */
+  /** Catalog ids this question was asked about (Skill Explorer hand-off). */
   context?: ChatContext;
-  /** Set on a job-description mapping card (rendered locally, never sent to the model). */
-  report?: import("@/lib/skillSearch").JdReport;
 };
 
 type Ctx = {
   open: boolean;
   openChat: (prefill?: string) => void;
-  closeChat: () => void;
+  /** Closes the panel; focus returns to the launcher unless the visitor clicked elsewhere. */
+  closeChat: (opts?: { restoreFocus?: boolean }) => void;
   messages: ChatMessage[];
   busy: boolean;
   send: (text: string, context?: ChatContext) => void;
   /** Open the assistant and ask at once (Skill Explorer hand-off). */
   ask: (text: string, context?: ChatContext) => void;
-  /** Adds a locally built job-description mapping to the conversation. */
-  addReport: (report: import("@/lib/skillSearch").JdReport) => void;
-  mode: ChatMode;
-  setMode: (m: ChatMode) => void;
   stop: () => void;
   retry: () => void;
   clear: () => void;
@@ -45,7 +40,6 @@ type Ctx = {
 
 const AskCtx = createContext<Ctx | null>(null);
 const STORAGE_KEY = "ask-sree:v3";
-const MODE_KEY = "ask-sree:mode";
 export const MAX_INPUT = 4000;
 /** Longer than the server's model timeout, so the server's own message normally arrives first. */
 const CLIENT_TIMEOUT_MS = 75_000;
@@ -57,8 +51,6 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
-  const [mode, setModeState] = useState<ChatMode>("general");
-  const modeRef = useRef<ChatMode>("general");
   const abortRef = useRef<AbortController | null>(null);
   const launcherRef = useRef<HTMLButtonElement | null>(null);
   const loaded = useRef(false);
@@ -69,13 +61,11 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as ChatMessage[];
+        // Job-description cards from the retired Recruiter Mode are dropped.
         // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate from sessionStorage once on mount
-        setMessages(parsed.map((m) => (m.status === "streaming" ? { ...m, status: "stopped" } : m)));
+        setMessages(parsed.filter((m) => !("report" in m)).map((m) => (m.status === "streaming" ? { ...m, status: "stopped" } : m)));
       }
-      if (sessionStorage.getItem(MODE_KEY) === "recruiter") {
-        modeRef.current = "recruiter";
-        setModeState("recruiter");
-      }
+      sessionStorage.removeItem("ask-sree:mode");
     } catch {}
     loaded.current = true;
   }, []);
@@ -104,7 +94,7 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
         ctrl.abort();
       }, CLIENT_TIMEOUT_MS);
       const payload = history
-        .filter((m) => m.content.trim() && m.status !== "error" && !m.fallback && !m.report)
+        .filter((m) => m.content.trim() && m.status !== "error" && !m.fallback)
         .slice(-12)
         .map((m) => (m.context && m.role === "user" ? { role: m.role, content: m.content, context: m.context } : { role: m.role, content: m.content }));
 
@@ -112,7 +102,7 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: payload, mode: modeRef.current }),
+          body: JSON.stringify({ messages: payload }),
           signal: ctrl.signal,
         });
         if (!res.body) throw new Error("No response body");
@@ -198,24 +188,11 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
     },
     [send],
   );
-  const addReport = useCallback((report: import("@/lib/skillSearch").JdReport) => {
-    setOpen(true);
-    setMessages((ms) => [...ms, { id: uid(), role: "assistant", content: "", status: "done", report }]);
-  }, []);
-  const setMode = useCallback((m: ChatMode) => {
-    modeRef.current = m;
-    setModeState(m);
-    try {
-      sessionStorage.setItem(MODE_KEY, m);
-    } catch {}
-  }, []);
-
   const stop = useCallback(() => abortRef.current?.abort(), []);
 
   const retry = useCallback(() => {
     if (busy) return;
     const lastUser = [...messages].reverse().findIndex((m) => m.role === "user");
-    if (messages[messages.length - 1]?.report) return;
     if (lastUser < 0) return;
     const idx = messages.length - 1 - lastUser;
     void run(messages.slice(0, idx + 1));
@@ -230,9 +207,9 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
     if (prefill) setDraft(prefill);
     setOpen(true);
   }, []);
-  const closeChat = useCallback(() => {
+  const closeChat = useCallback((opts: { restoreFocus?: boolean } = {}) => {
     setOpen(false);
-    window.setTimeout(() => launcherRef.current?.focus(), 0);
+    if (opts.restoreFocus !== false) window.setTimeout(() => launcherRef.current?.focus(), 0);
   }, []);
 
   // Warm the chat bundle once the page is idle so the first open is instant.
@@ -242,7 +219,7 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
     return () => (window.cancelIdleCallback ?? window.clearTimeout)(id as number);
   }, []);
 
-  // Keyboard shortcuts: Cmd+K (Ctrl+K on Windows and Linux) toggles Sree AI
+  // Keyboard shortcuts: Cmd+K (Ctrl+K on Windows and Linux) toggles My AI
   // from anywhere; "/" opens it when not typing elsewhere. This is the only
   // handler for either key on the site. On the full-page view (/ask) the
   // floating panel is not rendered, so the shortcut focuses that page's composer.
@@ -269,8 +246,8 @@ export function AskSreeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ open, openChat, closeChat, messages, busy, send, ask, addReport, mode, setMode, stop, retry, clear, draft, setDraft, launcherRef }),
-    [open, openChat, closeChat, messages, busy, send, ask, addReport, mode, setMode, stop, retry, clear, draft],
+    () => ({ open, openChat, closeChat, messages, busy, send, ask, stop, retry, clear, draft, setDraft, launcherRef }),
+    [open, openChat, closeChat, messages, busy, send, ask, stop, retry, clear, draft],
   );
   return <AskCtx.Provider value={value}>{children}</AskCtx.Provider>;
 }

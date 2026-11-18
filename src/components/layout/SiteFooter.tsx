@@ -17,7 +17,7 @@ const FOOTER_PAGES = [
   { href: "/projects", label: "Projects" },
   { href: "/certifications", label: "Certifications" },
   { href: "/contact", label: "Contact" },
-  { href: "/ask", label: "Sree AI" },
+  { href: "/ask", label: "My AI" },
 ];
 
 export function SiteFooter() {

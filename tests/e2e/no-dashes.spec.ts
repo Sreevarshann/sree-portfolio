@@ -46,7 +46,7 @@ test.describe("no em or en dashes in public content", () => {
     expect(await (await request.get("/manifest.webmanifest")).text()).not.toMatch(DASH);
     await page.goto("/ask");
     const panel = page.locator("main");
-    await expect(panel.getByText(/Hey! I'm Sree's AI assistant/)).toBeVisible();
+    await expect(panel.getByText(/Hey! Curious about Sree's work\? Ask me anything\./)).toBeVisible();
     expect(await panel.textContent()).not.toMatch(DASH);
     // Ask a starter question. Without a model key (local and CI) this shows the
     // fallback copy; with a key (production) a real streamed answer, which the

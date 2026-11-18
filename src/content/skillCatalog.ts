@@ -35,7 +35,7 @@ export const evidence: Record<string, { label: string; href: string; kind: Evide
   insightforge: { ...evidenceLabels.insightforge, kind: "project" },
   reviewpilot: { ...evidenceLabels.reviewpilot, kind: "project" },
   workmesh: { ...evidenceLabels.workmesh, kind: "project" },
-  "sree-ai": { label: "Sree AI (this site)", href: "/ask", kind: "site" },
+  "sree-ai": { label: "My AI (this site)", href: "/ask", kind: "site" },
   "this-site": { label: "This portfolio", href: "/", kind: "site" },
   /** Northeastern M.S.: MLOps coursework labs (Airflow, Docker) noted under Education. */
   coursework: { label: "University coursework", href: "/education", kind: "coursework" },
@@ -114,7 +114,7 @@ export const skills: Skill[] = [
       u("rightrev", "Built Snowflake Cortex AI agents for financial reporting."),
       u("sourceatlas", "Built a research engine that checks every claim against the passage it cites and abstains when it cannot verify."),
       u("reviewpilot", "Runs a grounded model pass after 17 deterministic rules; findings that do not quote the lines they cite are discarded."),
-      u("sree-ai", "Built the Sree AI assistant on this site: grounded retrieval, cited answers and a claim gate."),
+      u("sree-ai", "Built the My AI assistant on this site: grounded retrieval, cited answers and a claim gate."),
     ],
     related: ["rag", "ai-agents", "llm-eval", "lora"],
   },
@@ -228,7 +228,7 @@ export const skills: Skill[] = [
     name: "Groq",
     aliases: ["groq api"],
     category: "ai",
-    uses: [u("sree-ai", "Sree AI on this site streams its answers from models served by Groq.")],
+    uses: [u("sree-ai", "My AI on this site streams its answers from models served by Groq.")],
     related: ["llm-apps"],
   },
   {
@@ -237,7 +237,7 @@ export const skills: Skill[] = [
     aliases: ["claude", "anthropic", "anthropic api"],
     category: "ai",
     tech: ["claude"],
-    uses: [u("sree-ai", "Sree AI on this site supports the Anthropic API as a configurable model provider.")],
+    uses: [u("sree-ai", "My AI on this site supports the Anthropic API as a configurable model provider.")],
     related: ["llm-apps"],
   },
   {
@@ -626,7 +626,7 @@ export const skills: Skill[] = [
     category: "software",
     uses: [
       u("rightrev", "Built frontend features and REST API integrations for financial reporting, with senior engineers reviewing changes."),
-      u("this-site", "Designed and built this portfolio: motion, theming and the Sree AI interface."),
+      u("this-site", "Designed and built this portfolio: motion, theming and the My AI interface."),
       u("workmesh", "Interactive company map (React Flow and ELK.js) and five role workspaces."),
     ],
     related: ["react", "nextjs", "tailwind"],
