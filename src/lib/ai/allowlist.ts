@@ -16,7 +16,6 @@ const INTERNAL = new Set([
   "/achievements",
   "/education",
   "/certifications",
-  "/lab",
   "/contact",
   "/ask",
   profile.resumeFile,
