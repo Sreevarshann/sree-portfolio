@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
   // Skill Explorer / job-description hand-off: canonical ids only (validated in retrieval).
   const handoff = parsed.data.messages[parsed.data.messages.length - 1].context;
-  const plan = planAnswer(history, { mode: parsed.data.mode, pins: handoff });
+  const plan = planAnswer(history, { pins: handoff });
 
   // Greetings, small talk, plain "where is X" requests and attempts to extract
   // the instructions: answered at once, with no retrieval and no model call

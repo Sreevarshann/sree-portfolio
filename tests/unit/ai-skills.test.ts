@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { StreamEvent } from "@/lib/ai/protocol";
 
-/** V12: Sree AI answers skill questions from the shared catalog; Recruiter Mode. */
+/** V12: My AI answers skill questions from the shared catalog. */
 const streamImpl = vi.fn();
 vi.mock("@anthropic-ai/sdk", () => {
   class APIError extends Error {
@@ -40,7 +40,7 @@ async function call(body: unknown) {
 }
 const lastTurn = () => streamImpl.mock.calls.at(-1)![0].messages.at(-1).content as string;
 
-describe("Sree AI and the skill catalog", () => {
+describe("My AI and the skill catalog", () => {
   beforeEach(async () => {
     vi.resetModules();
     streamImpl.mockReset();
@@ -105,13 +105,12 @@ describe("Sree AI and the skill catalog", () => {
     expect(ids).toContain("topic-databricks");
   });
 
-  it("Recruiter Mode reframes professional answers but not private questions", async () => {
+  it("there is one assistant: a client-sent mode is ignored, a pasted job description still maps requirements", async () => {
+    // Older clients sent { mode: "recruiter" }; it is accepted and has no effect.
     await call({ messages: [{ role: "user", content: "Does he have React experience?" }], mode: "recruiter" });
-    expect(lastTurn()).toMatch(/\(Mode: recruiter/);
+    expect(lastTurn()).not.toMatch(/\(Mode: recruiter/);
     await call({ messages: [{ role: "user", content: "What is his salary?" }], mode: "recruiter" });
     expect(lastTurn()).toMatch(/\(Mode: private/);
-    await call({ messages: [{ role: "user", content: "Does he have React experience?" }] });
-    expect(lastTurn()).not.toMatch(/\(Mode: recruiter/);
   });
 
   it("drops invented fit scores from answers", async () => {

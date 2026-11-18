@@ -23,6 +23,7 @@ export const chatRequestSchema = z
       )
       .min(1)
       .max(40),
+    /** Ignored. Older clients sent a chat mode; there is only one assistant now. */
     mode: z.enum(["general", "recruiter"]).optional(),
   })
   .superRefine((v, ctx) => {
