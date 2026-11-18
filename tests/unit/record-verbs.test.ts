@@ -15,3 +15,13 @@ describe("record verbs", () => {
     expect(out).toBe("He migrated 18 Snowflake Cortex AI agents to production, then audited views.");
   });
 });
+
+import { commitmentIn } from "@/lib/ai/validate";
+describe("employer descriptions", () => {
+  it("drops sentences that characterise an employer", () => {
+    expect(commitmentIn("RightRev is a company that builds AI-powered tools to help finance teams analyze revenue data.")).not.toBeNull();
+    expect(commitmentIn("The platform also includes SQL stored procedures and MCP integrations.")).not.toBeNull();
+    expect(commitmentIn("At RightRev, Sree migrated 18 AI agents to production [S1].")).toBeNull();
+    expect(commitmentIn("He worked at RightRev as a Software & Data Engineer Intern.")).toBeNull();
+  });
+});

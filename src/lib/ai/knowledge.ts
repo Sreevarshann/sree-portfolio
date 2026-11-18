@@ -102,7 +102,8 @@ for (const e of experience) {
     ].join(" "),
     facts: [
       `Role: ${e.role} at ${e.company}, ${e.period}, ${e.location}.`,
-      e.summary,
+      `Sree's work there in one line: ${e.summary}`,
+      `The portfolio does not describe ${e.company}'s business, products, customers or industry; describe only Sree's work there.`,
       ...e.highlights,
       ...e.outcomes.map((o) => `Outcome: ${o.value} ${o.label}.`),
       `Technologies used in this role (complete list): ${e.stack.join(", ")}.`,
