@@ -1198,9 +1198,20 @@ a:focus-visible > .ss-mark .ss-rule {
   .team-field[data-in] .tf-me { animation: tf-in 500ms var(--ease-out) 600ms both, tf-pulse 2.4s var(--ease-in-out) 2500ms infinite; transform-box: fill-box; transform-origin: center; }
   .funnel[data-armed]:not([data-in]) .funnel-bar { transform: scaleX(0); }
   .funnel[data-in] .funnel-bar { animation: funnel-draw 900ms var(--ease-emph) calc(var(--k) * 420ms + 300ms) both; transform-origin: left; }
-  .podium[data-armed]:not([data-in]) .pd-bar { transform: scaleY(0); }
-  .podium[data-in] .pd-bar { animation: pd-up 1100ms var(--ease-spring-soft) var(--d) both; }
-  .podium[data-in] .pd-me { animation: pd-up 1100ms var(--ease-spring-soft) var(--d) both, pd-glow 2.4s var(--ease-in-out) 1400ms infinite; }
+  /* MLOps emblem: the pipeline lights up, data flows along its paths and
+     converges on the badge, which draws its ring and settles once. */
+  .emblem[data-armed]:not([data-in]) :is(.em-node, .em-badge) { opacity: 0; }
+  .emblem[data-armed]:not([data-in]) .em-path { stroke-dashoffset: 1; }
+  .emblem .em-path { stroke-dasharray: 1; }
+  .emblem .em-flow { stroke-dasharray: 0.12 1; stroke-dashoffset: 0.12; opacity: 0; }
+  .emblem[data-in] .em-node { animation: em-fade 500ms var(--ease-out) var(--d) both; }
+  .emblem[data-in] .em-path { animation: em-draw 900ms var(--ease-emph) var(--d) both; }
+  .emblem[data-in] .em-flow { animation: em-flow 1300ms var(--ease-in-out) var(--d) 2 both; }
+  .emblem[data-in] .em-badge { animation: em-badge 900ms var(--ease-spring-soft) 1500ms both; transform-box: fill-box; transform-origin: center; }
+  .emblem[data-in] .em-ring { stroke-dasharray: 1; animation: em-draw 1000ms var(--ease-emph) 1500ms both; }
+  .emblem[data-in] .em-ticks { animation: em-fade 700ms var(--ease-out) 2000ms both; }
+  .emblem[data-in] .em-rank,
+  .emblem[data-in] .em-arc { animation: em-fade 700ms var(--ease-out) 1900ms both; }
   .rank-counter[data-landed] { animation: rank-land 700ms var(--ease-spring) both; }
 }
 @keyframes tf-in { from { opacity: 0; } }
@@ -1209,8 +1220,10 @@ a:focus-visible > .ss-mark .ss-rule {
 @keyframes tf-lift { 50% { transform: scale(1.5); } }
 @keyframes tf-pulse { 50% { transform: scale(1.45); } }
 @keyframes funnel-draw { from { transform: scaleX(0); } }
-@keyframes pd-up { from { transform: scaleY(0); } }
-@keyframes pd-glow { 50% { filter: drop-shadow(0 0 10px color-mix(in oklab, var(--accent) 70%, transparent)); } }
+@keyframes em-fade { from { opacity: 0; } }
+@keyframes em-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes em-flow { 0% { stroke-dashoffset: 0.12; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { stroke-dashoffset: -1; opacity: 0; } }
+@keyframes em-badge { from { opacity: 0; transform: scale(0.9); } 60% { opacity: 1; } }
 @keyframes rank-land { 40% { transform: translateY(-4px); } }
 
 /* ------------------------------------------------------------------ closing + credentials */
@@ -1362,6 +1375,10 @@ a:focus-visible > .ss-mark .ss-rule {
     margin-bottom: 3.1rem;
   }
   .hero-portrait .pswap-note { top: calc(100% + 10px); }
+  /* The actions stay centred and clear of the floating Ask My AI button
+     in the bottom corner: the row keeps the button's width free on both
+     sides, so the two actions wrap onto two lines rather than run under it. */
+  .hero-actions { padding-inline: 66px; }
 }
 /* Very short phones (iPhone SE): a little smaller still, so the nickname
    clears the floating Ask My AI button too. */
@@ -1524,12 +1541,21 @@ a:focus-visible > .ss-mark .ss-rule {
   }
   .hero-first { font-size: clamp(5rem, 8.8vw, 8.6rem); }
   .hero-nick { font-size: clamp(1.4rem, 1.9vw, 1.85rem); }
-  .hero-actions { margin-top: 2.5rem; }
+  .hero-stage { margin-top: 1.5rem; }
+  .hero-actions { margin-top: 1.75rem; }
+  /* Keep clear of the floating Ask My AI launcher (about 176px from the
+     viewport's right edge) when the container reaches that far. */
+  .hero-meta {
+    margin-top: 1.75rem;
+    padding-top: 1rem;
+    padding-right: max(0px, calc(190px - (100vw - 100%) / 2));
+  }
 }
 /* Short laptop screens (1280 x 800): a tighter vertical rhythm. */
 @media (min-width: 1024px) and (max-height: 860px) {
-  .hero-stage { margin-top: 1rem; }
-  .hero-actions { margin-top: 1.75rem; }
+  .hero-stage { margin-top: 0.75rem; }
+  .hero-actions { margin-top: 1.25rem; }
+  .hero-meta { margin-top: 1.25rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-stage .hero-namegroup,
@@ -1571,24 +1597,25 @@ a:focus-visible > .ss-mark .ss-rule {
   align-items: center;
   gap: 0.5rem;
 }
-/* Each mark sits on its own small neutral tile, so the dark-background
-   variants read clearly on the dark theme without filtering brand colours. */
+/* Each mark is the official light-background artwork on its own small white
+   plate in both themes (like the education logos), so every logo reads
+   clearly on the dark theme without filtering or recolouring it. */
 .hero-logo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 44px;
   min-width: 44px;
-  padding: 0 0.75rem;
-  border: 1px solid var(--line);
+  padding: 0 0.7rem;
   border-radius: 10px;
-  background: color-mix(in oklab, var(--fg) 5%, transparent);
-  transition: border-color var(--dur-s) var(--ease-out), background-color var(--dur-s) var(--ease-out), transform var(--dur-m) var(--ease-spring-soft);
+  background: #fff;
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.1);
+  transition: box-shadow var(--dur-s) var(--ease-out), transform var(--dur-m) var(--ease-spring-soft);
 }
+:root:not([data-theme="light"]) .hero-logo { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.12); }
 .hero-logo:hover,
 .hero-logo:focus-visible {
-  border-color: color-mix(in oklab, var(--accent) 55%, var(--line));
-  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  box-shadow: 0 0 0 2px var(--accent);
   transform: translateY(-1px);
 }
 .hero-logo-img {
@@ -2343,13 +2370,40 @@ a:focus-visible > .ss-mark .ss-rule {
 
 
 /* ================================================================== V7 */
-/* ---------------------------------------------------- experience snapshot */
-@media (prefers-reduced-motion: no-preference) {
-  .xp-snap-value { transition: color var(--dur-m) var(--ease-out); }
-  .xp-snap a:hover .xp-snap-value { color: var(--accent-fg); }
+/* ------------------------------------------------- experience tiles (home)
+   Three near-square tiles on desktop (equal heights from the grid), stacked
+   on phones. The whole tile is the "View details" link's hit area. */
+.xp-tile,
+.cert-card {
+  transition: border-color var(--dur-m) var(--ease-out), transform var(--dur-m) var(--ease-spring-soft), box-shadow var(--dur-m) var(--ease-out);
 }
-.tableau-link img { flex-shrink: 0; }
-
+.xp-tile:hover,
+.xp-tile:focus-within,
+.cert-card:hover,
+.cert-card:focus-within {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+}
+/* Near-square on desktop; on narrower screens the content sets the height. */
+@media (min-width: 1024px) {
+  .xp-tile { aspect-ratio: 1 / 0.92; }
+}
+.xp-tile-logo { padding: 8px 14px; border-radius: 12px; }
+.xp-tile-link .arrow,
+.cert-link span[aria-hidden] { transition: transform var(--dur-s) var(--ease-out); }
+.xp-tile:hover .xp-tile-link .arrow { transform: translateX(3px); }
+.xp-tile-link:focus-visible,
+.cert-link:focus-visible { outline: none; }
+.xp-tile:has(.xp-tile-link:focus-visible),
+.cert-card:has(.cert-link:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+.cert-mark {
+  border: 1px solid var(--line);
+  background: color-mix(in oklab, var(--fg) 5%, transparent);
+  color: var(--fg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .xp-tile:hover, .xp-tile:focus-within, .cert-card:hover, .cert-card:focus-within { transform: none; }
+}
 
 /* ------------------------------------------------- institution logo plates
    White in both themes so official artwork stays legible; a neutral border

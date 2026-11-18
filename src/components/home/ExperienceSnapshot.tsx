@@ -3,7 +3,7 @@ import { experience } from "@/content/experience";
 import { LogoImage } from "@/components/ui/LogoImage";
 
 /** Logo heights tuned by eye so the three marks carry similar visual weight. */
-const H: Record<string, number> = { rightrev: 20, "flare-innovation": 40, "sri-sairam-techno-incubator": 46 };
+const H: Record<string, number> = { rightrev: 18, "flare-innovation": 36, "sri-sairam-techno-incubator": 44 };
 
 /**
  * Homepage experience overview: one near-square tile per employer with the
@@ -16,14 +16,13 @@ export function ExperienceSnapshot() {
       {experience.map((e, i) => (
         <li key={e.slug} className="flex min-w-0" data-reveal style={{ ["--i" as string]: i } as React.CSSProperties}>
           <article aria-labelledby={`xp-${e.slug}`} className="xp-tile panel group relative flex w-full min-w-0 flex-col p-6 md:p-7">
-            <span className="xp-tile-logo flex h-14 items-center">
+            {/* Official artwork on a white plate in both themes, like the
+                education logos: legible and never recoloured. */}
+            <span className="xp-tile-logo logo-plate flex h-16 w-fit items-center">
               {e.logo ? (
-                <>
-                  <LogoImage variant="light" src={e.logo.light} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: H[e.slug] ?? 28 }} />
-                  <LogoImage variant="dark" src={e.logo.dark} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: H[e.slug] ?? 28 }} />
-                </>
+                <LogoImage src={e.logo.light} alt={`${e.company} logo`} width={e.logo.width} height={e.logo.height} fallback={e.company} className="w-auto" style={{ height: H[e.slug] ?? 28 }} />
               ) : (
-                <span className="text-lg font-semibold">{e.company}</span>
+                <span className="text-lg font-semibold text-[#101d33]">{e.company}</span>
               )}
             </span>
             <p className="eyebrow mt-6 truncate">{e.company}</p>

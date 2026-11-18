@@ -78,10 +78,7 @@ function HeroMeta() {
               <li key={e.slug}>
                 <Link href={`/experience#${e.slug}`} className="hero-logo" aria-label={`${e.company}, ${e.role}`} title={`${e.company} · ${e.role}`}>
                   {e.logo ? (
-                    <>
-                      <LogoImage variant="light" src={e.logo.light} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="hero-logo-img" style={{ ["--logo-h" as string]: `${LOGO_HEIGHT[e.slug] ?? 24}px` }} />
-                      <LogoImage variant="dark" src={e.logo.dark} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="hero-logo-img" style={{ ["--logo-h" as string]: `${LOGO_HEIGHT[e.slug] ?? 24}px` }} />
-                    </>
+                    <LogoImage src={e.logo.light} alt="" width={e.logo.width} height={e.logo.height} fallback={e.company} className="hero-logo-img" style={{ ["--logo-h" as string]: `${LOGO_HEIGHT[e.slug] ?? 24}px` }} />
                   ) : (
                     <span className="text-sm font-semibold">{e.company}</span>
                   )}
@@ -96,7 +93,7 @@ function HeroMeta() {
 }
 
 /** Logo heights tuned by eye so the three marks carry similar visual weight. */
-const LOGO_HEIGHT: Record<string, number> = { rightrev: 15, "flare-innovation": 30, "sri-sairam-techno-incubator": 32 };
+const LOGO_HEIGHT: Record<string, number> = { rightrev: 16, "flare-innovation": 30, "sri-sairam-techno-incubator": 34 };
 
 export function Hero({ portraits }: { portraits: PortraitPair }) {
   const [field, setField] = useState(false);

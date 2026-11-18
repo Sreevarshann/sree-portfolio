@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { achievements } from "@/content/credentials";
 import { RankCounter } from "@/components/achievements/RankCounter";
-import { TeamField, Podium } from "@/components/achievements/FieldViz";
+import { TeamField, RecognitionEmblem } from "@/components/achievements/FieldViz";
 import { LinkedInProof } from "@/components/ui/LinkedInProof";
 
 const RANK = "ach-rank rank-reveal text-[clamp(4.6rem,9vw,7.5rem)] font-medium leading-[0.8] tracking-[-0.06em]";
@@ -39,7 +39,7 @@ export function AchievementShowcase() {
             )}
             <div className="ach-viz flex h-[76px] w-[38%] min-w-0 max-w-[200px] shrink items-center justify-center opacity-90 transition-[opacity,transform] duration-500 group-hover:scale-[1.03] group-hover:opacity-100 md:h-[clamp(96px,8.4vw,124px)] md:w-[42%] md:shrink-0">
               <div className="max-h-full w-full">
-                {a.stages ? <TeamField total={320} qualified={130} shortlisted={20} place={a.rank.place} cols={20} /> : <Podium place={a.rank.place} />}
+                {a.stages ? <TeamField total={320} qualified={130} shortlisted={20} place={a.rank.place} cols={20} /> : <RecognitionEmblem event={a.event} place={a.rank.place} suffix={a.rank.suffix} />}
               </div>
             </div>
           </div>
@@ -53,7 +53,7 @@ export function AchievementShowcase() {
           </h3>
           {/* Row 4: what was built. */}
           <p className="ach-project pt-1.5 text-fg-soft">{a.project}</p>
-          {/* Row 5: one sentence, Detailed View only. */}
+          {/* Row 5: one sentence. */}
           <p className="ach-desc max-w-md pt-4 text-[0.95rem] leading-relaxed text-fg-muted">{a.summary}</p>
           {/* Row 6: actions, on a shared baseline. */}
           <div className="ach-actions relative z-[1] flex flex-wrap items-center gap-3 self-end pt-6">

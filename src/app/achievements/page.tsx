@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { TeamField, Podium } from "@/components/achievements/FieldViz";
+import { TeamField, RecognitionEmblem } from "@/components/achievements/FieldViz";
 import { achievements } from "@/content/credentials";
 import { TechChip } from "@/components/ui/TechChip";
 import { LinkedInProof } from "@/components/ui/LinkedInProof";
@@ -73,9 +73,9 @@ export default function AchievementsPage() {
                   )}
                 </div>
                 <div className="max-w-md">
-                  {i === 0 ? <TeamField total={320} qualified={130} shortlisted={20} place={6} /> : <Podium place={3} />}
+                  {i === 0 ? <TeamField total={320} qualified={130} shortlisted={20} place={6} /> : <RecognitionEmblem event={a.event} place={a.rank.place} suffix={a.rank.suffix} />}
                   <p className="mt-3 text-xs text-fg-muted">
-                    {i === 0 ? "Each dot is one team in a field of 320+: tinted dots mark the 130+ that qualified, bright dots the 20 shortlisted, and the large dot 6th place. Funnel bars use a square-root scale. Illustrative." : "Podium graphic, illustrative."}
+                    {i === 0 ? "Each dot is one team in a field of 320+: tinted dots mark the 130+ that qualified, bright dots the 20 shortlisted, and the large dot 6th place. Funnel bars use a square-root scale. Illustrative." : "A model pipeline whose data paths converge on the 3rd-place recognition. Illustrative."}
                   </p>
                 </div>
               </div>
