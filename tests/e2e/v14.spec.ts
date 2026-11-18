@@ -25,13 +25,19 @@ test.describe("hero: the statement is the second chapter", () => {
     await expect(page.locator(".hero-meta")).toContainText("Northeastern University");
     await expect(page.locator(".hero-logo")).toHaveCount(3);
     expect(await page.locator(".pswap").first().getAttribute("data-intro")).not.toBe("done");
+    // Positions inside the identity row (which carries the scroll parallax), with
+    // the portrait's own entrance transform taken out: what is left is layout.
     const geo = () =>
-      page.evaluate(() => ({
-        name: document.querySelector(".hero-first")!.getBoundingClientRect().top,
-        // Layout position (the print also has its own entrance and hover tilts).
-        photo: (document.querySelector(".hero-portrait") as HTMLElement).offsetTop,
-        stage: document.querySelector(".hero-stage")!.getBoundingClientRect().height,
-      }));
+      page.evaluate(() => {
+        const row = document.querySelector(".hero-identity")!.getBoundingClientRect().top;
+        const portrait = document.querySelector<HTMLElement>(".hero-portrait")!;
+        const ty = new DOMMatrixReadOnly(getComputedStyle(portrait).transform === "none" ? undefined : getComputedStyle(portrait).transform).m42;
+        return {
+          name: document.querySelector(".hero-first")!.getBoundingClientRect().top - row,
+          photo: portrait.getBoundingClientRect().top - row - ty,
+          stage: document.querySelector(".hero-stage")!.getBoundingClientRect().height,
+        };
+      });
     const before = await geo();
     expect((await statementOpacity(page)).every((o) => o === 0)).toBe(true);
     // The statement is in the accessibility tree all along.
