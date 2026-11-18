@@ -4,14 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
-import { ViewSwitch } from "./ViewSwitch";
-import dynamic from "next/dynamic";
-import { MORE_KEYS, MORE_NAV, PRIMARY_NAV, type NavKey } from "@/lib/nav";
+import { NAV, type NavKey } from "@/lib/nav";
 import { useActiveNav } from "@/lib/useActiveNav";
-
-// Neither the coach mark nor Floating UI is needed for first paint: load them on demand.
-const ViewCoachMark = dynamic(() => import("./ViewCoachMark").then((m) => m.ViewCoachMark), { ssr: false });
-const COACH_BODY_ID = "view-coach-body";
 import { Monogram } from "@/components/ui/Monogram";
 import { profile } from "@/content/profile";
 import { useFocusTrap } from "@/lib/useFocusTrap";
@@ -21,8 +15,10 @@ const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayout
 /**
  * Floating liquid-glass navigation. Expanded at the top of the page, it
  * condenses as the visitor scrolls. A single indicator glides between links
- * (following hover, resting on the current page). Below xl it becomes a
- * compact capsule whose menu unfolds from the capsule itself.
+ * (following hover, resting on the current section or page). The eight
+ * items follow the homepage's section order. Below xl, or whenever they do
+ * not fit, it becomes a compact capsule whose labelled menu unfolds from the
+ * capsule itself and lists the same items in the same order.
  */
 type IslandState = "expanded" | "compact";
 
@@ -50,11 +46,6 @@ export function SiteNav() {
   const activeKey = useActiveNav(pathname);
   const isHome = pathname === "/";
   const isActive = useCallback((key: NavKey) => key === activeKey, [activeKey]);
-  const moreActive = activeKey !== null && MORE_KEYS.has(activeKey);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [coachOpen, setCoachOpen] = useState(false);
-  const moreBtnRef = useRef<HTMLButtonElement>(null);
-  const morePanelRef = useRef<HTMLDivElement>(null);
 
   // State machine: expanded at the top, compact once scrolled (with hysteresis so
   // small scroll jitter or rapid direction changes never flicker between states).
@@ -94,8 +85,8 @@ export function SiteNav() {
       const cs = getComputedStyle(glass);
       // Compact chrome: 6px side padding (see .island[data-island="compact"]) plus borders.
       const chrome = 12 + parseFloat(cs.borderLeftWidth) * 2;
-      // Compact = monogram + link list + actions (view switch, theme), measured
-      // from the DOM. Ask My AI lives in the floating launcher, not here.
+      // Compact = monogram + link list + the theme toggle, measured from the
+      // DOM. Ask My AI lives in the floating launcher, not here.
       const part = (name: string) => glass.querySelector<HTMLElement>(`[data-island-part="${name}"]`)!;
       const pad = (el: HTMLElement) => {
         const c = getComputedStyle(el);
@@ -105,12 +96,9 @@ export function SiteNav() {
       const actions = part("actions");
       const mono = brand.querySelector<HTMLElement>(".ss-mark")!;
       const toggle = actions.querySelector<HTMLElement>("[aria-label^='Switch to']")!;
-      const view = actions.querySelector<HTMLElement>("[data-island-part='view']");
-      const actionGap = parseFloat(getComputedStyle(actions).columnGap || "0");
       const compactParts =
         mono.getBoundingClientRect().width + pad(brand) +
         list.getBoundingClientRect().width +
-        (view ? view.getBoundingClientRect().width + actionGap : 0) +
         toggle.getBoundingClientRect().width;
       // Compact gap is 4px between the three parts.
       const gaps = 4 * 2;
@@ -157,10 +145,10 @@ export function SiteNav() {
     if (!list) return;
     const target =
       (hovered && list.querySelector<HTMLElement>(`[data-key="${hovered}"]`)) ||
-      Array.from(list.querySelectorAll<HTMLElement>("[data-key]")).find((a) => (a.dataset.key === "more" ? moreActive : isActive(a.dataset.key as NavKey)));
+      Array.from(list.querySelectorAll<HTMLElement>("[data-key]")).find((a) => isActive(a.dataset.key as NavKey));
     if (!target) return setIndicator((s) => ({ ...s, visible: false }));
     setIndicator({ x: target.offsetLeft, w: target.offsetWidth, visible: true });
-  }, [hovered, isActive, moreActive]);
+  }, [hovered, isActive]);
   useIsoLayoutEffect(() => {
     measureIndicator();
   }, [measureIndicator, state]);
@@ -182,45 +170,7 @@ export function SiteNav() {
   if (pathname !== lastPath) {
     setLastPath(pathname);
     if (open) setOpen(false);
-    if (moreOpen) setMoreOpen(false);
   }
-
-  // "More" dropdown: anchored to its button with Floating UI, closes on Escape,
-  // outside press or navigation; focus returns to the button on Escape.
-  useEffect(() => {
-    if (!moreOpen) return;
-    const btn = moreBtnRef.current;
-    const panel = morePanelRef.current;
-    if (!btn || !panel) return;
-    let stop = () => {};
-    let cancelled = false;
-    void import("@floating-ui/dom").then(({ autoUpdate, computePosition, flip, offset, shift }) => {
-      if (cancelled) return;
-      stop = autoUpdate(btn, panel, () => {
-        computePosition(btn, panel, { placement: "bottom-end", strategy: "fixed", middleware: [offset(14), flip(), shift({ padding: 12 })] }).then(({ x, y }) => {
-          Object.assign(panel.style, { left: `${x}px`, top: `${y}px` });
-        });
-      });
-    });
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setMoreOpen(false);
-        btn.focus();
-      }
-    };
-    const onDown = (e: PointerEvent) => {
-      const t = e.target as Node;
-      if (!panel.contains(t) && !btn.contains(t)) setMoreOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("pointerdown", onDown);
-    return () => {
-      cancelled = true;
-      stop();
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("pointerdown", onDown);
-    };
-  }, [moreOpen]);
 
   useEffect(() => {
     if (!open) return;
@@ -253,8 +203,7 @@ export function SiteNav() {
         <Link
           href="/"
           data-island-part="brand"
-          data-active={activeKey === "home" || undefined}
-          aria-current={isHome && activeKey === "home" ? "page" : undefined}
+          aria-current={isHome ? "page" : undefined}
           className="island-brand group flex shrink-0 items-center rounded-full"
           aria-label="Sreevarshan Sathiyamurthy - Home"
         >
@@ -275,7 +224,7 @@ export function SiteNav() {
                 opacity: indicator.visible ? 1 : 0,
               }}
             />
-            {PRIMARY_NAV.map((l) => {
+            {NAV.map((l) => {
               const active = isActive(l.key);
               return (
                 <li key={l.key}>
@@ -296,33 +245,10 @@ export function SiteNav() {
                 </li>
               );
             })}
-            <li>
-              <button
-                ref={moreBtnRef}
-                type="button"
-                data-key="more"
-                aria-expanded={moreOpen}
-                aria-controls="more-menu"
-                aria-current={moreActive ? "true" : undefined}
-                onClick={() => setMoreOpen((o) => !o)}
-                onMouseEnter={() => setHovered("more" as NavKey)}
-                onFocus={() => setHovered("more" as NavKey)}
-                onBlur={() => setHovered(null)}
-                className={`relative z-[1] flex items-center gap-1 whitespace-nowrap rounded-full px-3.5 py-2 text-[0.86rem] transition-colors duration-300 ${
-                  moreActive || moreOpen ? "text-fg" : "text-fg-muted hover:text-fg"
-                }`}
-              >
-                More
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true" className={`transition-transform duration-300 ${moreOpen ? "rotate-180" : ""}`}>
-                  <path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </li>
           </ul>
         </nav>
 
         <div data-island-part="actions" className="island-actions flex shrink-0 items-center gap-1.5">
-          {isHome && <ViewSwitch describedBy={coachOpen ? COACH_BODY_ID : undefined} />}
           <ThemeToggle className="island-btn shrink-0 !border-transparent hover:!border-line" />
           <button
             ref={buttonRef}
@@ -341,45 +267,6 @@ export function SiteNav() {
         </div>
       </div>
 
-      {isHome && <ViewCoachMark suspended={open || moreOpen} onOpenChange={setCoachOpen} />}
-
-      {/* Desktop "More" dropdown. */}
-      <div
-        id="more-menu"
-        ref={morePanelRef}
-        hidden={!moreOpen}
-        className="more-panel glass pointer-events-auto fixed z-50 w-[248px] rounded-[22px] p-2"
-        data-dense="true"
-      >
-        <nav aria-label="More">
-          <ul className="grid gap-0.5">
-            {MORE_NAV.map((l) => {
-              const external = "external" in l;
-              const active = !external && isActive(l.key as NavKey);
-              return (
-                <li key={l.key}>
-                  {external ? (
-                    <a href={l.href} target="_blank" rel="noopener noreferrer" className="more-item" onClick={() => setMoreOpen(false)}>
-                      <span className="flex items-center gap-2.5">
-                        {/* eslint-disable-next-line @next/next/no-img-element -- 1 KB static brand SVG */}
-                        <img src="/tech/tableau.svg" alt="" width={16} height={16} className="h-4 w-4" />
-                        {l.label}
-                      </span>
-                      <span aria-hidden="true" className="text-fg-muted">↗</span>
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </a>
-                  ) : (
-                    <Link href={l.href} className="more-item" data-active={active || undefined} aria-current={active ? (isHome ? "location" : "page") : undefined} onClick={() => setMoreOpen(false)}>
-                      {l.label}
-                    </Link>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      </div>
-
       {/* Compact menu: unfolds from the capsule. */}
       <div
         id="site-menu"
@@ -394,25 +281,16 @@ export function SiteNav() {
       >
         <nav aria-label="Site">
           <ul className="grid grid-cols-2 gap-1">
-            {[{ key: "home" as NavKey, href: "/", label: "Home" }, ...PRIMARY_NAV, ...MORE_NAV].map((l, i) => {
-              const external = "external" in l;
-              const active = !external && isActive(l.key as NavKey);
+            {NAV.map((l, i) => {
+              const active = isActive(l.key);
               const cls = `flex min-h-12 items-center justify-between rounded-2xl px-4 text-[1.02rem] transition-colors ${
                 active ? "bg-accent-soft text-fg" : "text-fg-soft hover:bg-[var(--glass-lo)] hover:text-fg"
               }`;
               return (
                 <li key={l.key} style={{ animation: open ? `menu-item 520ms ${60 + i * 28}ms var(--ease-out) both` : undefined }}>
-                  {external ? (
-                    <a href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className={cls}>
-                      {l.label}
-                      <span aria-hidden="true" className="text-fg-muted">↗</span>
-                      <span className="sr-only"> (opens in a new tab)</span>
-                    </a>
-                  ) : (
-                    <Link href={l.href} onClick={() => setOpen(false)} aria-current={active ? (isHome ? "location" : "page") : undefined} className={cls}>
-                      {l.label}
-                    </Link>
-                  )}
+                  <Link href={l.href} onClick={() => setOpen(false)} aria-current={active ? (isHome ? "location" : "page") : undefined} className={cls}>
+                    {l.label}
+                  </Link>
                 </li>
               );
             })}

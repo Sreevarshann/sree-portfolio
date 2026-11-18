@@ -1,57 +1,55 @@
-import { profile } from "@/content/profile";
-
 /**
- * The single navigation registry. Every destination, the primary/More split,
- * which route owns which item, and which homepage section maps to which item
- * are defined here - never inferred from titles or substrings.
+ * The single navigation registry. The items follow the order of the
+ * homepage sections exactly, and each one points at its section on the
+ * homepage (`/#id`). Which route owns which item, and which homepage section
+ * maps to which item, are defined here - never inferred from titles.
  */
-export type NavKey = "home" | "about" | "experience" | "projects" | "achievements" | "education" | "certifications" | "lab" | "contact" | "ask";
+export type NavKey = "about" | "achievements" | "education" | "experience" | "tools" | "projects" | "certifications" | "contact";
 
 export type NavItem = { key: NavKey; href: string; label: string };
-export type ExternalItem = { key: "tableau"; href: string; label: string; external: true };
 
-export const PRIMARY_NAV: NavItem[] = [
-  { key: "about", href: "/about", label: "About" },
-  { key: "experience", href: "/experience", label: "Experience" },
-  { key: "projects", href: "/projects", label: "Projects" },
-  { key: "achievements", href: "/achievements", label: "Achievements" },
+/** Homepage order: About (the hero), Achievements, Education, Experience, Tech Stack, Projects, Certifications, Contact. */
+export const NAV: NavItem[] = [
+  { key: "about", href: "/#about", label: "About" },
+  { key: "achievements", href: "/#achievements", label: "Achievements" },
+  { key: "education", href: "/#education", label: "Education" },
+  { key: "experience", href: "/#experience", label: "Experience" },
+  { key: "tools", href: "/#tools", label: "Tech Stack" },
+  { key: "projects", href: "/#projects", label: "Projects" },
+  { key: "certifications", href: "/#certifications", label: "Certifications" },
+  { key: "contact", href: "/#contact", label: "Contact" },
 ];
 
-export const MORE_NAV: (NavItem | ExternalItem)[] = [
-  { key: "education", href: "/education", label: "Education" },
-  { key: "certifications", href: "/certifications", label: "Certifications" },
-  { key: "lab", href: "/lab", label: "Lab" },
-  { key: "contact", href: "/contact", label: "Contact" },
-  { key: "tableau", href: profile.links.tableau, label: "Tableau Public", external: true },
-];
+/** Dedicated pages and the item that owns them (nested routes inherit: /projects/x → Projects). */
+const ROUTE_OWNER: Record<string, NavKey> = {
+  "/about": "about",
+  "/achievements": "achievements",
+  "/education": "education",
+  "/experience": "experience",
+  "/projects": "projects",
+  "/certifications": "certifications",
+  "/contact": "contact",
+};
 
-export const MORE_KEYS = new Set<NavKey>(MORE_NAV.filter((i): i is NavItem => !("external" in i)).map((i) => i.key));
-
-/** Which item a route belongs to (nested routes inherit: /projects/x → Projects). */
 export function navKeyForPath(pathname: string): NavKey | null {
-  if (pathname === "/") return "home";
   const first = "/" + (pathname.split("/")[1] ?? "");
-  const all = [...PRIMARY_NAV, ...MORE_NAV.filter((i): i is NavItem => !("external" in i))];
-  const hit = all.find((i) => i.href === first);
-  if (hit) return hit.key;
-  if (first === "/ask") return "ask";
-  return null;
+  return ROUTE_OWNER[first] ?? null;
 }
 
 /**
  * Homepage sections → navigation item. Sections carry `data-nav-section` with
- * one of these ids; the island highlights the owner of the section under the
- * activation line.
+ * one of these ids (and the same `id`, so `/#id` links land on them); the
+ * island highlights the owner of the section under the activation line.
  */
 export const HOME_SECTIONS = {
-  hero: "home",
+  about: "about",
   achievements: "achievements",
   education: "education",
-  certifications: "certifications",
   experience: "experience",
-  tools: "about", // the stack lives under About (#skills)
+  tools: "tools",
   projects: "projects",
+  certifications: "certifications",
   contact: "contact",
-} as const satisfies Record<string, NavKey>;
+} as const satisfies Record<NavKey, NavKey>;
 
 export type HomeSection = keyof typeof HOME_SECTIONS;
